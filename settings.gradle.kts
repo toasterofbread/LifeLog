@@ -25,3 +25,4 @@ rootProject.name = "lifelog"
 include(":specification")
 include(":api")
 include(":application")
+include(":extension:media")

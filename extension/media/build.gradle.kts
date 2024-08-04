@@ -11,9 +11,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(libs.markdown)
-                implementation(libs.kotlinx.datetime)
-//                implementation(libs.kotlinx.serialization.json)
+                implementation(projects.specification)
             }
         }
     }
@@ -21,12 +19,12 @@ kotlin {
 
 val projectName: String = libs.versions.project.name.get()
 val projectVersion: String = project.libs.versions.project.name.get()
-val artifactName: String = "specification"
+val artifactName: String = "media"
 
 android {
-    namespace = "dev.toastbits.$projectName.$artifactName"
+    namespace = "dev.toastbits.$projectName.extension.$artifactName"
 }
 
 mavenPublishing {
-    coordinates("dev.toastbits.$projectName", artifactName, projectVersion)
+    coordinates("dev.toastbits.$projectName.extension", artifactName, projectVersion)
 }

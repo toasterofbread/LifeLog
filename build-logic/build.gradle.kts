@@ -15,4 +15,5 @@ dependencies {
     implementation(libs.kotlin.compose.plugin)
     implementation(libs.compose.plugin)
     implementation(libs.vanniktech.publish.plugin)
+    implementation(libs.mokkery.plugin)
 }

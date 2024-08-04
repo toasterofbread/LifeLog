@@ -11,6 +11,13 @@ compose = "1.6.11"
 agp = "8.3.2"
 vanniktech-publish = "0.29.0"
 ktor = "3.0.0-beta-2"
+
+mokkery = "2.1.1"
+assertk = "0.28.1"
+
+kotlinx-datetime = "0.6.0"
+markdown = "0.7.3"
+#kotlinx-serialization-json = "1.7.1"
 androidx-activity-compose = "1.9.1"
 
 [libraries]
@@ -21,10 +28,18 @@ kotlin-compose-plugin = { module = "org.jetbrains.kotlin.plugin.compose:org.jetb
 vanniktech-publish-plugin = { module = "com.vanniktech:gradle-maven-publish-plugin", version.ref = "vanniktech-publish" }
 ktor-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
+markdown = { module = "org.jetbrains:markdown", version.ref = "markdown" }
+#kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization-json" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity-compose" }
+
+mokkery-plugin = { module = "dev.mokkery:dev.mokkery.gradle.plugin", version.ref = "mokkery" }
+assertk = { module = "com.willowtreeapps.assertk:assertk", version.ref = "assertk" }
 
 [plugins]
 kotlin = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 publish = { id = "com.vanniktech.maven.publish", version.ref = "vanniktech-publish" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 android-application = { id = "com.android.application", version.ref = "agp" }
+
+#kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

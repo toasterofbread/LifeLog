@@ -8,6 +8,7 @@ plugins {
     id("android-library-conventions")
 
     kotlin("multiplatform")
+    id("dev.mokkery")
 }
 
 kotlin {
@@ -38,6 +39,15 @@ kotlin {
             withLinuxArm64()
             withMingwX64()
             withWasmJs()
+        }
+    }
+
+    sourceSets {
+        commonTest {
+            dependencies {
+                implementation(kotlin("test"))
+                implementation(libs.library("assertk"))
+            }
         }
     }
 }
