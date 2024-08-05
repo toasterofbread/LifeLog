@@ -18,7 +18,6 @@ import kotlin.test.Test
 class MarkdownUserContentParserTest {
     private lateinit var parser: MarkdownUserContentParser
     private lateinit var referenceParser: LogEntityReferenceParser
-    private val testReference: MediaReferenceImpl = MediaReferenceImpl(MediaEntityType.MOVIE, "転生王女と天才令嬢の魔法革命")
 
     @BeforeTest
     fun setUp() {
@@ -26,39 +25,32 @@ class MarkdownUserContentParserTest {
         referenceParser = LogEntityReferenceParserImpl(eventTypes = emptyList(), referenceTypes = listOf(MediaReferenceType()))
     }
 
-    @Test
-    fun testValidMarkdown() {
-        val text: String = """
+    private fun String.inTemplate(): String =
+        """
 ----- 02 July 2024
-
 Watched 転生王女と天才令嬢の魔法革命 (first watch, eps 1-5) {
-    Gay people stay winning [Test!](/media/${testReference.mediaType.name}/${testReference.mediaId})
-}
-
------ 04 August 2024
-
-Watched 転生王女と天才令嬢の魔法革命 (first watch, eps 6-12) {
+    $this
 }
         """
 
-        val renderedText: String = """
------ 02 July 2024
+    private fun String.parse(): UserContent =
+        parser.parseUserContent(this, referenceParser) { alert, _ -> assertThat(alert).isNull() }
 
-Watched 転生王女と天才令嬢の魔法革命 (first watch, eps 1-5) {
-    Gay people stay winning Test!
-}
-
------ 04 August 2024
-
-Watched 転生王女と天才令嬢の魔法革命 (first watch, eps 6-12) {
-}
-        """
-
-        val parsed: UserContent =
-            parser.parseUserContent(text, referenceParser) { alert -> assertThat(alert).isNull() }
-
+    private fun parseAndTest(text: String, renderedText: String): UserContent {
+        val parsed: UserContent = text.parse()
         assertThat(parsed.asText()).isEqualTo(renderedText)
         assertThat(parsed).isEqualTo(parsed.normalised())
+        return parsed.normalised()
+    }
+
+    @Test
+    fun testEntityReference() {
+        val testReference: MediaReferenceImpl = MediaReferenceImpl(MediaEntityType.MOVIE_OR_SHOW, "転生王女と天才令嬢の魔法革命")
+
+        val text: String = "Hello [World!](/media/${testReference.mediaType.name}/${testReference.mediaId})".inTemplate()
+        val renderedText: String = "Hello World!".inTemplate()
+
+        val parsed: UserContent = parseAndTest(text, renderedText)
 
         assertThat(parsed.parts).hasSize(3)
 
@@ -67,5 +59,40 @@ Watched 転生王女と天才令嬢の魔法革命 (first watch, eps 6-12) {
 
         assertThat(parsed.parts[1].modifiers).hasSize(1)
         assertThat(parsed.parts[1].modifiers.single()).isEqualTo(UserContent.Modifier.Reference(testReference))
+    }
+
+    @Test
+    fun testTextFormatting() {
+        val text: String = "Normal *Italic* **Bold** ***Both*** `Code`"
+        val renderedText: String = "Normal Italic Bold Both Code"
+
+        val expectedParts: List<UserContent.Part.Single> =
+            listOf(
+                UserContent.Part.Single("Normal "),
+                UserContent.Part.Single("Italic", setOf(UserContent.Modifier.Italic)),
+                UserContent.Part.Single(" "),
+                UserContent.Part.Single("Bold", setOf(UserContent.Modifier.Bold)),
+                UserContent.Part.Single(" "),
+                UserContent.Part.Single("Both", setOf(UserContent.Modifier.Bold, UserContent.Modifier.Italic)),
+                UserContent.Part.Single(" "),
+                UserContent.Part.Single("Code", setOf(UserContent.Modifier.Code)),
+            )
+
+        val parsed: UserContent = parseAndTest(text, renderedText)
+        assertThat(parsed.parts).isEqualTo(expectedParts)
+    }
+
+    @Test
+    fun testCodeBlock() {
+        val text: String = "```\nThis is a code block\n```"
+        val renderedText: String = "This is a code block"
+
+        val expectedParts: List<UserContent.Part.Single> =
+            listOf(
+                UserContent.Part.Single("This is a code block", setOf(UserContent.Modifier.CodeBlock))
+            )
+
+        val parsed: UserContent = parseAndTest(text, renderedText)
+        assertThat(parsed.parts).isEqualTo(expectedParts)
     }
 }

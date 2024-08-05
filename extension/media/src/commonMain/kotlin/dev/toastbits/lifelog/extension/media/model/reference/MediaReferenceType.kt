@@ -17,20 +17,37 @@ class MediaReferenceType: LogEntityReferenceType<MediaReference> {
     override val prefixes: List<String> =
         Prefixes.entries.map { '/' + it.name }
 
+    enum class MediaEntityTypePrefixes {
+        MOVIE, FILM,
+        SHOW, SERIES,
+        BOOK, NOVEL,
+        GAME,
+        SONG, MUSIC;
+
+        fun getMediaEntityType(): MediaEntityType =
+            when (this) {
+                MOVIE, FILM,
+                SHOW, SERIES -> MediaEntityType.MOVIE_OR_SHOW
+                BOOK, NOVEL -> MediaEntityType.BOOK
+                GAME -> MediaEntityType.GAME
+                SONG, MUSIC -> MediaEntityType.SONG
+            }
+    }
+
     override fun parseReference(reference: String, prefixIndex: Int, onAlert: (LogParseAlert) -> Unit): MediaReference? {
         val parts: List<String> = reference.split('/').drop(1)
 
         when (Prefixes.entries[prefixIndex]) {
             Prefixes.MEDIA -> {
                 if (parts.size != 2) {
-                    onAlert(LogParseAlert.InvalidReferenceFormat)
+                    onAlert(LogParseAlert.InvalidReferenceSize)
                     return null
                 }
 
                 val (mediaTypeName: String, mediaId: String) = parts
 
                 val mediaType: MediaEntityType? =
-                    MediaEntityType.entries.firstOrNull { it.name.lowercase() == mediaTypeName.lowercase() }
+                    MediaEntityTypePrefixes.entries.firstOrNull { it.name.lowercase() == mediaTypeName.lowercase() }?.getMediaEntityType()
 
                 if (mediaType == null) {
                     onAlert(LogParseAlert.InvalidReferenceFormat)

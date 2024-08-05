@@ -8,6 +8,6 @@ interface UserContentParser {
     fun parseUserContent(
         markdownText: String,
         referenceParser: LogEntityReferenceParser,
-        onAlert: (LogParseAlert) -> Unit
+        onAlert: (alert: LogParseAlert, line: Int) -> Unit
     ): UserContent
 }

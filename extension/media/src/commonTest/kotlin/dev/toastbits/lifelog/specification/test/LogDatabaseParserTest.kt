@@ -25,7 +25,7 @@ class LogDatabaseParserTest {
 ----- 02 July 2024
 
 Watched 転生王女と天才令嬢の魔法革命 (first watch, eps 1-5) {
-    Gay people stay winning [Test!](/media/転生王女と天才令嬢の魔法革命)
+    Gay people stay winning [Test!](/media/movie/転生王女と天才令嬢の魔法革命)
 }
 
 ----- 04 August 2024

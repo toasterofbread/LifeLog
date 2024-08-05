@@ -27,7 +27,7 @@ internal class LogDatabaseParser(
     private lateinit var alerts: MutableList<ParseAlertData>
 
     private lateinit var iterator: Iterator<String>
-    private var currentLineIndex: Int = 0
+    private var currentLineIndex: Int = -1
     private var currentDay: LogDate? = null
 
     private var lastDayTopLevelComment: IndexedValue<LogComment>? = null
@@ -35,8 +35,8 @@ internal class LogDatabaseParser(
     private fun hasNext(): Boolean = iterator.hasNext()
     private fun goNext(): String = iterator.next().also { currentLineIndex++ }
 
-    private fun onAlert(error: LogParseAlert) {
-        alerts.add(ParseAlertData(error, currentLineIndex))
+    private fun onAlert(error: LogParseAlert, line: Int = currentLineIndex) {
+        alerts.add(ParseAlertData(error, line))
     }
 
     private fun String.extractComment(): Pair<String, UserContent?> {
@@ -56,7 +56,7 @@ internal class LogDatabaseParser(
         days = mutableMapOf()
         alerts = mutableListOf()
         iterator = lines.iterator()
-        currentLineIndex = 0
+        currentLineIndex = -1
         currentDay = null
 
         while (hasNext()) {
@@ -114,8 +114,13 @@ internal class LogDatabaseParser(
         return null
     }
 
-    private fun parseUserContent(text: String): UserContent {
-        return userContentParser.parseUserContent(text, referenceParser, onAlert = ::onAlert)
+    private fun parseUserContent(text: String, lineOffset: Int = 0): UserContent {
+        val newLines: Int = text.count { it == '\n' }
+        return userContentParser.parseUserContent(
+            text,
+            referenceParser,
+            onAlert = { alert, line -> onAlert(alert, currentLineIndex + line - newLines + lineOffset) }
+        )
     }
 
     private fun onDateLine(date: LocalDate?, commentContent: UserContent?) {
@@ -124,7 +129,7 @@ internal class LogDatabaseParser(
             return
         }
 
-        currentDay = LogDateImpl(date, initialComments = listOfNotNull(commentContent))
+        currentDay = LogDateImpl(date, comments = listOfNotNull(commentContent))
         getDayEvents()
     }
 
@@ -141,7 +146,7 @@ internal class LogDatabaseParser(
                 }
 
                 getDayEvents().remove(lastComment.value)
-                return@let lastDayTopLevelComment!!.value.comments.value
+                return@let lastDayTopLevelComment!!.value.comments
             }.orEmpty()
 
         val metadataStart: Int = line.indexOf(formats.eventMetadataStart)
@@ -156,7 +161,7 @@ internal class LogDatabaseParser(
             }
 
             body = line.substring(0, metadataStart).trim()
-            metadata = line.substring(metadataStart, metadataEnd).trim()
+            metadata = line.substring(metadataStart + 1, metadataEnd).trim()
         }
         else {
             metadata = null
@@ -201,10 +206,10 @@ internal class LogDatabaseParser(
         }
 
         val content: UserContent =
-            parseUserContent(contentLines.joinToString("\n").trimIndent())
+            parseUserContent(contentLines.joinToString("\n").trimIndent(), -1)
 
-        val event: LogEvent = eventType.parseEvent(eventPrefixIndex, body, metadata, content)
-        event.comments.value += comments
+        val event: LogEvent = eventType.parseEvent(eventPrefixIndex, body, metadata, content, ::onAlert)
+        event.comments += comments
 
         getDayEvents().add(event)
     }

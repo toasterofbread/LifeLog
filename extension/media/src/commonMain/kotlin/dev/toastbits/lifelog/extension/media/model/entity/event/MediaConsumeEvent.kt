@@ -2,13 +2,22 @@ package dev.toastbits.lifelog.extension.media.model.entity.event
 
 import dev.toastbits.lifelog.extension.media.model.reference.MediaReference
 import dev.toastbits.lifelog.extension.media.util.MediaStringId
+import dev.toastbits.lifelog.specification.model.UserContent
+import dev.toastbits.lifelog.specification.model.entity.LogEntity
+import dev.toastbits.lifelog.specification.model.entity.LogEntityCompanion
 import dev.toastbits.lifelog.specification.model.entity.LogEntityProperty
+import dev.toastbits.lifelog.specification.model.entity.LogEntityPropertyData
 import dev.toastbits.lifelog.specification.model.entity.event.LogEvent
 
 interface MediaConsumeEvent: LogEvent {
-    val mediaReference: LogEntityProperty<MediaReference, MediaStringId>
+    var mediaReference: MediaReference
+    var iteration: Int
 
-    class MediaReferenceProperty(override var value: MediaReference) : LogEntityProperty<MediaReference, MediaStringId> {
-        override val name: MediaStringId get() = MediaStringId.Property.MediaConsumeEvent.MEDIA_REFERENCE
+    companion object: LogEntityCompanion<MediaConsumeEvent>(LogEvent) {
+        override fun getAllProperties(): List<LogEntity.Property<*, *>> =
+            listOf(
+                MediaStringId.Property.MediaConsumeEvent.MEDIA_REFERENCE.property { mediaReference },
+                MediaStringId.Property.MediaEntity.ITERATION.property { iteration }
+            )
     }
 }

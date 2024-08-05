@@ -14,7 +14,7 @@ class MarkdownUserContentParser: UserContentParser {
     override fun parseUserContent(
         markdownText: String,
         referenceParser: LogEntityReferenceParser,
-        onAlert: (LogParseAlert) -> Unit
+        onAlert: (alert: LogParseAlert, line: Int) -> Unit
     ): UserContent {
         val parts: MutableList<UserContent.Part> = mutableListOf()
 
@@ -23,14 +23,40 @@ class MarkdownUserContentParser: UserContentParser {
                 MarkdownParser(getFlavour()).buildMarkdownTreeFromString(markdownText)
             )
 
+        var currentLine: Int = 0
+
         fun getNodeParts(node: ASTNode): List<UserContent.Part> {
+            fun List<ASTNode>.getParts(): List<UserContent.Part> = flatMap { getNodeParts(it) }
+
             when (node.type.name) {
-                "PARAGRAPH" -> return node.children.flatMap { getNodeParts(it) }
-                "TEXT", "WHITE_SPACE" -> {
+                "PARAGRAPH" -> return node.children.getParts()
+                "TEXT", "WHITE_SPACE", "CODE_FENCE_CONTENT" -> {
                     val nodeText: String = node.getTextInNode(markdownText).toString()
                     return listOf(UserContent.Part.Single(nodeText))
                 }
-                "EOL" -> return listOf(UserContent.Part.Single("\n"))
+                "EOL" -> {
+                    currentLine++
+                    return listOf(UserContent.Part.Single("\n"))
+                }
+                "EMPH", "STRONG", "CODE_SPAN" -> {
+                    var children: List<ASTNode> = node.children
+
+                    val modifier: UserContent.Modifier =
+                        when (node.type.name) {
+                            "EMPH" -> UserContent.Modifier.Italic
+                            "STRONG" -> UserContent.Modifier.Bold
+                            "CODE_SPAN" -> {
+                                children = children.removeSides("BACKTICK", "BACKTICK")
+                                UserContent.Modifier.Code
+                            }
+                            else -> throw IllegalStateException(node.type.name)
+                        }
+                    return listOf(UserContent.Part.Composite(children.getParts(), setOf(modifier)))
+                }
+                "CODE_FENCE" -> {
+                    val children: List<ASTNode> = node.children.removeSides("CODE_FENCE_START", "CODE_FENCE_END").removeSides("EOL", "EOL")
+                    return listOf(UserContent.Part.Composite(children.getParts(), setOf(UserContent.Modifier.CodeBlock)))
+                }
                 "INLINE_LINK" -> {
                     var linkTextParts: List<UserContent.Part>? = null
                     var linkReference: LogEntityReference<*>? = null
@@ -42,15 +68,15 @@ class MarkdownUserContentParser: UserContentParser {
                                 linkTextParts = linkTextNodes.flatMap { getNodeParts(it) }
                             }
                             "LINK_DESTINATION" -> {
-                                linkReference = referenceParser.parseReference(linkChild.getTextInNode(markdownText).toString(), onAlert = onAlert)
+                                linkReference = referenceParser.parseReference(linkChild.getTextInNode(markdownText).toString(), onAlert = { onAlert(it, currentLine) })
                             }
                             "(", ")" -> {}
-                            else -> onAlert(LogParseAlert.UnhandledMarkdownNodeType(linkChild.type.name, "LINK"))
+                            else -> onAlert(node.toUnhandledAlert("LINK", markdownText), currentLine)
                         }
                     }
 
                     val referenceModifier: UserContent.Modifier? = linkReference?.let { UserContent.Modifier.Reference(it) }
-                    return listOf(UserContent.Part.Composite(linkTextParts.orEmpty(), listOfNotNull(referenceModifier)))
+                    return listOf(UserContent.Part.Composite(linkTextParts.orEmpty(), setOfNotNull(referenceModifier)))
                 }
                 else -> {
                     if (node.type.name.length == 1) {
@@ -58,7 +84,7 @@ class MarkdownUserContentParser: UserContentParser {
                         return listOf(UserContent.Part.Single(nodeText))
                     }
 
-                    onAlert(LogParseAlert.UnhandledMarkdownNodeType(node.type.name, "TOP"))
+                    onAlert(node.toUnhandledAlert("TOP", markdownText), currentLine)
                     return emptyList()
                 }
             }
@@ -72,6 +98,19 @@ class MarkdownUserContentParser: UserContentParser {
         }
 
         return UserContent(parts).normalised()
+    }
+
+    private fun ASTNode.toUnhandledAlert(scope: String, markdownText: String): LogParseAlert =
+        LogParseAlert.UnhandledMarkdownNodeType(type.name, startOffset, endOffset, scope, getTextInNode(markdownText).toString())
+
+    private fun List<ASTNode>.removeSides(startType: String, endType: String): List<ASTNode> {
+        if (firstOrNull()?.type?.name != startType) {
+            return this
+        }
+
+        return drop(1).run {
+            if (lastOrNull()?.type?.name == endType) dropLast(1) else this
+        }
     }
 
     private fun getFlavour(): MarkdownFlavourDescriptor = CommonMarkFlavourDescriptor()

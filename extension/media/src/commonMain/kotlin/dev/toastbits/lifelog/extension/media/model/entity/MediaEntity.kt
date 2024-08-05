@@ -1,10 +1,10 @@
 package dev.toastbits.lifelog.extension.media.model.entity
 
-import dev.toastbits.lifelog.extension.media.util.MediaStringId
 import dev.toastbits.lifelog.specification.model.entity.LogEntity
-import dev.toastbits.lifelog.specification.model.entity.LogEntityProperty
-import kotlin.time.Duration
+import dev.toastbits.lifelog.specification.model.entity.LogEntityCompanion
 
 sealed interface MediaEntity: LogEntity {
-    val iteration: LogEntityProperty<Int, MediaStringId>
+    companion object: LogEntityCompanion<MediaEntity>(LogEntity) {
+        override fun getAllProperties(): List<LogEntity.Property<*, *>> = emptyList()
+    }
 }
