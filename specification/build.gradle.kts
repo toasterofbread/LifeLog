@@ -12,7 +12,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(libs.markdown)
-                implementation(libs.kotlinx.datetime)
+                api(libs.kotlinx.datetime)
 //                implementation(libs.kotlinx.serialization.json)
             }
         }

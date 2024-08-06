@@ -47,7 +47,7 @@ Watched 転生王女と天才令嬢の魔法革命 (first watch, eps 1-5) {
     fun testEntityReference() {
         val testReference: MediaReferenceImpl = MediaReferenceImpl(MediaEntityType.MOVIE_OR_SHOW, "転生王女と天才令嬢の魔法革命")
 
-        val text: String = "Hello [World!](/media/${testReference.mediaType.name}/${testReference.mediaId})".inTemplate()
+        val text: String = "Hello [World!](/media/movie/${testReference.mediaId})".inTemplate()
         val renderedText: String = "Hello World!".inTemplate()
 
         val parsed: UserContent = parseAndTest(text, renderedText)
