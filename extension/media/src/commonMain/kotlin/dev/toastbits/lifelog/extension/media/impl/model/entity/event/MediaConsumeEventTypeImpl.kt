@@ -1,39 +1,40 @@
 package dev.toastbits.lifelog.extension.media.impl.model.entity.event
 
+import dev.toastbits.lifelog.extension.media.converter.MediaExtensionConverterFormats
 import dev.toastbits.lifelog.extension.media.impl.model.mapper.createConsumeEvent
 import dev.toastbits.lifelog.extension.media.impl.model.mapper.createReference
-import dev.toastbits.lifelog.extension.media.model.entity.event.BookMediaConsumeEvent
-import dev.toastbits.lifelog.extension.media.model.entity.event.GameMediaConsumeEvent
 import dev.toastbits.lifelog.extension.media.model.entity.event.MediaConsumeEvent
 import dev.toastbits.lifelog.extension.media.model.entity.event.MediaConsumeEventType
-import dev.toastbits.lifelog.extension.media.model.entity.event.MovieOrShowMediaConsumeEvent
-import dev.toastbits.lifelog.extension.media.model.entity.event.SongMediaConsumeEvent
 import dev.toastbits.lifelog.extension.media.model.reference.MediaReference
 import dev.toastbits.lifelog.extension.media.util.MediaEntityType
 import dev.toastbits.lifelog.extension.media.util.MediaStringId
 import dev.toastbits.lifelog.specification.converter.error.LogParseAlert
 import dev.toastbits.lifelog.specification.model.UserContent
 
-class MediaConsumeEventTypeImpl: MediaConsumeEventType {
+class MediaConsumeEventTypeImpl(
+    private val formats: MediaExtensionConverterFormats
+): MediaConsumeEventType {
     override val name: MediaStringId = MediaStringId.MediaExtension.NAME
 
-    enum class Prefix {
-        WATCHED,
-        READ,
-        PLAYED,
-        LISTENED_TO;
-
-        fun getEntityType(): MediaEntityType =
-            when (this) {
-                WATCHED -> MediaEntityType.MOVIE_OR_SHOW
-                READ -> MediaEntityType.BOOK
-                PLAYED -> MediaEntityType.GAME
-                LISTENED_TO -> MediaEntityType.SONG
-            }
-    }
-
     override val prefixes: List<String> =
-        Prefix.entries.map { it.name.replace('_', ' ') }
+        MediaEntityType.entries.flatMap { entityType ->
+            formats.getMediaEntityTypeConsumeEventPrefixes(entityType).map { it.lowercase() }
+        }
+
+    private fun getPrefixIndexMediaEntityType(index: Int): MediaEntityType {
+        var currentIndex: Int = index
+        for (entityType in MediaEntityType.entries) {
+            if (currentIndex <= 0) {
+                return entityType
+            }
+            currentIndex -= formats.getMediaEntityTypeConsumeEventPrefixes(entityType).size
+        }
+        if (currentIndex <= 0) {
+            return MediaEntityType.entries.last()
+        }
+
+        throw IllegalStateException(index.toString())
+    }
 
     override fun parseEvent(
         prefixIndex: Int,
@@ -42,14 +43,14 @@ class MediaConsumeEventTypeImpl: MediaConsumeEventType {
         content: UserContent,
         onAlert: (LogParseAlert) -> Unit
     ): MediaConsumeEvent {
-        val entityType: MediaEntityType = Prefix.entries[prefixIndex].getEntityType()
+        val entityType: MediaEntityType = getPrefixIndexMediaEntityType(prefixIndex)
         val mediaReference: MediaReference = entityType.createReference(body.trim())
 
         val event: MediaConsumeEvent = entityType.createConsumeEvent(mediaReference)
         event.content = content
 
         if (metadata != null) {
-            applyEventMetadata(metadata, event, onAlert)
+            applyEventMetadata(metadata, event, formats, onAlert)
         }
 
         return event
@@ -58,17 +59,26 @@ class MediaConsumeEventTypeImpl: MediaConsumeEventType {
     private fun applyEventMetadata(
         text: String,
         event: MediaConsumeEvent,
+        formats: MediaExtensionConverterFormats,
         onAlert: (LogParseAlert) -> Unit
     ) {
+        val iterationSuffixes: List<String> = formats.getMediaEntityTypeIterationSuffixes(event.mediaEntityType).map { it.lowercase() }
+
         val parts: List<String> = text.split(',').filter { it.isNotBlank() }
         for (part in parts) {
             val lowerPart: String = part.lowercase()
 
-            if (lowerPart.endsWith("watch")) {
-                val iterationText: String = lowerPart.dropLast(5).trimEnd()
+            for (suffix in iterationSuffixes) {
+                if (!lowerPart.endsWith(suffix)) {
+                    continue
+                }
+
+                val iterationText: String = lowerPart.dropLast(suffix.length).trimEnd()
                 applyEventIterationString(iterationText, event, onAlert)
+                break
             }
-            else if (lowerPart.startsWith("ep ") || lowerPart.startsWith("eps ")) {
+
+            if (lowerPart.startsWith("ep ") || lowerPart.startsWith("eps ")) {
                 val epsText: String = lowerPart.split(' ', limit = 2).getOrNull(1).orEmpty()
                 applyEventEpisodesString(epsText, event, onAlert)
             }
@@ -85,20 +95,20 @@ class MediaConsumeEventTypeImpl: MediaConsumeEventType {
                 "1st",
                 "first" -> 1
                 "2nd",
-                "second" -> 1
+                "second" -> 2
                 "3rd",
-                "third" -> 1
-                "fourth" -> 1
-                "fifth" -> 1
-                "sixth" -> 1
-                "seventh" -> 1
-                "eighth" -> 1
-                "ninth" -> 1
-                "tenth" -> 1
+                "third" -> 3
+                "fourth" -> 4
+                "fifth" -> 5
+                "sixth" -> 6
+                "seventh" -> 7
+                "eighth" -> 8
+                "ninth" -> 9
+                "tenth" -> 10
                 else -> null
             }
 
-        if (number == null && text.endsWith("rd")) {
+        if (number == null && text.endsWith("th")) {
             number = text.dropLast(2).trimEnd().toIntOrNull()
         }
 

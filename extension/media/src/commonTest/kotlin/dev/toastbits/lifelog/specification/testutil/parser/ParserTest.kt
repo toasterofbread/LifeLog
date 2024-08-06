@@ -1,0 +1,57 @@
+package dev.toastbits.lifelog.specification.testutil.parser
+
+import assertk.assertThat
+import assertk.assertions.isEqualTo
+import assertk.assertions.isNull
+import dev.toastbits.lifelog.extension.media.MediaExtension
+import dev.toastbits.lifelog.extension.media.model.reference.MediaReferenceType
+import dev.toastbits.lifelog.specification.converter.LogDatabaseConverter
+import dev.toastbits.lifelog.specification.impl.converter.LogDatabaseConverterImpl
+import dev.toastbits.lifelog.specification.impl.converter.usercontent.MarkdownUserContentParser
+import dev.toastbits.lifelog.specification.impl.model.reference.LogEntityReferenceParserImpl
+import dev.toastbits.lifelog.specification.model.UserContent
+import dev.toastbits.lifelog.specification.model.reference.LogEntityReferenceParser
+import kotlinx.datetime.LocalDate
+import kotlin.test.BeforeTest
+
+open class ParserTest {
+    lateinit var parser: LogDatabaseConverter
+        private set
+    lateinit var markdownParser: MarkdownUserContentParser
+        private set
+    lateinit var referenceParser: LogEntityReferenceParser
+        private set
+
+    val mediaExtension: MediaExtension = MediaExtension()
+
+    @BeforeTest
+    fun setUp() {
+        parser = LogDatabaseConverterImpl()
+        parser.registerExtension(MediaExtension())
+
+        markdownParser = MarkdownUserContentParser()
+        referenceParser = LogEntityReferenceParserImpl(eventTypes = emptyList(), referenceTypes = listOf(
+            MediaReferenceType()
+        ))
+    }
+
+    val templateDate: LocalDate = LocalDate.parse("2024-07-02")
+
+    fun String.inTemplate(): String =
+        """
+----- 02 July 2024
+Watched 転生王女と天才令嬢の魔法革命 (first watch, eps 1-5) {
+    $this
+}
+        """
+
+    fun String.parse(): UserContent =
+        markdownParser.parseUserContent(this, referenceParser) { alert, _ -> assertThat(alert).isNull() }
+
+    fun parseAndTest(text: String, renderedText: String): UserContent {
+        val parsed: UserContent = text.parse()
+        assertThat(parsed.asText()).isEqualTo(renderedText)
+        assertThat(parsed).isEqualTo(parsed.normalised())
+        return parsed.normalised()
+    }
+}

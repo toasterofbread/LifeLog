@@ -12,6 +12,6 @@ interface LogDatabaseConverterFormats {
     val eventContentStart: String
     val eventContentEnd: String
 
-    val dateFormats: List<DateTimeFormat<LocalDate>>
     val preferredDateFormat: DateTimeFormat<LocalDate>
+    val dateFormats: List<DateTimeFormat<LocalDate>>
 }

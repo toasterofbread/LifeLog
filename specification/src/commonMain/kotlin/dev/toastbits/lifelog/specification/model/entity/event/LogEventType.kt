@@ -4,8 +4,8 @@ import dev.toastbits.lifelog.specification.converter.error.LogParseAlert
 import dev.toastbits.lifelog.specification.model.UserContent
 import dev.toastbits.lifelog.specification.util.StringId
 
-interface LogEventType<T: LogEvent, S: StringId> {
-    val name: S
+interface LogEventType<T: LogEvent> {
+    val name: StringId
     val prefixes: List<String>
 
     fun parseEvent(

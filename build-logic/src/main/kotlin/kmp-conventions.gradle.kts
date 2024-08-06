@@ -31,7 +31,7 @@ kotlin {
 
     applyDefaultHierarchyTemplate {
         common {
-            group("jvm") {
+            group("allJvm") {
                 withAndroidTarget()
                 withJvm()
             }

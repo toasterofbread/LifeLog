@@ -7,7 +7,7 @@ import dev.toastbits.lifelog.specification.model.reference.LogEntityReferencePar
 import dev.toastbits.lifelog.specification.model.reference.LogEntityReferenceType
 
 class LogEntityReferenceParserImpl(
-    private val eventTypes: List<LogEventType<*, *>>,
+    private val eventTypes: List<LogEventType<*>>,
     private val referenceTypes: List<LogEntityReferenceType<*>>
 ): LogEntityReferenceParser {
     override fun parseReference(
