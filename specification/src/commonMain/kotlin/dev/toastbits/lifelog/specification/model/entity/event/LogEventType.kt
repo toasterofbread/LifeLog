@@ -12,7 +12,7 @@ interface LogEventType<T: LogEvent> {
         prefixIndex: Int,
         body: String,
         metadata: String?,
-        content: UserContent,
+        content: UserContent?,
         onAlert: (LogParseAlert) -> Unit
     ): T
 }

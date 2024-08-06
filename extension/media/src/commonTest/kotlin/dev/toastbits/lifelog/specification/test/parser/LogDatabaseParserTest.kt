@@ -23,8 +23,10 @@ import dev.toastbits.lifelog.specification.database.LogDatabase
 import dev.toastbits.lifelog.specification.impl.converter.LogDatabaseConverterImpl
 import dev.toastbits.lifelog.specification.impl.converter.usercontent.MarkdownUserContentParser
 import dev.toastbits.lifelog.specification.impl.model.entity.date.LogDateImpl
+import dev.toastbits.lifelog.specification.impl.model.entity.event.LogCommentImpl
 import dev.toastbits.lifelog.specification.impl.model.reference.LogEntityReferenceParserImpl
 import dev.toastbits.lifelog.specification.model.UserContent
+import dev.toastbits.lifelog.specification.model.entity.date.LogDate
 import dev.toastbits.lifelog.specification.model.entity.event.LogEvent
 import dev.toastbits.lifelog.specification.model.reference.LogEntityReferenceParser
 import dev.toastbits.lifelog.specification.testutil.parser.ParserTest
@@ -70,6 +72,51 @@ class LogDatabaseParserTest: ParserTest() {
                 }
             }
         }
+    }
+
+    @Test
+    fun testComments() {
+
+        val text: String = """
+// Date comment
+----- 02 July 2024 // Inline date comment
+
+// Standalone comment
+
+// Event comment
+Watched Test Test Test (first watch, eps 1-5) { // Inline event comment
+    
+}
+
+// Standalone comment
+        """
+
+        val result: LogDatabaseConverter.ParseResult = parser.parseLogDatabase(text.split('\n'))
+        assertThat(result.alerts).isEmpty()
+
+        val (date: LogDate?, day: List<LogEvent>) = result.database.days.entries.single()
+        assertThat(date?.date).isEqualTo(LocalDate.parse("2024-07-02"))
+        assertThat(date?.comments).isEqualTo(
+            listOf(
+                UserContent.single("Date comment"), UserContent.single("Inline date comment")
+            )
+        )
+
+        assertThat(day).hasSize(3)
+
+        assertThat(day[0]).isEqualTo(
+            LogCommentImpl(UserContent.single("Standalone comment"))
+        )
+        assertThat(day[1]).isEqualTo(
+            MovieOrShowMediaConsumeEvent(
+                MovieOrShowMediaReference("Test Test Test"),
+                comments = listOf(UserContent.single("Event comment"), UserContent.single("Inline event comment"))
+            )
+        )
+        assertThat(day[2]).isEqualTo(
+            LogCommentImpl(UserContent.single("Standalone comment"))
+        )
+
     }
 
     @Test
@@ -129,7 +176,7 @@ Listened to $eventReference (12th listen) {
         val database: LogDatabase = result.database
         assertThat(database.days).hasSize(1)
 
-        val day: List<LogEvent>? = database.days[LogDateImpl(templateDate)]
+        val day: List<LogEvent>? = database.days[LogDateImpl(LocalDate.parse("2024-07-02"))]
         assertThat(day).isEqualTo(expectedEvents)
     }
 }

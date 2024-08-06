@@ -64,6 +64,8 @@ internal class LogDatabaseParser(
             parseTopLevelLine(line)
         }
 
+        days.entries.removeAll { it.value.isEmpty() }
+
         return ParseResultData(
             database =
                 object : LogDatabase {
@@ -79,7 +81,7 @@ internal class LogDatabaseParser(
         }
 
         if (line.startsWith(formats.commentPrefix)) {
-            val commentText: String = line.drop(formats.commentPrefix.length)
+            val commentText: String = line.drop(formats.commentPrefix.length).trimStart()
             onCommentLine(parseUserContent(commentText))
             return
         }
@@ -102,7 +104,19 @@ internal class LogDatabaseParser(
                     continue
                 }
 
-                onEventLine(eventType, index, line.drop(prefix.length).trim())
+                var eventLine: String = line.drop(prefix.length).trimStart()
+                val comment: UserContent?
+
+                val commentStart: Int = eventLine.indexOf(formats.commentPrefix)
+                if (commentStart != -1) {
+                    comment = parseUserContent(eventLine.substring(commentStart + formats.commentPrefix.length).trimStart())
+                    eventLine = eventLine.substring(0, commentStart).trimEnd()
+                }
+                else {
+                    comment = null
+                }
+
+                onEventLine(eventType, index, eventLine, comment)
                 return
             }
         }
@@ -129,31 +143,41 @@ internal class LogDatabaseParser(
         )
     }
 
+    private fun getLastTopLevelCommentIfAdjacent(): UserContent? =
+        lastDayTopLevelComment?.let { lastComment ->
+            if (lastComment.index != currentLineIndex - 1) {
+                return@let null
+            }
+
+            val events: MutableList<LogEvent> = getDayEvents()
+            check(events.contains(lastComment.value))
+            events.remove(lastComment.value)
+
+            return@let lastDayTopLevelComment!!.value.content
+        }
+
     private fun onDateLine(date: LocalDate?, commentContent: UserContent?) {
         if (date == null) {
             onAlert(LogParseAlert.MissingDateError)
             return
         }
 
-        currentDay = LogDateImpl(date, comments = listOfNotNull(commentContent))
+        val comments: List<UserContent> =
+            // If a top-level comment was placed directly above this date, make it this date's comment
+            listOfNotNull(getLastTopLevelCommentIfAdjacent(), commentContent)
+
+        currentDay = LogDateImpl(date, comments = comments)
         getDayEvents()
     }
 
-    private fun onEventLine(eventType: LogEventType<*>, eventPrefixIndex: Int, line: String) {
+    private fun onEventLine(eventType: LogEventType<*>, eventPrefixIndex: Int, line: String, inlineComment: UserContent?) {
         val body: String
         val metadata: String?
         val contentLines: MutableList<String> = mutableListOf()
 
         val comments: List<UserContent> =
             // If a top-level comment was placed directly above this event, make it this event's comment
-            lastDayTopLevelComment?.let { lastComment ->
-                if (lastComment.index != currentLineIndex - 1) {
-                    return@let null
-                }
-
-                getDayEvents().remove(lastComment.value)
-                return@let lastDayTopLevelComment!!.value.comments
-            }.orEmpty()
+            listOfNotNull(getLastTopLevelCommentIfAdjacent(), inlineComment)
 
         val metadataStart: Int = line.indexOf(formats.eventMetadataStart)
         val contentStart: Int = line.indexOf(formats.eventContentStart)
@@ -211,8 +235,8 @@ internal class LogDatabaseParser(
             }
         }
 
-        val content: UserContent =
-            parseUserContent(contentLines.joinToString("\n").trimIndent(), -1)
+        val content: UserContent? =
+            parseUserContent(contentLines.joinToString("\n").trimIndent(), -1).takeIf { it.isNotEmpty() }
 
         val event: LogEvent = eventType.parseEvent(eventPrefixIndex, body, metadata, content, ::onAlert)
         event.comments += comments

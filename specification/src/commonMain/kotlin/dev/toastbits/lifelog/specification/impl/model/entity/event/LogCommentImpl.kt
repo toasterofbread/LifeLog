@@ -6,7 +6,7 @@ import dev.toastbits.lifelog.specification.model.entity.LogEntityCompanion
 import dev.toastbits.lifelog.specification.model.entity.event.LogComment
 import dev.toastbits.lifelog.specification.model.entity.event.LogEvent
 
-class LogCommentImpl(
+data class LogCommentImpl(
     override var content: UserContent?,
     override var comments: List<UserContent> = emptyList()
 ): LogComment

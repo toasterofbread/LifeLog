@@ -13,6 +13,7 @@ data class UserContent(
 
         fun asText(): String
         fun withModifiers(modifiers: Set<Modifier>): Part
+        fun isNotEmpty(): Boolean
         
         data class Single(
             val text: String,
@@ -21,6 +22,7 @@ data class UserContent(
             override val parts: List<Part> get() = listOf(this)
             override fun asText(): String = text
             override fun withModifiers(modifiers: Set<Modifier>): Part = copy(modifiers = modifiers)
+            override fun isNotEmpty(): Boolean = text.isNotEmpty()
         }
 
         data class Composite(
@@ -29,6 +31,7 @@ data class UserContent(
         ): Part {
             override fun asText(): String = parts.joinToString("") { it.asText() }
             override fun withModifiers(modifiers: Set<Modifier>): Part = copy(modifiers = modifiers)
+            override fun isNotEmpty(): Boolean = parts.any { it.isNotEmpty() }
         }
     }
 
@@ -43,6 +46,14 @@ data class UserContent(
     fun asText(): String = parts.joinToString("") { it.asText() }
     
     fun normalised(): UserContent = UserContent(parts.normalised())
+
+    fun isNotEmpty(): Boolean =
+        parts.any { it.isNotEmpty() }
+
+    companion object {
+        fun single(text: String, modifiers: Set<Modifier> = emptySet()): UserContent =
+            UserContent(listOf(Part.Single(text, modifiers)))
+    }
 }
 
 private fun List<Part>.normalised(): List<Part> {

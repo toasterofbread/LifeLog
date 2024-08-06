@@ -40,7 +40,7 @@ class MediaConsumeEventTypeImpl(
         prefixIndex: Int,
         body: String,
         metadata: String?,
-        content: UserContent,
+        content: UserContent?,
         onAlert: (LogParseAlert) -> Unit
     ): MediaConsumeEvent {
         val entityType: MediaEntityType = getPrefixIndexMediaEntityType(prefixIndex)
