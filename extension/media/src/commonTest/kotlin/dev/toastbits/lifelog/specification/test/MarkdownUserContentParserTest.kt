@@ -5,7 +5,7 @@ import assertk.assertions.hasSize
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
-import dev.toastbits.lifelog.extension.media.impl.model.reference.MediaReferenceImpl
+import dev.toastbits.lifelog.extension.media.impl.model.reference.MovieOrShowMediaReference
 import dev.toastbits.lifelog.extension.media.model.reference.MediaReferenceType
 import dev.toastbits.lifelog.extension.media.util.MediaEntityType
 import dev.toastbits.lifelog.specification.impl.converter.usercontent.MarkdownUserContentParser
@@ -45,7 +45,7 @@ Watched 転生王女と天才令嬢の魔法革命 (first watch, eps 1-5) {
 
     @Test
     fun testEntityReference() {
-        val testReference: MediaReferenceImpl = MediaReferenceImpl(MediaEntityType.MOVIE_OR_SHOW, "転生王女と天才令嬢の魔法革命")
+        val testReference: MovieOrShowMediaReference = MovieOrShowMediaReference("転生王女と天才令嬢の魔法革命")
 
         val text: String = "Hello [World!](/media/movie/${testReference.mediaId})".inTemplate()
         val renderedText: String = "Hello World!".inTemplate()

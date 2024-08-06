@@ -5,11 +5,11 @@ import dev.toastbits.lifelog.extension.media.model.reference.MediaReference
 import dev.toastbits.lifelog.extension.media.util.MediaEntityType
 import dev.toastbits.lifelog.specification.database.LogDatabase
 
-data class MediaReferenceImpl(
-    override val mediaType: MediaEntityType,
+data class GameMediaReference(
     override val mediaId: String
-) : MediaReference {
+): MediaReference {
+    override val mediaType: MediaEntityType = MediaEntityType.GAME
     override fun getEntity(database: LogDatabase): MediaConsumeEvent {
-        TODO("$mediaType $mediaId")
+        TODO(mediaId)
     }
 }

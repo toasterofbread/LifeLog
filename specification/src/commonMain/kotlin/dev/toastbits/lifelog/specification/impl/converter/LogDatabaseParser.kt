@@ -74,6 +74,10 @@ internal class LogDatabaseParser(
     }
 
     private fun parseTopLevelLine(line: String) {
+        if (line.isBlank()) {
+            return
+        }
+
         if (line.startsWith(formats.commentPrefix)) {
             val commentText: String = line.drop(formats.commentPrefix.length)
             onCommentLine(parseUserContent(commentText))
@@ -102,6 +106,8 @@ internal class LogDatabaseParser(
                 return
             }
         }
+
+        onAlert(LogParseAlert.UnmatchedEventFormat(line))
     }
 
     private fun parseDate(text: String): LocalDate? {

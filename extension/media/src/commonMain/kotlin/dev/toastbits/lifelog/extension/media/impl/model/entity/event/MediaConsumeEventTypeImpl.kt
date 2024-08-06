@@ -1,9 +1,13 @@
 package dev.toastbits.lifelog.extension.media.impl.model.entity.event
 
-import dev.toastbits.lifelog.extension.media.impl.model.reference.MediaReferenceImpl
+import dev.toastbits.lifelog.extension.media.impl.model.mapper.createConsumeEvent
+import dev.toastbits.lifelog.extension.media.impl.model.mapper.createReference
+import dev.toastbits.lifelog.extension.media.model.entity.event.BookMediaConsumeEvent
+import dev.toastbits.lifelog.extension.media.model.entity.event.GameMediaConsumeEvent
 import dev.toastbits.lifelog.extension.media.model.entity.event.MediaConsumeEvent
 import dev.toastbits.lifelog.extension.media.model.entity.event.MediaConsumeEventType
 import dev.toastbits.lifelog.extension.media.model.entity.event.MovieOrShowMediaConsumeEvent
+import dev.toastbits.lifelog.extension.media.model.entity.event.SongMediaConsumeEvent
 import dev.toastbits.lifelog.extension.media.model.reference.MediaReference
 import dev.toastbits.lifelog.extension.media.util.MediaEntityType
 import dev.toastbits.lifelog.extension.media.util.MediaStringId
@@ -29,7 +33,7 @@ class MediaConsumeEventTypeImpl: MediaConsumeEventType {
     }
 
     override val prefixes: List<String> =
-        Prefix.entries.map { it.name }
+        Prefix.entries.map { it.name.replace('_', ' ') }
 
     override fun parseEvent(
         prefixIndex: Int,
@@ -38,25 +42,10 @@ class MediaConsumeEventTypeImpl: MediaConsumeEventType {
         content: UserContent,
         onAlert: (LogParseAlert) -> Unit
     ): MediaConsumeEvent {
-        val prefix: Prefix = Prefix.entries[prefixIndex]
-        val mediaReference: MediaReference = MediaReferenceImpl(prefix.getEntityType(), body.trim())
+        val entityType: MediaEntityType = Prefix.entries[prefixIndex].getEntityType()
+        val mediaReference: MediaReference = entityType.createReference(body.trim())
 
-        val event: MediaConsumeEvent =
-            when (prefix) {
-                Prefix.WATCHED -> {
-                    MovieOrShowMediaConsumeEvent(mediaReference)
-                }
-                Prefix.READ -> {
-                    TODO()
-                }
-                Prefix.PLAYED -> {
-                    TODO()
-                }
-                Prefix.LISTENED_TO -> {
-                    TODO()
-                }
-            }
-
+        val event: MediaConsumeEvent = entityType.createConsumeEvent(mediaReference)
         event.content = content
 
         if (metadata != null) {

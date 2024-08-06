@@ -4,11 +4,16 @@ import assertk.assertThat
 import assertk.assertions.hasSize
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
-import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import dev.toastbits.lifelog.extension.media.MediaExtension
-import dev.toastbits.lifelog.extension.media.impl.model.reference.MediaReferenceImpl
+import dev.toastbits.lifelog.extension.media.impl.model.reference.BookMediaReference
+import dev.toastbits.lifelog.extension.media.impl.model.reference.GameMediaReference
+import dev.toastbits.lifelog.extension.media.impl.model.reference.MovieOrShowMediaReference
+import dev.toastbits.lifelog.extension.media.impl.model.reference.SongMediaReference
+import dev.toastbits.lifelog.extension.media.model.entity.event.BookMediaConsumeEvent
+import dev.toastbits.lifelog.extension.media.model.entity.event.GameMediaConsumeEvent
 import dev.toastbits.lifelog.extension.media.model.entity.event.MovieOrShowMediaConsumeEvent
+import dev.toastbits.lifelog.extension.media.model.entity.event.SongMediaConsumeEvent
 import dev.toastbits.lifelog.extension.media.model.reference.MediaReferenceType
 import dev.toastbits.lifelog.extension.media.util.MediaEntityType
 import dev.toastbits.lifelog.specification.converter.LogDatabaseConverter
@@ -45,50 +50,58 @@ class LogDatabaseParserTest {
 
     @Test
     fun test() {
-        val testReference: MediaReferenceImpl = MediaReferenceImpl(MediaEntityType.MOVIE_OR_SHOW, "Show name")
+        val testReference: MovieOrShowMediaReference = MovieOrShowMediaReference("Show name")
 
-        val day1Content: String = "Gay people stay winning [Test!](/media/movie/${testReference.mediaId})"
-        val day1Reference: String = "転生王女と天才令嬢の魔法革命"
+        val dayContent: String = "Gay people stay winning [Test!](/media/movie/${testReference.mediaId})"
+        val eventReference: String = "転生王女と天才令嬢の魔法革命"
 
         val text: String = """
 ----- 02 July 2024
 
-Watched $day1Reference (first watch, eps 1-5) {
-    $day1Content
+Watched $eventReference (first watch, eps 1-5) {
+    $dayContent
 }
 
------ 04 August 2024
+Read $eventReference (first watch, eps 1-5) {
+    $dayContent
+}
 
-Watched 転生王女と天才令嬢の魔法革命 (first watch, eps 6-12) {
-    
+Played $eventReference (first watch, eps 1-5) {
+    $dayContent
+}
+
+Listened to $eventReference (first watch, eps 1-5) {
+    $dayContent
 }
         """
+
+        val expectedEvents: List<LogEvent> =
+            listOf(
+                MovieOrShowMediaConsumeEvent(
+                    MovieOrShowMediaReference(eventReference),
+                    content = dayContent.parse()
+                ),
+                BookMediaConsumeEvent(
+                    BookMediaReference(eventReference),
+                    content = dayContent.parse()
+                ),
+                GameMediaConsumeEvent(
+                    GameMediaReference(eventReference),
+                    content = dayContent.parse()
+                ),
+                SongMediaConsumeEvent(
+                    SongMediaReference(eventReference),
+                    content = dayContent.parse()
+                )
+            )
 
         val result: LogDatabaseConverter.ParseResult = parser.parseLogDatabase(text.split('\n'))
         assertThat(result.alerts).isEmpty()
 
         val database: LogDatabase = result.database
-        assertThat(database.days).hasSize(2)
+        assertThat(database.days).hasSize(1)
 
-        val day1: List<LogEvent>? = database.days[LogDateImpl(LocalDate.parse("2024-07-02"))]
-        val day2: List<LogEvent>? = database.days[LogDateImpl(LocalDate.parse("2024-08-04"))]
-
-        assertThat(day1).isNotNull()
-        assertThat(day1!!).hasSize(1)
-        assertThat(day1.single()).isEqualTo(
-            MovieOrShowMediaConsumeEvent(
-                MediaReferenceImpl(MediaEntityType.MOVIE_OR_SHOW, day1Reference),
-                content = day1Content.parse()
-            )
-        )
-
-        assertThat(day2).isNotNull()
-        assertThat(day2!!).hasSize(1)
-        assertThat(day2.single()).isEqualTo(
-            MovieOrShowMediaConsumeEvent(
-                MediaReferenceImpl(MediaEntityType.MOVIE_OR_SHOW, day1Reference),
-                content = UserContent(emptyList())
-            )
-        )
+        val day: List<LogEvent>? = database.days[LogDateImpl(LocalDate.parse("2024-07-02"))]
+        assertThat(day).isEqualTo(expectedEvents)
     }
 }

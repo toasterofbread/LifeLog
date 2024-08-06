@@ -1,6 +1,7 @@
 package dev.toastbits.lifelog.extension.media.model.reference
 
-import dev.toastbits.lifelog.extension.media.impl.model.reference.MediaReferenceImpl
+import dev.toastbits.lifelog.extension.media.impl.model.mapper.createReference
+import dev.toastbits.lifelog.extension.media.impl.model.reference.MovieOrShowMediaReference
 import dev.toastbits.lifelog.extension.media.util.MediaEntityType
 import dev.toastbits.lifelog.extension.media.util.MediaStringId
 import dev.toastbits.lifelog.specification.converter.error.LogParseAlert
@@ -54,7 +55,7 @@ class MediaReferenceType: LogEntityReferenceType<MediaReference> {
                     return null
                 }
 
-                return MediaReferenceImpl(mediaType, mediaId)
+                return mediaType.createReference(mediaId)
             }
         }
     }

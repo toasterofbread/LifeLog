@@ -21,6 +21,7 @@ sealed interface LogParseAlert {
     data object EventContentNotTerminated: Warning
     data class UnhandledMarkdownNodeType(val typeName: String, val startIndex: Int, val endIndex: Int, val scope: String, val text: String): Warning
     data object UnknownReferenceType: Warning
+    data class UnmatchedEventFormat(val text: String): Warning
     data object InvalidReferenceFormat: Warning
     data object InvalidReferenceSize: Error
 
