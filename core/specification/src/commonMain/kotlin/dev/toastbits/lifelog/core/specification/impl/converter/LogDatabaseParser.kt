@@ -19,7 +19,7 @@ import kotlinx.datetime.LocalDate
 
 internal class LogDatabaseParser(
     private val formats: LogDatabaseConverterFormats,
-    private val eventTypes: List<LogEventType<*>>,
+    private val eventTypes: List<LogEventType>,
     private val userContentParser: UserContentParser,
     private val referenceParser: LogEntityReferenceParser
 ) {
@@ -170,7 +170,7 @@ internal class LogDatabaseParser(
         getDayEvents()
     }
 
-    private fun onEventLine(eventType: LogEventType<*>, eventPrefixIndex: Int, line: String, inlineComment: UserContent?) {
+    private fun onEventLine(eventType: LogEventType, eventPrefixIndex: Int, line: String, inlineComment: UserContent?) {
         val body: String
         val metadata: String?
         val contentLines: MutableList<String> = mutableListOf()

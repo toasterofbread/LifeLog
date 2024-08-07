@@ -63,7 +63,7 @@ class MarkdownUserContentParser: UserContentParser {
                 }
                 "INLINE_LINK" -> {
                     var linkTextParts: List<UserContent.Part>? = null
-                    var linkReference: LogEntityReference<*>? = null
+                    var linkReference: LogEntityReference? = null
 
                     for (linkChild in node.children) {
                         when (linkChild.type.name) {

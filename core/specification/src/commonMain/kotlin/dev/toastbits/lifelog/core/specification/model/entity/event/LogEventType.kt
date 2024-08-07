@@ -4,7 +4,7 @@ import dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert
 import dev.toastbits.lifelog.core.specification.model.UserContent
 import dev.toastbits.lifelog.core.specification.util.StringId
 
-interface LogEventType<T: LogEvent> {
+interface LogEventType {
     val name: StringId
     val prefixes: List<String>
 
@@ -14,5 +14,5 @@ interface LogEventType<T: LogEvent> {
         metadata: String?,
         content: UserContent?,
         onAlert: (LogParseAlert) -> Unit
-    ): T
+    ): LogEvent
 }

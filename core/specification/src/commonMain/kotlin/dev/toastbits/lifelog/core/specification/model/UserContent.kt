@@ -41,7 +41,7 @@ data class UserContent(
         data object Strikethrough: Modifier
         data object Code: Modifier
         data object CodeBlock: Modifier
-        data class Reference(val reference: LogEntityReference<*>): Modifier
+        data class Reference(val reference: LogEntityReference): Modifier
     }
 
     fun asText(): String = parts.joinToString("") { it.asText() }

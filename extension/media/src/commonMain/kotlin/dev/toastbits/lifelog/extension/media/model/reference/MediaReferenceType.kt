@@ -8,7 +8,7 @@ import dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferenceType
 import dev.toastbits.lifelog.core.specification.util.StringId
 
-class MediaReferenceType: LogEntityReferenceType<MediaReference> {
+class MediaReferenceType: LogEntityReferenceType {
     override val name: StringId = MediaStringId.MediaReferenceType.NAME
 
     enum class Prefixes {

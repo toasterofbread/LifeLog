@@ -11,13 +11,12 @@ import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferen
 class MediaExtension(
     val converterFormats: MediaExtensionConverterFormats = MediaExtensionConverterFormatsImpl()
 ): SpecificationExtension {
-
-    override fun getExtraEventTypes(): List<LogEventType<*>> =
+    override fun getExtraEventTypes(): List<LogEventType> =
         listOf(
             MediaConsumeEventTypeImpl(converterFormats)
         )
 
-    override fun getExtraReferenceTypes(): List<LogEntityReferenceType<*>> =
+    override fun getExtraReferenceTypes(): List<LogEntityReferenceType> =
         listOf(
             MediaReferenceType()
         )
