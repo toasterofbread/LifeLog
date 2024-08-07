@@ -1,5 +1,6 @@
 @file:OptIn(ExperimentalWasmDsl::class, ExperimentalKotlinGradlePluginApi::class)
 
+import gradle.kotlin.dsl.accessors._721f887fc08d5057796897da5d49e236.sourceSets
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
@@ -44,10 +45,7 @@ kotlin {
 
     sourceSets {
         commonTest {
-            dependencies {
-                implementation(kotlin("test"))
-                implementation(libs.library("assertk"))
-            }
+            addTestDependencies(project)
         }
     }
 }

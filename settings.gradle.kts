@@ -25,6 +25,5 @@ rootProject.name = "lifelog"
 include(":core:specification")
 include(":core:saver")
 include(":core:git")
-include(":api")
 include(":application")
 include(":extension:media")

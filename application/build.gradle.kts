@@ -9,7 +9,6 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(projects.core.specification)
-                implementation(projects.api)
 
                 implementation(libs.ktor.core)
             }
