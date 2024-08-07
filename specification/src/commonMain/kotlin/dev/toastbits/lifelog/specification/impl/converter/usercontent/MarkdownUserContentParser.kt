@@ -7,7 +7,7 @@ import dev.toastbits.lifelog.specification.model.reference.LogEntityReferencePar
 import org.intellij.markdown.ast.ASTNode
 import org.intellij.markdown.ast.getTextInNode
 import org.intellij.markdown.flavours.MarkdownFlavourDescriptor
-import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
+import org.intellij.markdown.flavours.gfm.GFMFlavourDescriptor
 import org.intellij.markdown.parser.MarkdownParser
 
 class MarkdownUserContentParser: UserContentParser {
@@ -52,6 +52,10 @@ class MarkdownUserContentParser: UserContentParser {
                             else -> throw IllegalStateException(node.type.name)
                         }
                     return listOf(UserContent.Part.Composite(children.getParts(), setOf(modifier)))
+                }
+                "STRIKETHROUGH" -> {
+                    val children: List<ASTNode> = node.children.removeSides("~", "~").removeSides("~", "~")
+                    return listOf(UserContent.Part.Composite(children.flatMap { getNodeParts(it) }, setOf(UserContent.Modifier.Strikethrough)))
                 }
                 "CODE_FENCE" -> {
                     val children: List<ASTNode> = node.children.removeSides("CODE_FENCE_START", "CODE_FENCE_END").removeSides("EOL", "EOL")
@@ -113,5 +117,5 @@ class MarkdownUserContentParser: UserContentParser {
         }
     }
 
-    private fun getFlavour(): MarkdownFlavourDescriptor = CommonMarkFlavourDescriptor()
+    private fun getFlavour(): MarkdownFlavourDescriptor = GFMFlavourDescriptor()
 }

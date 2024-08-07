@@ -4,15 +4,9 @@ import assertk.assertThat
 import assertk.assertions.hasSize
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
-import assertk.assertions.isNull
 import dev.toastbits.lifelog.extension.media.impl.model.reference.MovieOrShowMediaReference
-import dev.toastbits.lifelog.extension.media.model.reference.MediaReferenceType
-import dev.toastbits.lifelog.specification.impl.converter.usercontent.MarkdownUserContentParser
-import dev.toastbits.lifelog.specification.impl.model.reference.LogEntityReferenceParserImpl
 import dev.toastbits.lifelog.specification.model.UserContent
-import dev.toastbits.lifelog.specification.model.reference.LogEntityReferenceParser
 import dev.toastbits.lifelog.specification.testutil.parser.ParserTest
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 class MarkdownUserContentParserTest: ParserTest() {
@@ -36,10 +30,10 @@ class MarkdownUserContentParserTest: ParserTest() {
 
     @Test
     fun testTextFormatting() {
-        val text: String = "Normal *Italic* **Bold** ***Both*** `Code`"
-        val renderedText: String = "Normal Italic Bold Both Code"
+        val text: String = "Normal *Italic* **Bold** ***Both*** **Bold _Both_** ~~Strikethrough~~ `Code`"
+        val renderedText: String = "Normal Italic Bold Both Bold Both Strikethrough Code"
 
-        val expectedParts: List<UserContent.Part.Single> =
+        val expectedParts: List<UserContent.Part> =
             listOf(
                 UserContent.Part.Single("Normal "),
                 UserContent.Part.Single("Italic", setOf(UserContent.Modifier.Italic)),
@@ -47,6 +41,16 @@ class MarkdownUserContentParserTest: ParserTest() {
                 UserContent.Part.Single("Bold", setOf(UserContent.Modifier.Bold)),
                 UserContent.Part.Single(" "),
                 UserContent.Part.Single("Both", setOf(UserContent.Modifier.Bold, UserContent.Modifier.Italic)),
+                UserContent.Part.Single(" "),
+                UserContent.Part.Composite(
+                    listOf(
+                        UserContent.Part.Single("Bold "),
+                        UserContent.Part.Single("Both", setOf(UserContent.Modifier.Italic))
+                    ),
+                    setOf(UserContent.Modifier.Bold)
+                ),
+                UserContent.Part.Single(" "),
+                UserContent.Part.Single("Strikethrough", setOf(UserContent.Modifier.Strikethrough)),
                 UserContent.Part.Single(" "),
                 UserContent.Part.Single("Code", setOf(UserContent.Modifier.Code)),
             )

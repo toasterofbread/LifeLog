@@ -38,6 +38,7 @@ data class UserContent(
     sealed interface Modifier {
         data object Italic: Modifier
         data object Bold: Modifier
+        data object Strikethrough: Modifier
         data object Code: Modifier
         data object CodeBlock: Modifier
         data class Reference(val reference: LogEntityReference<*>): Modifier
@@ -67,10 +68,11 @@ private fun List<Part>.normalised(): List<Part> {
             newParts.add(part)
         }
     }
-    
+
     val i: MutableListIterator<Part> = newParts.listIterator()
     while (i.hasNext()) {
         val part: Part = i.next()
+
         if (part !is Part.Composite) {
             continue
         }
@@ -83,8 +85,11 @@ private fun List<Part>.normalised(): List<Part> {
             val singlePart: Part = normalisedParts.single()
             i.set(singlePart.withModifiers(singlePart.modifiers + part.modifiers))
         }
+        else {
+            i.set(part.copy(parts = normalisedParts))
+        }
     }
-    
+
     return newParts
 }
 
@@ -104,8 +109,9 @@ private fun Set<Modifier>.sorted(): List<Modifier> =
         when (it) {
             Modifier.Bold -> 0
             Modifier.Italic -> 1
-            Modifier.Code -> 2
-            Modifier.CodeBlock -> 3
-            is Modifier.Reference -> 4
+            Modifier.Strikethrough -> 2
+            Modifier.Code -> 3
+            Modifier.CodeBlock -> 4
+            is Modifier.Reference -> 5
         }
     }
