@@ -12,7 +12,7 @@ class LogEntityReferenceParserImpl(
 ): LogEntityReferenceParser {
     override fun parseReference(
         text: String,
-        onAlert: (dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert) -> Unit
+        onAlert: (LogParseAlert) -> Unit
     ): LogEntityReference<*>? {
         for (referenceType in referenceTypes) {
             for ((index, prefix) in referenceType.prefixes.withIndex()) {
@@ -28,7 +28,7 @@ class LogEntityReferenceParserImpl(
             }
         }
 
-        onAlert(dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert.UnknownReferenceType)
+        onAlert(LogParseAlert.UnknownReferenceType)
         return null
     }
 }

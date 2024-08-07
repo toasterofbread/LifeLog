@@ -14,7 +14,7 @@ class MarkdownUserContentParser: UserContentParser {
     override fun parseUserContent(
         markdownText: String,
         referenceParser: LogEntityReferenceParser,
-        onAlert: (alert: dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert, line: Int) -> Unit
+        onAlert: (alert: LogParseAlert, line: Int) -> Unit
     ): UserContent {
         val parts: MutableList<UserContent.Part> = mutableListOf()
 
@@ -104,8 +104,8 @@ class MarkdownUserContentParser: UserContentParser {
         return UserContent(parts).normalised()
     }
 
-    private fun ASTNode.toUnhandledAlert(scope: String, markdownText: String): dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert =
-        dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert.UnhandledMarkdownNodeType(type.name, startOffset, endOffset, scope, getTextInNode(markdownText).toString())
+    private fun ASTNode.toUnhandledAlert(scope: String, markdownText: String): LogParseAlert =
+        LogParseAlert.UnhandledMarkdownNodeType(type.name, startOffset, endOffset, scope, getTextInNode(markdownText).toString())
 
     private fun List<ASTNode>.removeSides(startType: String, endType: String): List<ASTNode> {
         if (firstOrNull()?.type?.name != startType) {

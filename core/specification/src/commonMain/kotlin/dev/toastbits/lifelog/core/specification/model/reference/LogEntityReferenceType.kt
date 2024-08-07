@@ -7,5 +7,5 @@ interface LogEntityReferenceType<T: LogEntityReference<*>> {
     val name: StringId
     val prefixes: List<String>
 
-    fun parseReference(reference: String, prefixIndex: Int, onAlert: (dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert) -> Unit): T?
+    fun parseReference(reference: String, prefixIndex: Int, onAlert: (LogParseAlert) -> Unit): T?
 }

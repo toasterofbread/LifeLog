@@ -63,7 +63,7 @@ class LogDatabaseParserTest: ParserTest() {
                         ${prefix.uppercase()} Test Test Test ($iterationText $suffix)
                         """.trimIndent()
 
-                        val result: dev.toastbits.lifelog.core.specification.converter.LogDatabaseConverter.ParseResult = parser.parseLogDatabase(text.split('\n'))
+                        val result: LogDatabaseConverter.ParseResult = parser.parseLogDatabase(text.split('\n'))
                         assertThat(result.alerts).isEmpty()
 
                         val event: LogEvent = result.database.days[LogDateImpl(templateDate)]!!.single()
@@ -93,7 +93,7 @@ Watched Test Test Test (first watch, eps 1-5) { // Inline event comment
 // Standalone comment
         """
 
-        val result: dev.toastbits.lifelog.core.specification.converter.LogDatabaseConverter.ParseResult = parser.parseLogDatabase(text.split('\n'))
+        val result: LogDatabaseConverter.ParseResult = parser.parseLogDatabase(text.split('\n'))
         assertThat(result.alerts).isEmpty()
 
         val (date: LogDate?, day: List<LogEvent>) = result.database.days.entries.single()
@@ -172,10 +172,10 @@ Listened to $eventReference (12th listen) {
                 )
             )
 
-        val result: dev.toastbits.lifelog.core.specification.converter.LogDatabaseConverter.ParseResult = parser.parseLogDatabase(text.split('\n'))
+        val result: LogDatabaseConverter.ParseResult = parser.parseLogDatabase(text.split('\n'))
         assertThat(result.alerts).isEmpty()
 
-        val database: dev.toastbits.lifelog.core.specification.database.LogDatabase = result.database
+        val database: LogDatabase = result.database
         assertThat(database.days).hasSize(1)
 
         val day: List<LogEvent>? = database.days[LogDateImpl(templateDate)]

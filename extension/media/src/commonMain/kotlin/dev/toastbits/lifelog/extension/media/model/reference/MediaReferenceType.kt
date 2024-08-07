@@ -35,13 +35,13 @@ class MediaReferenceType: LogEntityReferenceType<MediaReference> {
             }
     }
 
-    override fun parseReference(reference: String, prefixIndex: Int, onAlert: (dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert) -> Unit): MediaReference? {
+    override fun parseReference(reference: String, prefixIndex: Int, onAlert: (LogParseAlert) -> Unit): MediaReference? {
         val parts: List<String> = reference.split('/').drop(1)
 
         when (Prefixes.entries[prefixIndex]) {
             Prefixes.MEDIA -> {
                 if (parts.size != 2) {
-                    onAlert(dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert.InvalidReferenceSize)
+                    onAlert(LogParseAlert.InvalidReferenceSize)
                     return null
                 }
 
@@ -51,7 +51,7 @@ class MediaReferenceType: LogEntityReferenceType<MediaReference> {
                     MediaEntityTypePrefixes.entries.firstOrNull { it.name.lowercase() == mediaTypeName.lowercase() }?.getMediaEntityType()
 
                 if (mediaType == null) {
-                    onAlert(dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert.InvalidReferenceFormat)
+                    onAlert(LogParseAlert.InvalidReferenceFormat)
                     return null
                 }
 

@@ -9,7 +9,7 @@ data class GameMediaReference(
     override val mediaId: String
 ): MediaReference {
     override val mediaType: MediaEntityType = MediaEntityType.GAME
-    override fun getEntity(database: dev.toastbits.lifelog.core.specification.database.LogDatabase): MediaConsumeEvent {
+    override fun getEntity(database: LogDatabase): MediaConsumeEvent {
         TODO(mediaId)
     }
 }

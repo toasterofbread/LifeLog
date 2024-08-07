@@ -13,6 +13,6 @@ interface LogEventType<T: LogEvent> {
         body: String,
         metadata: String?,
         content: UserContent?,
-        onAlert: (dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert) -> Unit
+        onAlert: (LogParseAlert) -> Unit
     ): T
 }

@@ -1,42 +1,42 @@
 package dev.toastbits.lifelog.core.specification.converter.error
 
 sealed interface LogParseAlert {
-    val severity: dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert.Severity
+    val severity: Severity
 
     enum class Severity {
         WARNING, ERROR
     }
 
-    sealed interface Error: dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert {
-        override val severity: dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert.Severity get() = dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert.Severity.ERROR
+    sealed interface Error: LogParseAlert {
+        override val severity: Severity get() = Severity.ERROR
     }
 
     sealed interface Warning:
-        dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert {
-        override val severity: dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert.Severity get() = dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert.Severity.WARNING
+        LogParseAlert {
+        override val severity: Severity get() = Severity.WARNING
     }
 
     data object NoMatchingDateFormat:
-        dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert.Error
+        Error
     data object MissingDateError:
-        dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert.Error
+        Error
     data object UnterminatedEventMetadata:
-        dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert.Error
+        Error
     data object EventContentNotTerminated:
-        dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert.Warning
+        Warning
     data class UnhandledMarkdownNodeType(val typeName: String, val startIndex: Int, val endIndex: Int, val scope: String, val text: String):
-        dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert.Warning
+        Warning
     data object UnknownReferenceType:
-        dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert.Warning
+        Warning
     data class UnmatchedEventFormat(val text: String):
-        dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert.Warning
+        Warning
     data object InvalidReferenceFormat:
-        dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert.Warning
+        Warning
     data object InvalidReferenceSize:
-        dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert.Error
+        Error
 
     data class UnknownIterationSpecifier(val text: String):
-        dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert.Warning
+        Warning
     data class InvalidEpisodesSpecifier(val text: String):
-        dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert.Warning
+        Warning
 }

@@ -38,4 +38,4 @@ data class LogDatabaseConverterFormatsImpl(
                 year()
             }
         )
-): dev.toastbits.lifelog.core.specification.converter.LogDatabaseConverterFormats
+): LogDatabaseConverterFormats

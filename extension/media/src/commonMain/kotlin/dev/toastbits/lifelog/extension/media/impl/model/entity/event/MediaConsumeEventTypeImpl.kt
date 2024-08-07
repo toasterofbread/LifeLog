@@ -41,7 +41,7 @@ class MediaConsumeEventTypeImpl(
         body: String,
         metadata: String?,
         content: UserContent?,
-        onAlert: (dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert) -> Unit
+        onAlert: (LogParseAlert) -> Unit
     ): MediaConsumeEvent {
         val entityType: MediaEntityType = getPrefixIndexMediaEntityType(prefixIndex)
         val mediaReference: MediaReference = entityType.createReference(body.trim())
@@ -60,7 +60,7 @@ class MediaConsumeEventTypeImpl(
         text: String,
         event: MediaConsumeEvent,
         formats: MediaExtensionConverterFormats,
-        onAlert: (dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert) -> Unit
+        onAlert: (LogParseAlert) -> Unit
     ) {
         val iterationSuffixes: List<String> = formats.getMediaEntityTypeIterationSuffixes(event.mediaEntityType).map { it.lowercase() }
 
@@ -88,7 +88,7 @@ class MediaConsumeEventTypeImpl(
     private fun applyEventIterationString(
         text: String,
         event: MediaConsumeEvent,
-        onAlert: (dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert) -> Unit
+        onAlert: (LogParseAlert) -> Unit
     ) {
         var number: Int? =
             when (text) {
@@ -113,7 +113,7 @@ class MediaConsumeEventTypeImpl(
         }
 
         if (number == null) {
-            onAlert(dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert.UnknownIterationSpecifier(text))
+            onAlert(LogParseAlert.UnknownIterationSpecifier(text))
             return
         }
 
@@ -124,13 +124,13 @@ class MediaConsumeEventTypeImpl(
     private fun applyEventEpisodesString(
         text: String,
         event: MediaConsumeEvent,
-        onAlert: (dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert) -> Unit
+        onAlert: (LogParseAlert) -> Unit
     ) {
         val splitChars: List<Char> = listOf('-', '~')
 
         val splitIndex: Int = text.indexOfFirst { splitChars.contains(it) }
         if (splitIndex == -1) {
-            onAlert(dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert.InvalidEpisodesSpecifier(text))
+            onAlert(LogParseAlert.InvalidEpisodesSpecifier(text))
             return
         }
 
@@ -138,14 +138,14 @@ class MediaConsumeEventTypeImpl(
         val lastWhitespace: Int = lhsText.lastIndexOf(' ')
         val lhs: Int? = lhsText.substring(lastWhitespace + 1).toIntOrNull()
         if (lhs == null) {
-            onAlert(dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert.InvalidEpisodesSpecifier(text))
+            onAlert(LogParseAlert.InvalidEpisodesSpecifier(text))
             return
         }
 
         val rhsText: String = text.substring(splitIndex + 1, 0).split(' ', limit = 2).first()
         val rhs: Int? = rhsText.toIntOrNull()
         if (rhs == null) {
-            onAlert(dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert.InvalidEpisodesSpecifier(text))
+            onAlert(LogParseAlert.InvalidEpisodesSpecifier(text))
             return
         }
 

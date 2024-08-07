@@ -9,7 +9,7 @@ data class BookMediaReference(
     override val mediaId: String
 ): MediaReference {
     override val mediaType: MediaEntityType = MediaEntityType.BOOK
-    override fun getEntity(database: dev.toastbits.lifelog.core.specification.database.LogDatabase): MediaConsumeEvent {
+    override fun getEntity(database: LogDatabase): MediaConsumeEvent {
         TODO(mediaId)
     }
 }

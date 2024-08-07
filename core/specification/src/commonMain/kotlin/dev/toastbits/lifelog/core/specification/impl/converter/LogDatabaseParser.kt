@@ -18,7 +18,7 @@ import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferen
 import kotlinx.datetime.LocalDate
 
 internal class LogDatabaseParser(
-    private val formats: dev.toastbits.lifelog.core.specification.converter.LogDatabaseConverterFormats,
+    private val formats: LogDatabaseConverterFormats,
     private val eventTypes: List<LogEventType<*>>,
     private val userContentParser: UserContentParser,
     private val referenceParser: LogEntityReferenceParser
@@ -35,7 +35,7 @@ internal class LogDatabaseParser(
     private fun hasNext(): Boolean = iterator.hasNext()
     private fun goNext(): String = iterator.next().also { currentLineIndex++ }
 
-    private fun onAlert(error: dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert, line: Int = currentLineIndex) {
+    private fun onAlert(error: LogParseAlert, line: Int = currentLineIndex) {
         alerts.add(ParseAlertData(error, line))
     }
 
@@ -52,7 +52,7 @@ internal class LogDatabaseParser(
     private fun getDayEvents(): MutableList<LogEvent> =
         days.getOrPut(currentDay) { mutableListOf() }
 
-    fun parse(lines: Iterable<String>): dev.toastbits.lifelog.core.specification.converter.LogDatabaseConverter.ParseResult {
+    fun parse(lines: Iterable<String>): LogDatabaseConverter.ParseResult {
         days = mutableMapOf()
         alerts = mutableListOf()
         iterator = lines.iterator()
@@ -68,7 +68,7 @@ internal class LogDatabaseParser(
 
         return ParseResultData(
             database =
-                object : dev.toastbits.lifelog.core.specification.database.LogDatabase {
+                object : LogDatabase {
                     override val days: MutableMap<LogDate?, MutableList<LogEvent>> = this@LogDatabaseParser.days
                 },
             alerts = alerts
@@ -121,7 +121,7 @@ internal class LogDatabaseParser(
             }
         }
 
-        onAlert(dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert.UnmatchedEventFormat(line))
+        onAlert(LogParseAlert.UnmatchedEventFormat(line))
     }
 
     private fun parseDate(text: String): LocalDate? {
@@ -130,7 +130,7 @@ internal class LogDatabaseParser(
             return date
         }
 
-        onAlert(dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert.NoMatchingDateFormat)
+        onAlert(LogParseAlert.NoMatchingDateFormat)
         return null
     }
 
@@ -158,7 +158,7 @@ internal class LogDatabaseParser(
 
     private fun onDateLine(date: LocalDate?, commentContent: UserContent?) {
         if (date == null) {
-            onAlert(dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert.MissingDateError)
+            onAlert(LogParseAlert.MissingDateError)
             return
         }
 
@@ -186,7 +186,7 @@ internal class LogDatabaseParser(
             val metadataEnd: Int = line.indexOf(formats.eventMetadataEnd, metadataStart)
 
             if (metadataEnd == -1) {
-                onAlert(dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert.UnterminatedEventMetadata)
+                onAlert(LogParseAlert.UnterminatedEventMetadata)
                 return
             }
 
@@ -231,7 +231,7 @@ internal class LogDatabaseParser(
             }
 
             if (contentEnd == -1) {
-                onAlert(dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert.EventContentNotTerminated)
+                onAlert(LogParseAlert.EventContentNotTerminated)
             }
         }
 

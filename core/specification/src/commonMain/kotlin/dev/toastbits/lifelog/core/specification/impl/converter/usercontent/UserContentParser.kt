@@ -8,6 +8,6 @@ interface UserContentParser {
     fun parseUserContent(
         markdownText: String,
         referenceParser: LogEntityReferenceParser,
-        onAlert: (alert: dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert, line: Int) -> Unit
+        onAlert: (alert: LogParseAlert, line: Int) -> Unit
     ): UserContent
 }

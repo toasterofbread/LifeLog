@@ -10,7 +10,7 @@ import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferen
 
 class MediaExtension(
     val converterFormats: MediaExtensionConverterFormats = MediaExtensionConverterFormatsImpl()
-): dev.toastbits.lifelog.core.specification.extension.SpecificationExtension {
+): SpecificationExtension {
 
     override fun getExtraEventTypes(): List<LogEventType<*>> =
         listOf(

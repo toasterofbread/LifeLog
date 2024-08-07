@@ -17,24 +17,24 @@ import kotlinx.datetime.format.Padding
 import kotlinx.datetime.format.char
 
 class LogDatabaseConverterImpl(
-    private val formats: dev.toastbits.lifelog.core.specification.converter.LogDatabaseConverterFormats = dev.toastbits.lifelog.core.specification.impl.converter.LogDatabaseConverterImpl.Companion.DEFAULT_FORMATS,
-    eventTypes: List<LogEventType<*>> = dev.toastbits.lifelog.core.specification.impl.converter.LogDatabaseConverterImpl.Companion.DEFAULT_EVENT_TYPES,
-    referenceTypes: List<LogEntityReferenceType<*>> = dev.toastbits.lifelog.core.specification.impl.converter.LogDatabaseConverterImpl.Companion.DEFAULT_REFERENCE_TYPES,
+    private val formats: LogDatabaseConverterFormats = DEFAULT_FORMATS,
+    eventTypes: List<LogEventType<*>> = DEFAULT_EVENT_TYPES,
+    referenceTypes: List<LogEntityReferenceType<*>> = DEFAULT_REFERENCE_TYPES,
     private val userContentParser: UserContentParser = MarkdownUserContentParser()
-): dev.toastbits.lifelog.core.specification.converter.LogDatabaseConverter {
+): LogDatabaseConverter {
     private val registeredEventTypes: MutableList<LogEventType<*>> = eventTypes.toMutableList()
     private val registeredReferenceTypes: MutableList<LogEntityReferenceType<*>> = referenceTypes.toMutableList()
 
-    override fun registerExtension(specificationExtension: dev.toastbits.lifelog.core.specification.extension.SpecificationExtension) {
+    override fun registerExtension(specificationExtension: SpecificationExtension) {
         registeredEventTypes.addAll(specificationExtension.getExtraEventTypes())
         registeredReferenceTypes.addAll(specificationExtension.getExtraReferenceTypes())
     }
 
-    override fun parseLogDatabase(lines: Iterable<String>): dev.toastbits.lifelog.core.specification.converter.LogDatabaseConverter.ParseResult {
+    override fun parseLogDatabase(lines: Iterable<String>): LogDatabaseConverter.ParseResult {
         val referenceParser: LogEntityReferenceParser =
             LogEntityReferenceParserImpl(registeredEventTypes, registeredReferenceTypes)
 
-        return dev.toastbits.lifelog.core.specification.impl.converter.LogDatabaseParser(
+        return LogDatabaseParser(
             formats,
             registeredEventTypes,
             userContentParser,
@@ -51,17 +51,17 @@ class LogDatabaseConverterImpl(
 
         )
 
-        val DEFAULT_FORMATS: dev.toastbits.lifelog.core.specification.impl.converter.LogDatabaseConverterFormatsImpl =
-            dev.toastbits.lifelog.core.specification.impl.converter.LogDatabaseConverterFormatsImpl()
+        val DEFAULT_FORMATS: LogDatabaseConverterFormatsImpl =
+            LogDatabaseConverterFormatsImpl()
     }
 
     data class ParseResultData(
-        override val database: dev.toastbits.lifelog.core.specification.database.LogDatabase,
-        override val alerts: List<dev.toastbits.lifelog.core.specification.converter.LogDatabaseConverter.ParseAlert>
-    ) : dev.toastbits.lifelog.core.specification.converter.LogDatabaseConverter.ParseResult
+        override val database: LogDatabase,
+        override val alerts: List<LogDatabaseConverter.ParseAlert>
+    ) : LogDatabaseConverter.ParseResult
 
     data class ParseAlertData(
-        override val alert: dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert,
+        override val alert: LogParseAlert,
         override val lineIndex: Int
-    ) : dev.toastbits.lifelog.core.specification.converter.LogDatabaseConverter.ParseAlert
+    ) : LogDatabaseConverter.ParseAlert
 }

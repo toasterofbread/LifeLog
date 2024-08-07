@@ -15,7 +15,7 @@ import kotlinx.datetime.LocalDate
 import kotlin.test.BeforeTest
 
 open class ParserTest {
-    lateinit var parser: dev.toastbits.lifelog.core.specification.converter.LogDatabaseConverter
+    lateinit var parser: LogDatabaseConverter
         private set
     lateinit var markdownParser: MarkdownUserContentParser
         private set
@@ -26,7 +26,7 @@ open class ParserTest {
 
     @BeforeTest
     fun setUp() {
-        parser = dev.toastbits.lifelog.core.specification.impl.converter.LogDatabaseConverterImpl()
+        parser = LogDatabaseConverterImpl()
         parser.registerExtension(MediaExtension())
 
         markdownParser = MarkdownUserContentParser()
