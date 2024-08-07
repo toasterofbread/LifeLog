@@ -1,0 +1,34 @@
+package dev.toastbits.lifelog.core.specification.impl.model.reference
+
+import dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert
+import dev.toastbits.lifelog.core.specification.model.entity.event.LogEventType
+import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReference
+import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferenceParser
+import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferenceType
+
+class LogEntityReferenceParserImpl(
+    private val eventTypes: List<LogEventType<*>>,
+    private val referenceTypes: List<LogEntityReferenceType<*>>
+): LogEntityReferenceParser {
+    override fun parseReference(
+        text: String,
+        onAlert: (dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert) -> Unit
+    ): LogEntityReference<*>? {
+        for (referenceType in referenceTypes) {
+            for ((index, prefix) in referenceType.prefixes.withIndex()) {
+                if (prefix.length > text.length) {
+                    continue
+                }
+
+                if (text.take(prefix.length).lowercase() != prefix.lowercase()) {
+                    continue
+                }
+
+                return referenceType.parseReference(text.drop(prefix.length).trimStart(), index, onAlert = onAlert)
+            }
+        }
+
+        onAlert(dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert.UnknownReferenceType)
+        return null
+    }
+}

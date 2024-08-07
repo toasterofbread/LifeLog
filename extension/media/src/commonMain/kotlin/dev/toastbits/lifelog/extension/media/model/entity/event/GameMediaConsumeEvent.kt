@@ -2,7 +2,7 @@ package dev.toastbits.lifelog.extension.media.model.entity.event
 
 import dev.toastbits.lifelog.extension.media.model.reference.MediaReference
 import dev.toastbits.lifelog.extension.media.util.MediaEntityType
-import dev.toastbits.lifelog.specification.model.UserContent
+import dev.toastbits.lifelog.core.specification.model.UserContent
 
 data class GameMediaConsumeEvent(
     override var mediaReference: MediaReference,

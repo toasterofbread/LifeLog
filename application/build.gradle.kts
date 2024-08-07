@@ -8,8 +8,8 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(project(":specification"))
-                implementation(project(":api"))
+                implementation(projects.core.specification)
+                implementation(projects.api)
 
                 implementation(libs.ktor.core)
             }

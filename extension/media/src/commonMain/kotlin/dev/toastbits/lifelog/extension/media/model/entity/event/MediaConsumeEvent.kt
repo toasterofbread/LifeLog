@@ -3,12 +3,12 @@ package dev.toastbits.lifelog.extension.media.model.entity.event
 import dev.toastbits.lifelog.extension.media.model.reference.MediaReference
 import dev.toastbits.lifelog.extension.media.util.MediaEntityType
 import dev.toastbits.lifelog.extension.media.util.MediaStringId
-import dev.toastbits.lifelog.specification.model.UserContent
-import dev.toastbits.lifelog.specification.model.entity.LogEntity
-import dev.toastbits.lifelog.specification.model.entity.LogEntityCompanion
-import dev.toastbits.lifelog.specification.model.entity.LogEntityProperty
-import dev.toastbits.lifelog.specification.model.entity.LogEntityPropertyData
-import dev.toastbits.lifelog.specification.model.entity.event.LogEvent
+import dev.toastbits.lifelog.core.specification.model.UserContent
+import dev.toastbits.lifelog.core.specification.model.entity.LogEntity
+import dev.toastbits.lifelog.core.specification.model.entity.LogEntityCompanion
+import dev.toastbits.lifelog.core.specification.model.entity.LogEntityProperty
+import dev.toastbits.lifelog.core.specification.model.entity.LogEntityPropertyData
+import dev.toastbits.lifelog.core.specification.model.entity.event.LogEvent
 
 interface MediaConsumeEvent: LogEvent {
     var mediaReference: MediaReference

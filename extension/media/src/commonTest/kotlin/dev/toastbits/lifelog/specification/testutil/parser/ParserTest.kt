@@ -1,21 +1,21 @@
-package dev.toastbits.lifelog.specification.testutil.parser
+package dev.toastbits.lifelog.core.specification.testutil.parser
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
 import dev.toastbits.lifelog.extension.media.MediaExtension
 import dev.toastbits.lifelog.extension.media.model.reference.MediaReferenceType
-import dev.toastbits.lifelog.specification.converter.LogDatabaseConverter
-import dev.toastbits.lifelog.specification.impl.converter.LogDatabaseConverterImpl
-import dev.toastbits.lifelog.specification.impl.converter.usercontent.MarkdownUserContentParser
-import dev.toastbits.lifelog.specification.impl.model.reference.LogEntityReferenceParserImpl
-import dev.toastbits.lifelog.specification.model.UserContent
-import dev.toastbits.lifelog.specification.model.reference.LogEntityReferenceParser
+import dev.toastbits.lifelog.core.specification.converter.LogDatabaseConverter
+import dev.toastbits.lifelog.core.specification.impl.converter.LogDatabaseConverterImpl
+import dev.toastbits.lifelog.core.specification.impl.converter.usercontent.MarkdownUserContentParser
+import dev.toastbits.lifelog.core.specification.impl.model.reference.LogEntityReferenceParserImpl
+import dev.toastbits.lifelog.core.specification.model.UserContent
+import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferenceParser
 import kotlinx.datetime.LocalDate
 import kotlin.test.BeforeTest
 
 open class ParserTest {
-    lateinit var parser: LogDatabaseConverter
+    lateinit var parser: dev.toastbits.lifelog.core.specification.converter.LogDatabaseConverter
         private set
     lateinit var markdownParser: MarkdownUserContentParser
         private set
@@ -26,7 +26,7 @@ open class ParserTest {
 
     @BeforeTest
     fun setUp() {
-        parser = LogDatabaseConverterImpl()
+        parser = dev.toastbits.lifelog.core.specification.impl.converter.LogDatabaseConverterImpl()
         parser.registerExtension(MediaExtension())
 
         markdownParser = MarkdownUserContentParser()

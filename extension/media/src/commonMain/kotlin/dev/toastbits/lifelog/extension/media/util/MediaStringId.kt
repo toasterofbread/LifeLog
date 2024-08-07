@@ -1,6 +1,6 @@
 package dev.toastbits.lifelog.extension.media.util
 
-import dev.toastbits.lifelog.specification.util.StringId
+import dev.toastbits.lifelog.core.specification.util.StringId
 
 sealed interface MediaStringId: StringId {
     sealed interface Property: MediaStringId {

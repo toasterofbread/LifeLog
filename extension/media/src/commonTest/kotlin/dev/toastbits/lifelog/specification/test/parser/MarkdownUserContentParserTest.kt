@@ -1,12 +1,12 @@
-package dev.toastbits.lifelog.specification.test.parser
+package dev.toastbits.lifelog.core.specification.test.parser
 
 import assertk.assertThat
 import assertk.assertions.hasSize
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import dev.toastbits.lifelog.extension.media.impl.model.reference.MovieOrShowMediaReference
-import dev.toastbits.lifelog.specification.model.UserContent
-import dev.toastbits.lifelog.specification.testutil.parser.ParserTest
+import dev.toastbits.lifelog.core.specification.model.UserContent
+import dev.toastbits.lifelog.core.specification.testutil.parser.ParserTest
 import kotlin.test.Test
 
 class MarkdownUserContentParserTest: ParserTest() {
