@@ -10,7 +10,7 @@ internal actual fun createGitWrapper(directory: Path, dispatcher: CoroutineDispa
         val result: Int = runCommand(binaryPath, listOf("--version"))
         check(result == 0)
     }
-    catch (_: Throwable) {
+    catch (e: Throwable) {
         throw GitWrapperCreationException.GitBinaryNotFunctional(binaryPath)
     }
     return NativeCommandLineGitWrapper(binaryPath, directory, dispatcher)
