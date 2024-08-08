@@ -3,12 +3,16 @@ package dev.toastbits.lifelog.core.specification.impl.converter
 import dev.toastbits.lifelog.core.specification.converter.LogFileConverter
 import dev.toastbits.lifelog.core.specification.converter.LogFileConverterFormats
 import dev.toastbits.lifelog.core.specification.extension.SpecificationExtension
+import dev.toastbits.lifelog.core.specification.impl.converter.usercontent.MarkdownUserContentGenerator
 import dev.toastbits.lifelog.core.specification.impl.converter.usercontent.MarkdownUserContentParser
+import dev.toastbits.lifelog.core.specification.impl.converter.usercontent.UserContentGenerator
 import dev.toastbits.lifelog.core.specification.impl.converter.usercontent.UserContentParser
+import dev.toastbits.lifelog.core.specification.impl.model.reference.LogEntityReferenceGeneratorImpl
 import dev.toastbits.lifelog.core.specification.impl.model.reference.LogEntityReferenceParserImpl
 import dev.toastbits.lifelog.core.specification.model.entity.date.LogDate
 import dev.toastbits.lifelog.core.specification.model.entity.event.LogEvent
 import dev.toastbits.lifelog.core.specification.model.entity.event.LogEventType
+import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferenceGenerator
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferenceParser
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferenceType
 
@@ -16,7 +20,8 @@ class LogFileConverterImpl(
     private val formats: LogFileConverterFormats = DEFAULT_FORMATS,
     eventTypes: List<LogEventType> = DEFAULT_EVENT_TYPES,
     referenceTypes: List<LogEntityReferenceType> = DEFAULT_REFERENCE_TYPES,
-    private val userContentParser: UserContentParser = MarkdownUserContentParser()
+    private val userContentParser: UserContentParser = MarkdownUserContentParser(),
+    private val userContentGenerator: UserContentGenerator = MarkdownUserContentGenerator()
 ): LogFileConverter {
     private val registeredEventTypes: MutableList<LogEventType> = eventTypes.toMutableList()
     private val registeredReferenceTypes: MutableList<LogEntityReferenceType> = referenceTypes.toMutableList()
@@ -39,14 +44,14 @@ class LogFileConverterImpl(
     }
 
     override fun generateLogFile(days: Map<LogDate?, List<LogEvent>>): LogFileConverter.GenerateResult {
-        // TODO
-        // val referenceGenerator: LogEntityReferenceGenerator =
+         val referenceGenerator: LogEntityReferenceGenerator =
+             LogEntityReferenceGeneratorImpl(registeredEventTypes, registeredReferenceTypes)
 
         return LogFileGenerator(
             formats,
             registeredEventTypes,
-            userContentParser,
-            TODO()
+            userContentGenerator,
+            referenceGenerator
         ).generate(days)
     }
 

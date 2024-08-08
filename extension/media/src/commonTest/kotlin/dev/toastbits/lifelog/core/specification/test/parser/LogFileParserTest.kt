@@ -88,11 +88,8 @@ Watched Test Test Test (first watch, eps 1-5) { // Inline event comment
 
         val (date: LogDate?, day: List<LogEvent>) = result.days.entries.single()
         assertThat(date?.date).isEqualTo(templateDate)
-        assertThat(date?.comments).isEqualTo(
-            listOf(
-                UserContent.single("Date comment"), UserContent.single("Inline date comment")
-            )
-        )
+        assertThat(date?.inlineComment).isEqualTo(UserContent.single("Inline date comment"))
+        assertThat(date?.aboveComment).isEqualTo(UserContent.single("Date comment"))
 
         assertThat(day).hasSize(3)
 
@@ -102,7 +99,8 @@ Watched Test Test Test (first watch, eps 1-5) { // Inline event comment
         assertThat(day[1]).isEqualTo(
             MovieOrShowMediaConsumeEvent(
                 MovieOrShowMediaReference("Test Test Test"),
-                comments = listOf(UserContent.single("Event comment"), UserContent.single("Inline event comment"))
+                inlineComment = UserContent.single("Inline event comment"),
+                aboveComment = UserContent.single("Event comment")
             )
         )
         assertThat(day[2]).isEqualTo(

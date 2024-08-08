@@ -6,7 +6,7 @@ import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferen
 
 interface UserContentParser {
     fun parseUserContent(
-        markdownText: String,
+        text: String,
         referenceParser: LogEntityReferenceParser,
         onAlert: (alert: LogParseAlert, line: Int) -> Unit
     ): UserContent

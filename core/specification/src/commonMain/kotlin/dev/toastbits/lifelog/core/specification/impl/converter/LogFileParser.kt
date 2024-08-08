@@ -82,10 +82,10 @@ internal class LogFileParser(
         }
 
         if (line.startsWith(formats.datePrefix)) {
-            val (dateText, comment) = line.drop(formats.datePrefix.length).extractComment()
+            val (dateText, inlineComment) = line.drop(formats.datePrefix.length).extractComment()
             val date: LocalDate? = parseDate(dateText)
 
-            onDateLine(date, comment)
+            onDateLine(date, inlineComment)
             return
         }
 
@@ -151,17 +151,17 @@ internal class LogFileParser(
             return@let lastDayTopLevelComment!!.value.content
         }
 
-    private fun onDateLine(date: LocalDate?, commentContent: UserContent?) {
+    private fun onDateLine(date: LocalDate?, inlineComment: UserContent?) {
         if (date == null) {
             onAlert(LogParseAlert.MissingDateError)
             return
         }
 
-        val comments: List<UserContent> =
-            // If a top-level comment was placed directly above this date, make it this date's comment
-            listOfNotNull(getLastTopLevelCommentIfAdjacent(), commentContent)
-
-        currentDay = LogDateImpl(date, comments = comments)
+        currentDay = LogDateImpl(
+            date,
+            inlineComment = inlineComment,
+            aboveComment = getLastTopLevelCommentIfAdjacent()
+        )
         getDayEvents()
     }
 
@@ -170,9 +170,7 @@ internal class LogFileParser(
         val metadata: String?
         val contentLines: MutableList<String> = mutableListOf()
 
-        val comments: List<UserContent> =
-            // If a top-level comment was placed directly above this event, make it this event's comment
-            listOfNotNull(getLastTopLevelCommentIfAdjacent(), inlineComment)
+        val aboveComment: UserContent? = getLastTopLevelCommentIfAdjacent()
 
         val metadataStart: Int = line.indexOf(formats.eventMetadataStart)
         val contentStart: Int = line.indexOf(formats.eventContentStart)
@@ -234,7 +232,8 @@ internal class LogFileParser(
             parseUserContent(contentLines.joinToString("\n").trimIndent(), -1).takeIf { it.isNotEmpty() }
 
         val event: LogEvent = eventType.parseEvent(eventPrefixIndex, body, metadata, content, ::onAlert)
-        event.comments += comments
+        event.inlineComment = inlineComment
+        event.aboveComment = aboveComment
 
         getDayEvents().add(event)
     }

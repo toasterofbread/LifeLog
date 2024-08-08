@@ -7,7 +7,8 @@ import kotlinx.datetime.LocalDate
 
 class LogDateImpl(
     override var date: LocalDate,
-    override var comments: List<UserContent> = emptyList()
+    override var inlineComment: UserContent? = null,
+    override var aboveComment: UserContent? = null
 ): LogDate {
     override fun equals(other: Any?): Boolean =
         other is LogDate && date == other.date

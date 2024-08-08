@@ -6,7 +6,8 @@ import dev.toastbits.lifelog.core.specification.model.UserContent
 
 data class SongMediaConsumeEvent(
     override var mediaReference: MediaReference,
-    override var comments: List<UserContent> = emptyList(),
+    override var inlineComment: UserContent? = null,
+    override var aboveComment: UserContent? = null,
     override var content: UserContent? = null,
     override var iteration: Int = 1
 ): MediaConsumeEvent {

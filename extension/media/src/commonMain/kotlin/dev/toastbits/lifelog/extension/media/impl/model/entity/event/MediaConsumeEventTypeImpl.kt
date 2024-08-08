@@ -1,5 +1,6 @@
 package dev.toastbits.lifelog.extension.media.impl.model.entity.event
 
+import dev.toastbits.lifelog.core.specification.converter.alert.LogGenerateAlert
 import dev.toastbits.lifelog.extension.media.converter.MediaExtensionConverterFormats
 import dev.toastbits.lifelog.extension.media.impl.model.mapper.createConsumeEvent
 import dev.toastbits.lifelog.extension.media.impl.model.mapper.createReference
@@ -10,6 +11,7 @@ import dev.toastbits.lifelog.extension.media.util.MediaEntityType
 import dev.toastbits.lifelog.extension.media.util.MediaStringId
 import dev.toastbits.lifelog.core.specification.converter.alert.LogParseAlert
 import dev.toastbits.lifelog.core.specification.model.UserContent
+import dev.toastbits.lifelog.core.specification.model.entity.event.LogEvent
 
 class MediaConsumeEventTypeImpl(
     private val formats: MediaExtensionConverterFormats
@@ -20,21 +22,6 @@ class MediaConsumeEventTypeImpl(
         MediaEntityType.entries.flatMap { entityType ->
             formats.getMediaEntityTypeConsumeEventPrefixes(entityType).map { it.lowercase() }
         }
-
-    private fun getPrefixIndexMediaEntityType(index: Int): MediaEntityType {
-        var currentIndex: Int = index
-        for (entityType in MediaEntityType.entries) {
-            if (currentIndex <= 0) {
-                return entityType
-            }
-            currentIndex -= formats.getMediaEntityTypeConsumeEventPrefixes(entityType).size
-        }
-        if (currentIndex <= 0) {
-            return MediaEntityType.entries.last()
-        }
-
-        throw IllegalStateException(index.toString())
-    }
 
     override fun parseEvent(
         prefixIndex: Int,
@@ -54,6 +41,14 @@ class MediaConsumeEventTypeImpl(
         }
 
         return event
+    }
+
+    override fun canGenerateEvent(event: LogEvent): Boolean =
+        event is MediaConsumeEvent
+
+    override fun generateEvent(event: LogEvent, onAlert: (LogGenerateAlert) -> Unit): String {
+        check(event is MediaConsumeEvent)
+        TODO()
     }
 
     private fun applyEventMetadata(
@@ -150,5 +145,20 @@ class MediaConsumeEventTypeImpl(
         }
 
         TODO(text)
+    }
+
+    private fun getPrefixIndexMediaEntityType(index: Int): MediaEntityType {
+        var currentIndex: Int = index
+        for (entityType in MediaEntityType.entries) {
+            if (currentIndex <= 0) {
+                return entityType
+            }
+            currentIndex -= formats.getMediaEntityTypeConsumeEventPrefixes(entityType).size
+        }
+        if (currentIndex <= 0) {
+            return MediaEntityType.entries.last()
+        }
+
+        throw IllegalStateException(index.toString())
     }
 }

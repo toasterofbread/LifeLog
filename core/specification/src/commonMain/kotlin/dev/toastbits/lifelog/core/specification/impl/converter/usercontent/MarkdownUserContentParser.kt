@@ -12,7 +12,7 @@ import org.intellij.markdown.parser.MarkdownParser
 
 class MarkdownUserContentParser: UserContentParser {
     override fun parseUserContent(
-        markdownText: String,
+        text: String,
         referenceParser: LogEntityReferenceParser,
         onAlert: (alert: LogParseAlert, line: Int) -> Unit
     ): UserContent {
@@ -20,7 +20,7 @@ class MarkdownUserContentParser: UserContentParser {
 
         val nodes: MutableList<ASTNode> =
             mutableListOf(
-                MarkdownParser(getFlavour()).buildMarkdownTreeFromString(markdownText)
+                MarkdownParser(getFlavour()).buildMarkdownTreeFromString(text)
             )
 
         var currentLine: Int = 0
@@ -31,7 +31,7 @@ class MarkdownUserContentParser: UserContentParser {
             when (node.type.name) {
                 "PARAGRAPH" -> return node.children.getParts()
                 "TEXT", "WHITE_SPACE", "CODE_FENCE_CONTENT" -> {
-                    val nodeText: String = node.getTextInNode(markdownText).toString()
+                    val nodeText: String = node.getTextInNode(text).toString()
                     return listOf(UserContent.Part.Single(nodeText))
                 }
                 "EOL" -> {
@@ -72,10 +72,10 @@ class MarkdownUserContentParser: UserContentParser {
                                 linkTextParts = linkTextNodes.flatMap { getNodeParts(it) }
                             }
                             "LINK_DESTINATION" -> {
-                                linkReference = referenceParser.parseReference(linkChild.getTextInNode(markdownText).toString(), onAlert = { onAlert(it, currentLine) })
+                                linkReference = referenceParser.parseReference(linkChild.getTextInNode(text).toString(), onAlert = { onAlert(it, currentLine) })
                             }
                             "(", ")" -> {}
-                            else -> onAlert(node.toUnhandledAlert("LINK", markdownText), currentLine)
+                            else -> onAlert(node.toUnhandledAlert("LINK", text), currentLine)
                         }
                     }
 
@@ -84,11 +84,11 @@ class MarkdownUserContentParser: UserContentParser {
                 }
                 else -> {
                     if (node.type.name.length == 1) {
-                        val nodeText: String = node.getTextInNode(markdownText).toString()
+                        val nodeText: String = node.getTextInNode(text).toString()
                         return listOf(UserContent.Part.Single(nodeText))
                     }
 
-                    onAlert(node.toUnhandledAlert("TOP", markdownText), currentLine)
+                    onAlert(node.toUnhandledAlert("TOP", text), currentLine)
                     return emptyList()
                 }
             }

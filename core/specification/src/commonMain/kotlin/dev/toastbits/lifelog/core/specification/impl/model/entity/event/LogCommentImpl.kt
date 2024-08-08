@@ -8,5 +8,6 @@ import dev.toastbits.lifelog.core.specification.model.entity.event.LogEvent
 
 data class LogCommentImpl(
     override var content: UserContent?,
-    override var comments: List<UserContent> = emptyList()
+    override var inlineComment: UserContent? = null,
+    override var aboveComment: UserContent? = null
 ): LogComment

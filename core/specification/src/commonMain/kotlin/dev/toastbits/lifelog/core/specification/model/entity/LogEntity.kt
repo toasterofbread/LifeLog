@@ -3,11 +3,11 @@ package dev.toastbits.lifelog.core.specification.model.entity
 import dev.toastbits.lifelog.core.specification.model.UserContent
 import dev.toastbits.lifelog.core.specification.util.LogStringId
 import dev.toastbits.lifelog.core.specification.util.StringId
-import kotlin.reflect.KClass
 
 // An entity is anything that can be referenced in user content
 interface LogEntity {
-    var comments: List<UserContent>
+    var inlineComment: UserContent?
+    var aboveComment: UserContent?
 
     fun getCompanion(): LogEntityCompanion<*> = Companion
 
@@ -19,7 +19,7 @@ interface LogEntity {
     companion object: LogEntityCompanion<LogEntity>(null) {
         override fun getAllProperties(): List<Property<*, *>> =
             listOf(
-                LogStringId.Property.LogEntity.COMMENT.property { comments }
+                LogStringId.Property.LogEntity.COMMENT.property { inlineComment }
             )
     }
 }
