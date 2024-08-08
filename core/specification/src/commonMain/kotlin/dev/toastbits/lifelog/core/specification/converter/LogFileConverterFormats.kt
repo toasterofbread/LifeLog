@@ -3,7 +3,7 @@ package dev.toastbits.lifelog.core.specification.converter
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.format.DateTimeFormat
 
-interface LogDatabaseConverterFormats {
+interface LogFileConverterFormats {
     val datePrefix: String
     val commentPrefix: String
 

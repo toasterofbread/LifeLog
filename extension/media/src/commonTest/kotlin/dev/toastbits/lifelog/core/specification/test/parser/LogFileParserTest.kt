@@ -5,8 +5,7 @@ import assertk.assertions.hasSize
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isInstanceOf
-import assertk.assertions.isNull
-import dev.toastbits.lifelog.extension.media.MediaExtension
+import dev.toastbits.lifelog.core.specification.converter.LogFileConverter
 import dev.toastbits.lifelog.extension.media.impl.model.reference.BookMediaReference
 import dev.toastbits.lifelog.extension.media.impl.model.reference.GameMediaReference
 import dev.toastbits.lifelog.extension.media.impl.model.reference.MovieOrShowMediaReference
@@ -16,27 +15,18 @@ import dev.toastbits.lifelog.extension.media.model.entity.event.GameMediaConsume
 import dev.toastbits.lifelog.extension.media.model.entity.event.MediaConsumeEvent
 import dev.toastbits.lifelog.extension.media.model.entity.event.MovieOrShowMediaConsumeEvent
 import dev.toastbits.lifelog.extension.media.model.entity.event.SongMediaConsumeEvent
-import dev.toastbits.lifelog.extension.media.model.reference.MediaReferenceType
 import dev.toastbits.lifelog.extension.media.util.MediaEntityType
-import dev.toastbits.lifelog.core.specification.converter.LogDatabaseConverter
-import dev.toastbits.lifelog.core.specification.database.LogDatabase
-import dev.toastbits.lifelog.core.specification.impl.converter.LogDatabaseConverterImpl
-import dev.toastbits.lifelog.core.specification.impl.converter.usercontent.MarkdownUserContentParser
 import dev.toastbits.lifelog.core.specification.impl.model.entity.date.LogDateImpl
 import dev.toastbits.lifelog.core.specification.impl.model.entity.event.LogCommentImpl
-import dev.toastbits.lifelog.core.specification.impl.model.reference.LogEntityReferenceParserImpl
 import dev.toastbits.lifelog.core.specification.model.UserContent
 import dev.toastbits.lifelog.core.specification.model.entity.date.LogDate
 import dev.toastbits.lifelog.core.specification.model.entity.event.LogEvent
-import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferenceParser
 import dev.toastbits.lifelog.core.specification.testutil.parser.ParserTest
-import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDate.Formats.ISO
 import kotlinx.datetime.format
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class LogDatabaseParserTest: ParserTest() {
+class LogFileParserTest: ParserTest() {
 
     @Test
     fun testMediaConsumeEventIterations() {
@@ -63,10 +53,10 @@ class LogDatabaseParserTest: ParserTest() {
                         ${prefix.uppercase()} Test Test Test ($iterationText $suffix)
                         """.trimIndent()
 
-                        val result: LogDatabaseConverter.ParseResult = parser.parseLogDatabase(text.split('\n'))
+                        val result: LogFileConverter.ParseResult = parser.parseLogFile(text.split('\n'))
                         assertThat(result.alerts).isEmpty()
 
-                        val event: LogEvent = result.database.days[LogDateImpl(templateDate)]!!.single()
+                        val event: LogEvent = result.days[LogDateImpl(templateDate)]!!.single()
                         assertThat(event).isInstanceOf<MediaConsumeEvent>()
 
                         assertThat((event as MediaConsumeEvent).iteration).isEqualTo(iterationNumber)
@@ -93,10 +83,10 @@ Watched Test Test Test (first watch, eps 1-5) { // Inline event comment
 // Standalone comment
         """
 
-        val result: LogDatabaseConverter.ParseResult = parser.parseLogDatabase(text.split('\n'))
+        val result: LogFileConverter.ParseResult = parser.parseLogFile(text.split('\n'))
         assertThat(result.alerts).isEmpty()
 
-        val (date: LogDate?, day: List<LogEvent>) = result.database.days.entries.single()
+        val (date: LogDate?, day: List<LogEvent>) = result.days.entries.single()
         assertThat(date?.date).isEqualTo(templateDate)
         assertThat(date?.comments).isEqualTo(
             listOf(
@@ -172,13 +162,12 @@ Listened to $eventReference (12th listen) {
                 )
             )
 
-        val result: LogDatabaseConverter.ParseResult = parser.parseLogDatabase(text.split('\n'))
+        val result: LogFileConverter.ParseResult = parser.parseLogFile(text.split('\n'))
         assertThat(result.alerts).isEmpty()
 
-        val database: LogDatabase = result.database
-        assertThat(database.days).hasSize(1)
+        assertThat(result.days).hasSize(1)
 
-        val day: List<LogEvent>? = database.days[LogDateImpl(templateDate)]
+        val day: List<LogEvent>? = result.days[LogDateImpl(templateDate)]
         assertThat(day).isEqualTo(expectedEvents)
     }
 }

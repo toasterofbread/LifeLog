@@ -1,13 +1,13 @@
 package dev.toastbits.lifelog.core.specification.impl.converter
 
-import dev.toastbits.lifelog.core.specification.converter.LogDatabaseConverterFormats
+import dev.toastbits.lifelog.core.specification.converter.LogFileConverterFormats
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.format.DateTimeFormat
 import kotlinx.datetime.format.MonthNames
 import kotlinx.datetime.format.Padding
 import kotlinx.datetime.format.char
 
-data class LogDatabaseConverterFormatsImpl(
+data class LogFileConverterFormatsImpl(
     override val datePrefix: String = "----- ",
     override val commentPrefix: String = "//",
 
@@ -38,4 +38,4 @@ data class LogDatabaseConverterFormatsImpl(
                 year()
             }
         )
-): LogDatabaseConverterFormats
+): LogFileConverterFormats

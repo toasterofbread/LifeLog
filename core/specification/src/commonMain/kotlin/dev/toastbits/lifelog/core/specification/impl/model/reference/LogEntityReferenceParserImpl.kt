@@ -1,6 +1,6 @@
 package dev.toastbits.lifelog.core.specification.impl.model.reference
 
-import dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert
+import dev.toastbits.lifelog.core.specification.converter.alert.LogParseAlert
 import dev.toastbits.lifelog.core.specification.model.entity.event.LogEventType
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReference
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferenceParser

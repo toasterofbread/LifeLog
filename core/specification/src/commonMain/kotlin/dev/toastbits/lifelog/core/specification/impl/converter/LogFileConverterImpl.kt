@@ -1,27 +1,23 @@
 package dev.toastbits.lifelog.core.specification.impl.converter
 
-import dev.toastbits.lifelog.core.specification.converter.LogDatabaseConverter
-import dev.toastbits.lifelog.core.specification.converter.LogDatabaseConverterFormats
-import dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert
-import dev.toastbits.lifelog.core.specification.database.LogDatabase
+import dev.toastbits.lifelog.core.specification.converter.LogFileConverter
+import dev.toastbits.lifelog.core.specification.converter.LogFileConverterFormats
 import dev.toastbits.lifelog.core.specification.extension.SpecificationExtension
 import dev.toastbits.lifelog.core.specification.impl.converter.usercontent.MarkdownUserContentParser
 import dev.toastbits.lifelog.core.specification.impl.converter.usercontent.UserContentParser
 import dev.toastbits.lifelog.core.specification.impl.model.reference.LogEntityReferenceParserImpl
+import dev.toastbits.lifelog.core.specification.model.entity.date.LogDate
+import dev.toastbits.lifelog.core.specification.model.entity.event.LogEvent
 import dev.toastbits.lifelog.core.specification.model.entity.event.LogEventType
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferenceParser
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferenceType
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.format.MonthNames
-import kotlinx.datetime.format.Padding
-import kotlinx.datetime.format.char
 
-class LogDatabaseConverterImpl(
-    private val formats: LogDatabaseConverterFormats = DEFAULT_FORMATS,
+class LogFileConverterImpl(
+    private val formats: LogFileConverterFormats = DEFAULT_FORMATS,
     eventTypes: List<LogEventType> = DEFAULT_EVENT_TYPES,
     referenceTypes: List<LogEntityReferenceType> = DEFAULT_REFERENCE_TYPES,
     private val userContentParser: UserContentParser = MarkdownUserContentParser()
-): LogDatabaseConverter {
+): LogFileConverter {
     private val registeredEventTypes: MutableList<LogEventType> = eventTypes.toMutableList()
     private val registeredReferenceTypes: MutableList<LogEntityReferenceType> = referenceTypes.toMutableList()
 
@@ -30,16 +26,28 @@ class LogDatabaseConverterImpl(
         registeredReferenceTypes.addAll(specificationExtension.getExtraReferenceTypes())
     }
 
-    override fun parseLogDatabase(lines: Iterable<String>): LogDatabaseConverter.ParseResult {
+    override fun parseLogFile(lines: Iterable<String>): LogFileConverter.ParseResult {
         val referenceParser: LogEntityReferenceParser =
             LogEntityReferenceParserImpl(registeredEventTypes, registeredReferenceTypes)
 
-        return LogDatabaseParser(
+        return LogFileParser(
             formats,
             registeredEventTypes,
             userContentParser,
             referenceParser
         ).parse(lines)
+    }
+
+    override fun generateLogFile(days: Map<LogDate?, List<LogEvent>>): LogFileConverter.GenerateResult {
+        // TODO
+        // val referenceGenerator: LogEntityReferenceGenerator =
+
+        return LogFileGenerator(
+            formats,
+            registeredEventTypes,
+            userContentParser,
+            TODO()
+        ).generate(days)
     }
 
     companion object {
@@ -51,17 +59,7 @@ class LogDatabaseConverterImpl(
 
         )
 
-        val DEFAULT_FORMATS: LogDatabaseConverterFormatsImpl =
-            LogDatabaseConverterFormatsImpl()
+        val DEFAULT_FORMATS: LogFileConverterFormatsImpl =
+            LogFileConverterFormatsImpl()
     }
-
-    data class ParseResultData(
-        override val database: LogDatabase,
-        override val alerts: List<LogDatabaseConverter.ParseAlert>
-    ) : LogDatabaseConverter.ParseResult
-
-    data class ParseAlertData(
-        override val alert: LogParseAlert,
-        override val lineIndex: Int
-    ) : LogDatabaseConverter.ParseAlert
 }

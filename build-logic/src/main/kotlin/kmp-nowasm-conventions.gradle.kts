@@ -4,13 +4,12 @@ import util.configureKmpTargets
 
 plugins {
     id("android-library-conventions")
-
     kotlin("multiplatform")
     id("dev.mokkery")
 }
 
 kotlin {
-    configureKmpTargets(KmpTarget.values().toList())
+    configureKmpTargets(KmpTarget.values().filter { it != KmpTarget.WASMJS })
 
     sourceSets {
         commonTest {

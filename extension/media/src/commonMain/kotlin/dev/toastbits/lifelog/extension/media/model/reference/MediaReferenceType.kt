@@ -1,10 +1,9 @@
 package dev.toastbits.lifelog.extension.media.model.reference
 
 import dev.toastbits.lifelog.extension.media.impl.model.mapper.createReference
-import dev.toastbits.lifelog.extension.media.impl.model.reference.MovieOrShowMediaReference
 import dev.toastbits.lifelog.extension.media.util.MediaEntityType
 import dev.toastbits.lifelog.extension.media.util.MediaStringId
-import dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert
+import dev.toastbits.lifelog.core.specification.converter.alert.LogParseAlert
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferenceType
 import dev.toastbits.lifelog.core.specification.util.StringId
 

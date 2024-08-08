@@ -1,10 +1,10 @@
 package dev.toastbits.lifelog.core.git
 
 import kotlinx.coroutines.CoroutineDispatcher
-import java.io.File
+import okio.Path
 
 expect class GitWrapper(
-    directory: File,
+    directory: Path,
     dispatcher: CoroutineDispatcher
 )  {
     suspend fun init()

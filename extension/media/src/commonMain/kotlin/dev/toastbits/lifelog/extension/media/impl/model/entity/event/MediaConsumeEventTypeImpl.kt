@@ -8,7 +8,7 @@ import dev.toastbits.lifelog.extension.media.model.entity.event.MediaConsumeEven
 import dev.toastbits.lifelog.extension.media.model.reference.MediaReference
 import dev.toastbits.lifelog.extension.media.util.MediaEntityType
 import dev.toastbits.lifelog.extension.media.util.MediaStringId
-import dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert
+import dev.toastbits.lifelog.core.specification.converter.alert.LogParseAlert
 import dev.toastbits.lifelog.core.specification.model.UserContent
 
 class MediaConsumeEventTypeImpl(

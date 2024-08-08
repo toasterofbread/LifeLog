@@ -1,6 +1,6 @@
 package dev.toastbits.lifelog.core.specification.model.entity.event
 
-import dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert
+import dev.toastbits.lifelog.core.specification.converter.alert.LogParseAlert
 import dev.toastbits.lifelog.core.specification.model.UserContent
 import dev.toastbits.lifelog.core.specification.util.StringId
 

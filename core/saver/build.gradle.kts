@@ -9,6 +9,14 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                implementation(projects.core.specification)
+                implementation(libs.kotlinx.coroutines.core)
+            }
+        }
+
+        val notWasmJsMain by getting {
+            dependencies {
+                implementation(projects.core.git)
             }
         }
     }

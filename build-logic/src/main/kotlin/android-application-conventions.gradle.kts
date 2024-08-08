@@ -1,3 +1,6 @@
+import util.libs
+import util.version
+
 plugins {
     id("com.android.application")
 }

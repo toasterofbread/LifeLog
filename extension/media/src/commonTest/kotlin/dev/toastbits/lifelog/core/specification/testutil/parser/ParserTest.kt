@@ -5,8 +5,8 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
 import dev.toastbits.lifelog.extension.media.MediaExtension
 import dev.toastbits.lifelog.extension.media.model.reference.MediaReferenceType
-import dev.toastbits.lifelog.core.specification.converter.LogDatabaseConverter
-import dev.toastbits.lifelog.core.specification.impl.converter.LogDatabaseConverterImpl
+import dev.toastbits.lifelog.core.specification.converter.LogFileConverter
+import dev.toastbits.lifelog.core.specification.impl.converter.LogFileConverterImpl
 import dev.toastbits.lifelog.core.specification.impl.converter.usercontent.MarkdownUserContentParser
 import dev.toastbits.lifelog.core.specification.impl.model.reference.LogEntityReferenceParserImpl
 import dev.toastbits.lifelog.core.specification.model.UserContent
@@ -15,7 +15,7 @@ import kotlinx.datetime.LocalDate
 import kotlin.test.BeforeTest
 
 open class ParserTest {
-    lateinit var parser: LogDatabaseConverter
+    lateinit var parser: LogFileConverter
         private set
     lateinit var markdownParser: MarkdownUserContentParser
         private set
@@ -26,7 +26,7 @@ open class ParserTest {
 
     @BeforeTest
     fun setUp() {
-        parser = LogDatabaseConverterImpl()
+        parser = LogFileConverterImpl()
         parser.registerExtension(MediaExtension())
 
         markdownParser = MarkdownUserContentParser()

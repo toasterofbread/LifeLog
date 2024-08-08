@@ -1,11 +1,9 @@
 package dev.toastbits.lifelog.core.specification.impl.converter
 
-import dev.toastbits.lifelog.core.specification.converter.LogDatabaseConverter
-import dev.toastbits.lifelog.core.specification.converter.LogDatabaseConverterFormats
-import dev.toastbits.lifelog.core.specification.converter.error.LogParseAlert
-import dev.toastbits.lifelog.core.specification.database.LogDatabase
-import dev.toastbits.lifelog.core.specification.impl.converter.LogDatabaseConverterImpl.ParseResultData
-import dev.toastbits.lifelog.core.specification.impl.converter.LogDatabaseConverterImpl.ParseAlertData
+import dev.toastbits.lifelog.core.specification.converter.LogFileConverter
+import dev.toastbits.lifelog.core.specification.converter.LogFileConverterFormats
+import dev.toastbits.lifelog.core.specification.converter.ParseAlertData
+import dev.toastbits.lifelog.core.specification.converter.alert.LogParseAlert
 import dev.toastbits.lifelog.core.specification.impl.converter.usercontent.UserContentParser
 import dev.toastbits.lifelog.core.specification.impl.model.entity.date.LogDateImpl
 import dev.toastbits.lifelog.core.specification.impl.model.entity.event.LogCommentImpl
@@ -17,8 +15,8 @@ import dev.toastbits.lifelog.core.specification.model.entity.event.LogEventType
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferenceParser
 import kotlinx.datetime.LocalDate
 
-internal class LogDatabaseParser(
-    private val formats: LogDatabaseConverterFormats,
+internal class LogFileParser(
+    private val formats: LogFileConverterFormats,
     private val eventTypes: List<LogEventType>,
     private val userContentParser: UserContentParser,
     private val referenceParser: LogEntityReferenceParser
@@ -52,7 +50,7 @@ internal class LogDatabaseParser(
     private fun getDayEvents(): MutableList<LogEvent> =
         days.getOrPut(currentDay) { mutableListOf() }
 
-    fun parse(lines: Iterable<String>): LogDatabaseConverter.ParseResult {
+    fun parse(lines: Iterable<String>): LogFileConverter.ParseResult {
         days = mutableMapOf()
         alerts = mutableListOf()
         iterator = lines.iterator()
@@ -66,11 +64,8 @@ internal class LogDatabaseParser(
 
         days.entries.removeAll { it.value.isEmpty() }
 
-        return ParseResultData(
-            database =
-                object : LogDatabase {
-                    override val days: MutableMap<LogDate?, MutableList<LogEvent>> = this@LogDatabaseParser.days
-                },
+        return LogFileConverter.ParseResult(
+            days = days,
             alerts = alerts
         )
     }
@@ -250,26 +245,4 @@ internal class LogDatabaseParser(
 
         getDayEvents().add(comment)
     }
-
-//    private fun <T> parseSuccess(result: T): InternalParseResult<T> =
-//        InternalParseResult.Success(result)
-//
-//    private fun <T> parseError(error: ParseException): InternalParseResult<T> =
-//        InternalParseResult.Failure(error)
 }
-
-//private sealed interface InternalParseResult<T> {
-//    class Success<T>(val value: T): InternalParseResult<T> {
-//        override fun handleError(block: (ParseException) -> Nothing): T = value
-//    }
-//    class Failure<T>(val error: ParseException): InternalParseResult<T> {
-//        override fun handleError(block: (ParseException) -> Nothing): T = block(error)
-//    }
-//
-//    fun handleError(block: (ParseException) -> Nothing): T
-//}
-
-//private class ParseException(
-//    override val message: String,
-//    cause: Throwable? = null
-//): RuntimeException(message, cause)
