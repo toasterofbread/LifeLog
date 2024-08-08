@@ -1,11 +1,19 @@
+import util.KmpTarget
+import util.configureKmpTargets
+
 plugins {
-    id("kmp-nowasm-conventions")
+    id("kmp-conventions")
 
     alias(libs.plugins.kotlin)
     alias(libs.plugins.publish)
 }
 
 kotlin {
+    configureKmpTargets(
+        KmpTarget.JVM,
+        KmpTarget.NATIVE
+    )
+
     sourceSets {
         val commonMain by getting {
             dependencies {
@@ -20,12 +28,4 @@ kotlin {
             }
         }
     }
-}
-
-val projectName: String = libs.versions.project.name.get()
-val projectVersion: String = project.libs.versions.project.name.get()
-val artifactName: String = "core.git"
-
-android {
-    namespace = "dev.toastbits.$projectName.$artifactName"
 }

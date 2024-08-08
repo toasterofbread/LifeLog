@@ -8,7 +8,11 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinHierarchyBuilder
 import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 
-fun KotlinMultiplatformExtension.configureKmpTargets(targets: Iterable<KmpTarget>) {
+fun KotlinMultiplatformExtension.configureAllKmpTargets() {
+    configureKmpTargets(*KmpTarget.values())
+}
+
+fun KotlinMultiplatformExtension.configureKmpTargets(vararg targets: KmpTarget) {
     for (target in targets) {
         when (target) {
             KmpTarget.JVM -> jvm()
