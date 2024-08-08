@@ -8,9 +8,13 @@ import assertk.assertions.isFalse
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import java.io.File
+import okio.FileSystem
+import okio.Path
+import okio.SYSTEM
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -18,30 +22,26 @@ import kotlin.test.assertFails
 
 class GitWrapperTest  {
     private lateinit var git: GitWrapper
-    private lateinit var directory: File
+    private lateinit var directory: Path
+
+    private val system: FileSystem = FileSystem.SYSTEM
 
     @BeforeTest
     fun setUp() {
-        val os: String = System.getProperty("os.name")!!.lowercase()
-        directory = when  {
-            os == "linux" -> File("/tmp/lifelogtest")
-            else -> throw NotImplementedError(os)
+        var i: Int = 1
+        do {
+            directory = FileSystem.SYSTEM_TEMPORARY_DIRECTORY.resolve("lifelogtest-${i++}")
         }
-        directory.deleteRecursively()
+        while (FileSystem.SYSTEM.exists(directory))
 
-        git = GitWrapper(directory, UnconfinedTestDispatcher())
-    }
-
-    @AfterTest
-    fun tearDown() {
-        directory.deleteRecursively()
+        git = GitWrapper.create(directory, UnconfinedTestDispatcher())
     }
 
     private inline fun checkGitInitialisation(initialise: () -> Unit) {
-        assertThat(directory.exists()).isFalse()
+        assertThat(system.exists(directory)).isFalse()
         initialise()
-        assertThat(directory.isDirectory).isTrue()
-        assertThat(directory.resolve(".git").isDirectory).isTrue()
+        assertThat(system.exists(directory)).isTrue()
+        assertThat(system.exists(directory.resolve(".git"))).isTrue()
     }
 
     @Test
@@ -57,7 +57,7 @@ class GitWrapperTest  {
             setUp()
 
             checkGitInitialisation { git.clone(remote) }
-            assertThat(directory.resolve(TEST_REMOTE_EXISTING_FILE).isFile).isTrue()
+            assertThat(system.exists(directory.resolve(TEST_REMOTE_EXISTING_FILE))).isTrue()
         }
     }
 
@@ -76,8 +76,12 @@ class GitWrapperTest  {
         val content: String = "bar"
         assertThat(file).isNotEqualTo(content)
 
-        directory.resolve(file).writeText(content)
-        assertThat(directory.resolve(file).readText()).isEqualTo(content)
+        system.write(directory.resolve(file)) {
+            writeUtf8(content)
+        }
+        system.read(directory.resolve(file)) {
+            assertThat(readUtf8()).isEqualTo(content)
+        }
 
         git.add(file)
         git.commit("baz")
@@ -99,9 +103,10 @@ class GitWrapperTest  {
             checkGitInitialisation { git.init() }
             git.remoteAdd(remoteName, remote)
 
-            assertThat(directory.resolve(TEST_REMOTE_EXISTING_FILE).exists()).isFalse()
-            git.pull(remoteName)
-            assertThat(directory.resolve(TEST_REMOTE_EXISTING_FILE).isFile).isTrue()
+            val file: Path = directory.resolve(TEST_REMOTE_EXISTING_FILE)
+            assertThat(system.exists(file)).isFalse()
+            git.pull(remoteName, TEST_REMOTE_DEFAULT_BRANCH)
+            assertThat(system.exists(file)).isTrue()
         }
     }
 
@@ -113,7 +118,7 @@ class GitWrapperTest  {
         git.remoteAdd(remoteName, NONEXISTENT_TEST_REMOTE)
 
         assertFails {
-            git.pull(remoteName)
+            git.pull(remoteName, TEST_REMOTE_DEFAULT_BRANCH)
         }
     }
 
@@ -123,6 +128,7 @@ class GitWrapperTest  {
             "https://github.com/toasterofbread/kmp-template.git"
         )
         private const val TEST_REMOTE_EXISTING_FILE: String = "LICENSE"
+        private const val TEST_REMOTE_DEFAULT_BRANCH: String = "main"
         private const val NONEXISTENT_TEST_REMOTE: String = "https://google.com/"
     }
 }
