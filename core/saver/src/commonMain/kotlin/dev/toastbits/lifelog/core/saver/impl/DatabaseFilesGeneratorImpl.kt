@@ -9,8 +9,10 @@ import dev.toastbits.lifelog.core.saver.splitDaysIntoGroups
 import dev.toastbits.lifelog.core.specification.converter.GenerateAlertData
 import dev.toastbits.lifelog.core.specification.converter.LogFileConverter
 import dev.toastbits.lifelog.core.specification.database.LogDatabase
+import dev.toastbits.lifelog.core.specification.database.LogEntityMetadata
 import dev.toastbits.lifelog.core.specification.model.entity.date.LogDate
 import dev.toastbits.lifelog.core.specification.model.entity.event.LogEvent
+import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReference
 import okio.Path
 
 class DatabaseFilesGeneratorImpl(
@@ -23,7 +25,10 @@ class DatabaseFilesGeneratorImpl(
         onAlert: (GenerateAlertData) -> Unit
     ): DatabaseFileStructure {
         val structure: MutableDatabaseFileStructure = MutableDatabaseFileStructure()
+
         structure.writeDays(database.days, onAlert)
+        structure.writeMetadata(database.metadata, onAlert)
+
         return structure
     }
 
@@ -37,8 +42,18 @@ class DatabaseFilesGeneratorImpl(
                 converter.generateLogFile(group.associateWith { days[it]!! })
             generateResult.alerts.forEach(onAlert)
 
-            val logFilePath: Path = fileStructureProvider.getLogFilePath(group.first().date)
-            createFile(logFilePath, generateResult.lines)
+            val filePath: Path = fileStructureProvider.getLogFilePath(group.first().date)
+            createFile(filePath, generateResult.lines)
+        }
+    }
+
+    private fun MutableDatabaseFileStructure.writeMetadata(
+        metadataEntries: Map<LogEntityReference, LogEntityMetadata>,
+        onAlert: (GenerateAlertData) -> Unit
+    ) {
+        for ((reference, metadata) in metadataEntries) {
+            val filePath: Path = fileStructureProvider.getEntityReferencePath(reference)
+            createFile(filePath, listOf("TEMP"))
         }
     }
 }

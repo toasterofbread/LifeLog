@@ -20,7 +20,7 @@ class LogEntityReferenceGeneratorImpl(
     ): LogEntityPath {
         val basePath: Path =
             if (relativeToOverride != null) relativeToOverride.segments.toPath()
-            else fileStructureProvider.getLogFilePath(relativeToDate)
+            else fileStructureProvider.getLogFilePath(relativeToDate).parent!!
 
         val referencePath: Path = fileStructureProvider.getEntityReferencePath(reference)
         if (basePath.isRoot) {

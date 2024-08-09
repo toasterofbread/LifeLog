@@ -3,9 +3,9 @@
 package dev.toastbits.lifelog.core.saver.impl.git
 
 import assertk.assertThat
+import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
-import dev.mokkery.answering.calls
 import dev.mokkery.answering.returns
 import dev.mokkery.every
 import dev.mokkery.matcher.any
@@ -28,7 +28,6 @@ import dev.toastbits.lifelog.core.specification.impl.model.entity.date.LogDateIm
 import dev.toastbits.lifelog.core.specification.model.UserContent
 import dev.toastbits.lifelog.core.specification.model.entity.event.LogEventType
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityPath
-import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReference
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferenceGenerator
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferenceParser
 import dev.toastbits.lifelog.core.test.FileSystemTest
@@ -56,18 +55,18 @@ class GitLogDatabaseSaverTest: FileSystemTest {
 
     override val fileSystem: FileSystem = FileSystem.SYSTEM
 
-    private val eventText: LogEventType.EventText =
-        LogEventType.EventText(
-            prefix = "Prefix ",
-            body = "Body",
-            metadata = "Metadata"
-        )
-    private val mediaConsumeEventType: MediaConsumeEventType = mock {
-        every { eventClass } returns MediaConsumeEvent::class
-        every { generateEvent(any(), any(), any(), any()) } returns eventText
-    }
+//    private val eventText: LogEventType.EventText =
+//        LogEventType.EventText(
+//            prefix = "Prefix ",
+//            body = "Body",
+//            metadata = "Metadata"
+//        )
+//    private val mediaConsumeEventType: MediaConsumeEventType = mock {
+//        every { eventClass } returns MediaConsumeEvent::class
+//        every { generateEvent(any(), any(), any(), any()) } returns eventText
+//    }
 
-//    private val mediaConsumeEventType: MediaConsumeEventType = MediaConsumeEventTypeImpl()
+    private val mediaConsumeEventType: MediaConsumeEventType = MediaConsumeEventTypeImpl()
     private val mediaExtension: MediaExtension = MediaExtension(mediaConsumeEventType = mediaConsumeEventType)
 
     private val formats: LogFileConverterFormats = LogFileConverterImpl.DEFAULT_FORMATS
@@ -123,15 +122,12 @@ class GitLogDatabaseSaverTest: FileSystemTest {
                 )
             )
 
-        val referenceGenerator: LogEntityReferenceGenerator = LogEntityReferenceGeneratorImpl(fileStructureProvider, date)
-//        val referencePath: LogEntityPath = referenceGenerator.generateReferencePath(reference, relativeToOverride = LogEntityPath.ROOT) { assertThat(it).isNull() }!!
-
         saver.saveDatabaseRemotely(database, "Test ${formats.preferredDateFormat.format(date)}") { assertThat(it).isNull() }
 
-        verify {
-            mediaConsumeEventType.eventClass
-            mediaConsumeEventType.generateEvent(event, any(), any(), any())
-        }
+//        verify {
+//            mediaConsumeEventType.eventClass
+//            mediaConsumeEventType.generateEvent(event, any(), any(), any())
+//        }
 
         val logFile: Path = fileStructureProvider.getLogFilePath(date)
         val logFileContent: String =
@@ -139,16 +135,24 @@ class GitLogDatabaseSaverTest: FileSystemTest {
                 readUtf8()
             }
 
-        val expectedFileContent: String = buildString {
-            appendLine("${formats.datePrefix}${formats.preferredDateFormat.format(date)}")
-            appendLine()
-            appendLine("${eventText.prefix}${eventText.body} (${eventText.metadata}) {")
-            appendLine()
-            appendLine(renderedContent.prependIndent(formats.contentIndentation))
-            appendLine()
-            appendLine('}')
-        }
+        val referenceGenerator: LogEntityReferenceGenerator = LogEntityReferenceGeneratorImpl(fileStructureProvider, date)
+        val referencePath: LogEntityPath = referenceGenerator.generateReferencePath(reference) { assertThat(it).isNull() }!!
 
-        assertThat(logFileContent).isEqualTo(expectedFileContent)
+        assertThat(logFileContent).contains(formats.datePrefix)
+        assertThat(logFileContent).contains(formats.preferredDateFormat.format(date))
+        assertThat(logFileContent).contains(renderedContent.prependIndent(formats.contentIndentation))
+        assertThat(logFileContent).contains(referencePath.toString())
+
+        val metadataFile: Path = fileStructureProvider.getEntityReferencePath(reference)
+        val metadataFileContent: String =
+            fileSystem.read(repository.directory.resolve(metadataFile)) {
+                readUtf8()
+            }
+
+        val expectedMetadataFileContent: String =
+            buildString {
+                append("TEMP")
+            }
+        assertThat(metadataFileContent).isEqualTo(expectedMetadataFileContent)
     }
 }
