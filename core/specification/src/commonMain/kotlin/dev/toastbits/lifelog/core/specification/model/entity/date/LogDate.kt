@@ -2,7 +2,6 @@ package dev.toastbits.lifelog.core.specification.model.entity.date
 
 import dev.toastbits.lifelog.core.specification.model.entity.LogEntity
 import dev.toastbits.lifelog.core.specification.model.entity.LogEntityCompanion
-import dev.toastbits.lifelog.core.specification.model.entity.LogEntityProperty
 import dev.toastbits.lifelog.core.specification.util.LogStringId
 import kotlinx.datetime.LocalDate
 

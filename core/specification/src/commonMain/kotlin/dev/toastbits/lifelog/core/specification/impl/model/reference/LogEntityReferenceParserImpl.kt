@@ -14,21 +14,23 @@ class LogEntityReferenceParserImpl(
         text: String,
         onAlert: (LogParseAlert) -> Unit
     ): LogEntityReference? {
-        for (referenceType in referenceTypes) {
-            for ((index, prefix) in referenceType.prefixes.withIndex()) {
-                if (prefix.length > text.length) {
-                    continue
-                }
-
-                if (text.take(prefix.length).lowercase() != prefix.lowercase()) {
-                    continue
-                }
-
-                return referenceType.parseReference(text.drop(prefix.length).trimStart(), index, onAlert = onAlert)
-            }
-        }
-
-        onAlert(LogParseAlert.UnknownReferenceType)
+        // TODO
         return null
+//        for (referenceType in referenceTypes) {
+//            for ((index, prefix) in referenceType.prefixes.withIndex()) {
+//                if (prefix.length > text.length) {
+//                    continue
+//                }
+//
+//                if (text.take(prefix.length).lowercase() != prefix.lowercase()) {
+//                    continue
+//                }
+//
+//                return referenceType.parseReference(text.drop(prefix.length).trimStart(), index, onAlert = onAlert)
+//            }
+//        }
+//
+//        onAlert(LogParseAlert.UnknownReferenceType)
+//        return null
     }
 }

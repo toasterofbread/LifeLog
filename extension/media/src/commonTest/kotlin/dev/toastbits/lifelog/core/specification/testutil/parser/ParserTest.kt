@@ -15,7 +15,7 @@ import kotlinx.datetime.LocalDate
 import kotlin.test.BeforeTest
 
 open class ParserTest {
-    lateinit var parser: LogFileConverter
+    lateinit var converter: LogFileConverter
         private set
     lateinit var markdownParser: MarkdownUserContentParser
         private set
@@ -26,8 +26,8 @@ open class ParserTest {
 
     @BeforeTest
     fun setUp() {
-        parser = LogFileConverterImpl()
-        parser.registerExtension(MediaExtension())
+        converter = LogFileConverterImpl()
+        converter.registerExtension(mediaExtension)
 
         markdownParser = MarkdownUserContentParser()
         referenceParser = LogEntityReferenceParserImpl(eventTypes = emptyList(), referenceTypes = listOf(

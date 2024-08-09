@@ -4,6 +4,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.format.DateTimeFormat
 
 interface LogFileConverterFormats {
+    val contentIndentation: String
     val datePrefix: String
     val commentPrefix: String
 
@@ -14,4 +15,6 @@ interface LogFileConverterFormats {
 
     val preferredDateFormat: DateTimeFormat<LocalDate>
     val dateFormats: List<DateTimeFormat<LocalDate>>
+
+    fun numberToIteration(number: Int): String
 }

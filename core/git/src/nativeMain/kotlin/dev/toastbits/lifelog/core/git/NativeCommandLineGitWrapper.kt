@@ -10,13 +10,15 @@ class NativeCommandLineGitWrapper(
     override val directory: Path,
     private val dispatcher: CoroutineDispatcher
 ): CommandLineGitWrapper() {
-    override suspend fun runGitCommand(vararg args: String?) = withContext(dispatcher) {
+    override suspend fun runGitCommand(vararg args: String?): String = withContext(dispatcher) {
         if (!FileSystem.SYSTEM.exists(directory)) {
             FileSystem.SYSTEM.createDirectories(directory, mustCreate = true)
         }
 
         val finalArgs: List<String> = listOf("-C", directory.toString()) + args.filterNotNull()
-        val result: Int = runCommand(gitBinaryPath, finalArgs)
-        check(result == 0) { "Result $result when running $gitBinaryPath $finalArgs" }
+        val output: String? = runCommand(gitBinaryPath, finalArgs)
+        checkNotNull(output) { "Failure when running $gitBinaryPath $finalArgs" }
+
+        return@withContext output
     }
 }

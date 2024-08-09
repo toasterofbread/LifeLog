@@ -1,4 +1,4 @@
-package dev.toastbits.lifelog.core.specification.test.parser
+package dev.toastbits.lifelog.core.specification.test.converter
 
 import assertk.assertThat
 import assertk.assertions.hasSize

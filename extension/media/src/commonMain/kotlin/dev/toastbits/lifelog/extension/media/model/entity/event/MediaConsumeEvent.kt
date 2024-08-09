@@ -12,7 +12,7 @@ import dev.toastbits.lifelog.core.specification.model.entity.event.LogEvent
 
 interface MediaConsumeEvent: LogEvent {
     var mediaReference: MediaReference
-    var iteration: Int
+    var iteration: Int?
     val mediaEntityType: MediaEntityType
 
     companion object: LogEntityCompanion<MediaConsumeEvent>(LogEvent) {

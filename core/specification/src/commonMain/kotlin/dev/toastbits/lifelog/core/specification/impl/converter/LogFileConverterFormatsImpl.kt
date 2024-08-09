@@ -8,6 +8,7 @@ import kotlinx.datetime.format.Padding
 import kotlinx.datetime.format.char
 
 data class LogFileConverterFormatsImpl(
+    override val contentIndentation: String = "  ",
     override val datePrefix: String = "----- ",
     override val commentPrefix: String = "//",
 
@@ -38,4 +39,19 @@ data class LogFileConverterFormatsImpl(
                 year()
             }
         )
-): LogFileConverterFormats
+): LogFileConverterFormats {
+    override fun numberToIteration(number: Int): String =
+        when (number) {
+            1 -> "first"
+            2 -> "second"
+            3 -> "third"
+            4 -> "fourth"
+            5 -> "fifth"
+            6 -> "sixth"
+            7 -> "seventh"
+            8 -> "eighth"
+            9 -> "ninth"
+            10 -> "tenth"
+            else -> "${number}th"
+        }
+}

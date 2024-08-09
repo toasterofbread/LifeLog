@@ -7,13 +7,12 @@ import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferen
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferenceType
 
 class LogEntityReferenceGeneratorImpl(
-    private val eventTypes: List<LogEventType>,
     private val referenceTypes: List<LogEntityReferenceType>
 ): LogEntityReferenceGenerator {
     override fun generateReference(
         reference: LogEntityReference,
         onAlert: (LogGenerateAlert) -> Unit
-    ): String {
-        TODO("Not yet implemented")
+    ): String? {
+        return "TEMP"
     }
 }

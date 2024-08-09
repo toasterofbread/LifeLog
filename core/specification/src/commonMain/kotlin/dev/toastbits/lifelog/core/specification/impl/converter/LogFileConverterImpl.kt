@@ -26,34 +26,32 @@ class LogFileConverterImpl(
     private val registeredEventTypes: MutableList<LogEventType> = eventTypes.toMutableList()
     private val registeredReferenceTypes: MutableList<LogEntityReferenceType> = referenceTypes.toMutableList()
 
+    val referenceParser: LogEntityReferenceParser
+        get() = LogEntityReferenceParserImpl(registeredEventTypes, registeredReferenceTypes)
+
+    val referenceGenerator: LogEntityReferenceGenerator
+        get() = LogEntityReferenceGeneratorImpl(registeredReferenceTypes)
+
     override fun registerExtension(specificationExtension: SpecificationExtension) {
         registeredEventTypes.addAll(specificationExtension.getExtraEventTypes())
         registeredReferenceTypes.addAll(specificationExtension.getExtraReferenceTypes())
     }
 
-    override fun parseLogFile(lines: Iterable<String>): LogFileConverter.ParseResult {
-        val referenceParser: LogEntityReferenceParser =
-            LogEntityReferenceParserImpl(registeredEventTypes, registeredReferenceTypes)
-
-        return LogFileParser(
+    override fun parseLogFile(lines: Iterable<String>): LogFileConverter.ParseResult =
+        LogFileParser(
             formats,
             registeredEventTypes,
             userContentParser,
             referenceParser
         ).parse(lines)
-    }
 
-    override fun generateLogFile(days: Map<LogDate?, List<LogEvent>>): LogFileConverter.GenerateResult {
-         val referenceGenerator: LogEntityReferenceGenerator =
-             LogEntityReferenceGeneratorImpl(registeredEventTypes, registeredReferenceTypes)
-
-        return LogFileGenerator(
+    override fun generateLogFile(days: Map<LogDate, List<LogEvent>>): LogFileConverter.GenerateResult =
+        LogFileGenerator(
             formats,
             registeredEventTypes,
             userContentGenerator,
             referenceGenerator
         ).generate(days)
-    }
 
     companion object {
         val DEFAULT_EVENT_TYPES: List<LogEventType> = listOf(

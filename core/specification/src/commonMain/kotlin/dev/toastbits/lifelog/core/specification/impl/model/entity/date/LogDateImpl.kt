@@ -5,7 +5,7 @@ import dev.toastbits.lifelog.core.specification.model.entity.LogEntity
 import dev.toastbits.lifelog.core.specification.model.entity.date.LogDate
 import kotlinx.datetime.LocalDate
 
-class LogDateImpl(
+data class LogDateImpl(
     override var date: LocalDate,
     override var inlineComment: UserContent? = null,
     override var aboveComment: UserContent? = null

@@ -15,13 +15,21 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(projects.core.specification)
+
                 implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.okio)
             }
         }
 
-        val notWasmJsMain by getting {
+        val jvmAndNativeMain by getting {
             dependencies {
                 implementation(projects.core.git)
+            }
+        }
+
+        val jvmAndNativeTest by getting {
+            dependencies {
+                implementation(projects.extension.media)
             }
         }
     }

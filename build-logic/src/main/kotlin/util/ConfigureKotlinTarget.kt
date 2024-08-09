@@ -28,7 +28,6 @@ fun KotlinMultiplatformExtension.configureKmpTargets(vararg targets: KmpTarget) 
                 linuxX64()
                 linuxArm64()
                 mingwX64()
-
             }
             KmpTarget.WASMJS -> {
                 wasmJs {
@@ -62,6 +61,11 @@ fun KotlinMultiplatformExtension.configureKmpTargets(vararg targets: KmpTarget) 
                     ifPresent(KmpTarget.JVM)
                     ifPresent(KmpTarget.ANDROID)
                 }
+                ifPresent(KmpTarget.NATIVE)
+            }
+
+            group("jvmAndNative") {
+                ifPresent(KmpTarget.JVM)
                 ifPresent(KmpTarget.NATIVE)
             }
 

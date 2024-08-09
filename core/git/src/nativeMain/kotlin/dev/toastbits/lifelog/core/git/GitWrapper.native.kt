@@ -7,8 +7,7 @@ import okio.Path
 internal actual fun createGitWrapper(directory: Path, dispatcher: CoroutineDispatcher): GitWrapper {
     val binaryPath: String = getGitBinaryPath()
     try {
-        val result: Int = runCommand(binaryPath, listOf("--version"))
-        check(result == 0)
+        checkNotNull(runCommand(binaryPath, listOf("--version")))
     }
     catch (e: Throwable) {
         throw GitWrapperCreationException.GitBinaryNotFunctional(binaryPath)

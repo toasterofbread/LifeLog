@@ -7,17 +7,22 @@ import dev.toastbits.lifelog.extension.media.model.reference.MediaReferenceType
 import dev.toastbits.lifelog.core.specification.extension.SpecificationExtension
 import dev.toastbits.lifelog.core.specification.model.entity.event.LogEventType
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferenceType
+import dev.toastbits.lifelog.extension.media.model.entity.event.MediaConsumeEventType
 
 class MediaExtension(
-    val converterFormats: MediaExtensionConverterFormats = MediaExtensionConverterFormatsImpl()
+    val converterFormats: MediaExtensionConverterFormats = MediaExtensionConverterFormatsImpl(),
+
+    private val mediaConsumeEventType: MediaConsumeEventType = MediaConsumeEventTypeImpl(converterFormats),
+
+    private val mediaReferenceType: MediaReferenceType = MediaReferenceType()
 ): SpecificationExtension {
     override fun getExtraEventTypes(): List<LogEventType> =
         listOf(
-            MediaConsumeEventTypeImpl(converterFormats)
+            mediaConsumeEventType
         )
 
     override fun getExtraReferenceTypes(): List<LogEntityReferenceType> =
         listOf(
-            MediaReferenceType()
+            mediaReferenceType
         )
 }

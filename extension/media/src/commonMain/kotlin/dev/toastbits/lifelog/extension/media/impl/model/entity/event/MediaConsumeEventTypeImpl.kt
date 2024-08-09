@@ -1,6 +1,13 @@
 package dev.toastbits.lifelog.extension.media.impl.model.entity.event
 
+import dev.toastbits.lifelog.core.specification.converter.LogFileConverterFormats
 import dev.toastbits.lifelog.core.specification.converter.alert.LogGenerateAlert
+import dev.toastbits.lifelog.core.specification.converter.alert.LogParseAlert
+import dev.toastbits.lifelog.core.specification.model.UserContent
+import dev.toastbits.lifelog.core.specification.model.entity.event.LogEvent
+import dev.toastbits.lifelog.core.specification.model.entity.event.LogEventType
+import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferenceGenerator
+import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferenceParser
 import dev.toastbits.lifelog.extension.media.converter.MediaExtensionConverterFormats
 import dev.toastbits.lifelog.extension.media.impl.model.mapper.createConsumeEvent
 import dev.toastbits.lifelog.extension.media.impl.model.mapper.createReference
@@ -9,18 +16,15 @@ import dev.toastbits.lifelog.extension.media.model.entity.event.MediaConsumeEven
 import dev.toastbits.lifelog.extension.media.model.reference.MediaReference
 import dev.toastbits.lifelog.extension.media.util.MediaEntityType
 import dev.toastbits.lifelog.extension.media.util.MediaStringId
-import dev.toastbits.lifelog.core.specification.converter.alert.LogParseAlert
-import dev.toastbits.lifelog.core.specification.model.UserContent
-import dev.toastbits.lifelog.core.specification.model.entity.event.LogEvent
 
 class MediaConsumeEventTypeImpl(
-    private val formats: MediaExtensionConverterFormats
+    private val mediaFormats: MediaExtensionConverterFormats
 ): MediaConsumeEventType {
     override val name: MediaStringId = MediaStringId.MediaExtension.NAME
 
     override val prefixes: List<String> =
         MediaEntityType.entries.flatMap { entityType ->
-            formats.getMediaEntityTypeConsumeEventPrefixes(entityType).map { it.lowercase() }
+            mediaFormats.getMediaEntityTypeConsumeEventPrefixes(entityType).map { it.lowercase() }
         }
 
     override fun parseEvent(
@@ -28,6 +32,8 @@ class MediaConsumeEventTypeImpl(
         body: String,
         metadata: String?,
         content: UserContent?,
+        referenceParser: LogEntityReferenceParser,
+        formats: LogFileConverterFormats,
         onAlert: (LogParseAlert) -> Unit
     ): MediaConsumeEvent {
         val entityType: MediaEntityType = getPrefixIndexMediaEntityType(prefixIndex)
@@ -37,7 +43,7 @@ class MediaConsumeEventTypeImpl(
         event.content = content
 
         if (metadata != null) {
-            applyEventMetadata(metadata, event, formats, onAlert)
+            applyEventMetadata(metadata, event, mediaFormats, onAlert)
         }
 
         return event
@@ -46,10 +52,43 @@ class MediaConsumeEventTypeImpl(
     override fun canGenerateEvent(event: LogEvent): Boolean =
         event is MediaConsumeEvent
 
-    override fun generateEvent(event: LogEvent, onAlert: (LogGenerateAlert) -> Unit): String {
+    override fun generateEvent(
+        event: LogEvent,
+        referenceGenerator: LogEntityReferenceGenerator,
+        formats: LogFileConverterFormats,
+        onAlert: (LogGenerateAlert) -> Unit
+    ): LogEventType.EventText {
         check(event is MediaConsumeEvent)
-        TODO()
+
+        return LogEventType.EventText(
+            prefix = mediaFormats.getMediaEntityTypeConsumeEventPrefixes(event.mediaEntityType).first(),
+            body = getEventBodyText(event, referenceGenerator, onAlert),
+            metadata = getEventMetadataText(event, referenceGenerator, formats, onAlert)
+        )
     }
+
+    private fun getEventBodyText(
+        event: MediaConsumeEvent,
+        referenceGenerator: LogEntityReferenceGenerator,
+        onAlert: (LogGenerateAlert) -> Unit
+    ): String =
+        "(${event.mediaReference.mediaId})[${referenceGenerator.generateReference(event.mediaReference, onAlert)}]"
+
+    private fun getEventMetadataText(
+        event: MediaConsumeEvent,
+        referenceGenerator: LogEntityReferenceGenerator,
+        formats: LogFileConverterFormats,
+        onAlert: (LogGenerateAlert) -> Unit
+    ): String? = buildString {
+        event.iteration?.also { iteration ->
+            val iterationSuffix: String = mediaFormats.getMediaEntityTypeIterationSuffixes(event.mediaEntityType).first()
+            val iterationText: String = formats.numberToIteration(iteration)
+            append(iterationText)
+            append(iterationSuffix)
+        }
+
+        // TODO eps
+    }.takeIf { it.isNotBlank() }
 
     private fun applyEventMetadata(
         text: String,
@@ -153,7 +192,7 @@ class MediaConsumeEventTypeImpl(
             if (currentIndex <= 0) {
                 return entityType
             }
-            currentIndex -= formats.getMediaEntityTypeConsumeEventPrefixes(entityType).size
+            currentIndex -= mediaFormats.getMediaEntityTypeConsumeEventPrefixes(entityType).size
         }
         if (currentIndex <= 0) {
             return MediaEntityType.entries.last()

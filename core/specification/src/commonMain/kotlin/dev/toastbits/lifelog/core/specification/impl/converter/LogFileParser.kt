@@ -231,7 +231,7 @@ internal class LogFileParser(
         val content: UserContent? =
             parseUserContent(contentLines.joinToString("\n").trimIndent(), -1).takeIf { it.isNotEmpty() }
 
-        val event: LogEvent = eventType.parseEvent(eventPrefixIndex, body, metadata, content, ::onAlert)
+        val event: LogEvent = eventType.parseEvent(eventPrefixIndex, body, metadata, content, referenceParser, formats, ::onAlert)
         event.inlineComment = inlineComment
         event.aboveComment = aboveComment
 

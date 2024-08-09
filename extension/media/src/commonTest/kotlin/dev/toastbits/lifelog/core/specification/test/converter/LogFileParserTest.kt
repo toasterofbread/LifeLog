@@ -1,4 +1,4 @@
-package dev.toastbits.lifelog.core.specification.test.parser
+package dev.toastbits.lifelog.core.specification.test.converter
 
 import assertk.assertThat
 import assertk.assertions.hasSize
@@ -53,7 +53,7 @@ class LogFileParserTest: ParserTest() {
                         ${prefix.uppercase()} Test Test Test ($iterationText $suffix)
                         """.trimIndent()
 
-                        val result: LogFileConverter.ParseResult = parser.parseLogFile(text.split('\n'))
+                        val result: LogFileConverter.ParseResult = converter.parseLogFile(text.split('\n'))
                         assertThat(result.alerts).isEmpty()
 
                         val event: LogEvent = result.days[LogDateImpl(templateDate)]!!.single()
@@ -83,7 +83,7 @@ Watched Test Test Test (first watch, eps 1-5) { // Inline event comment
 // Standalone comment
         """
 
-        val result: LogFileConverter.ParseResult = parser.parseLogFile(text.split('\n'))
+        val result: LogFileConverter.ParseResult = converter.parseLogFile(text.split('\n'))
         assertThat(result.alerts).isEmpty()
 
         val (date: LogDate?, day: List<LogEvent>) = result.days.entries.single()
@@ -160,7 +160,7 @@ Listened to $eventReference (12th listen) {
                 )
             )
 
-        val result: LogFileConverter.ParseResult = parser.parseLogFile(text.split('\n'))
+        val result: LogFileConverter.ParseResult = converter.parseLogFile(text.split('\n'))
         assertThat(result.alerts).isEmpty()
 
         assertThat(result.days).hasSize(1)

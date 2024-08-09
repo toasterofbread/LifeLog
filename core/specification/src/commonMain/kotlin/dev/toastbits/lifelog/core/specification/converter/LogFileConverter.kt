@@ -11,7 +11,7 @@ interface LogFileConverter {
     fun registerExtension(specificationExtension: SpecificationExtension)
 
     fun parseLogFile(lines: Iterable<String>): ParseResult
-    fun generateLogFile(days: Map<LogDate?, List<LogEvent>>): GenerateResult
+    fun generateLogFile(days: Map<LogDate, List<LogEvent>>): GenerateResult
 
     data class ParseResult(
         val days: Map<LogDate?, List<LogEvent>>,
@@ -29,5 +29,5 @@ interface LogFileConverter {
     )
 }
 
-internal typealias ParseAlertData = LogFileConverter.AlertOnLine<LogParseAlert>
-internal typealias GenerateAlertData = LogFileConverter.AlertOnLine<LogGenerateAlert>
+typealias ParseAlertData = LogFileConverter.AlertOnLine<LogParseAlert>
+typealias GenerateAlertData = LogFileConverter.AlertOnLine<LogGenerateAlert>
