@@ -94,13 +94,15 @@ class GitLogDatabaseSaverTest: FileSystemTest {
 
     @Test
     fun testGitLogDatabaseSaver() = runTest {
+        val content: UserContent = UserContent.single("Hello World!", setOf(UserContent.Modifier.Italic, UserContent.Modifier.Bold))
+        val renderedContent: String = "***Hello World!***"
+
         val date: LocalDate = LocalDate.parse("2024-08-15")
-        val renderedContent: String = "Hello World!"
         val event: MovieOrShowMediaConsumeEvent =
             MovieOrShowMediaConsumeEvent(
                 MovieOrShowMediaReference("test 2"),
                 iteration = 1,
-                content = UserContent.single(renderedContent)
+                content = content
             )
 
         val database: LogDatabase =
@@ -129,7 +131,9 @@ class GitLogDatabaseSaverTest: FileSystemTest {
             appendLine("${formats.datePrefix}${formats.preferredDateFormat.format(date)}")
             appendLine()
             appendLine("${eventText.prefix}${eventText.body} (${eventText.metadata}) {")
+            appendLine()
             appendLine(renderedContent.prependIndent(formats.contentIndentation))
+            appendLine()
             appendLine('}')
         }
 

@@ -96,15 +96,17 @@ internal class LogFileGenerator(
                 }
 
                 if (event.content != null) {
-                    append('{')
+                    append(" {")
                 }
             },
             event
         )
 
         event.content?.also { content ->
+            line("")
             val contentText: String = userContentGenerator.generateUserContent(content, referenceGenerator, ::onAlert)
             line(contentText.prependIndent(formats.contentIndentation))
+            line("")
             line("}")
         }
         line("")

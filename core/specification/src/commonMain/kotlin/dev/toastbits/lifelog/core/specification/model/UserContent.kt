@@ -57,6 +57,18 @@ data class UserContent(
     }
 }
 
+fun Iterable<Modifier>.sorted(): List<Modifier> =
+    sortedBy {
+        when (it) {
+            Modifier.Bold -> 0
+            Modifier.Italic -> 1
+            Modifier.Strikethrough -> 2
+            Modifier.Code -> 3
+            Modifier.CodeBlock -> 4
+            is Modifier.Reference -> 5
+        }
+    }
+
 private fun List<Part>.normalised(): List<Part> {
     val newParts: MutableList<Part> = mutableListOf()
     for (part in this) {
@@ -103,15 +115,3 @@ private fun Part.appendTo(other: Part, newModifiers: Set<Modifier>): Part {
 
 private fun Set<Modifier>.matches(other: Set<Modifier>): Boolean =
     size == other.size && sorted() == other.sorted()
-
-private fun Set<Modifier>.sorted(): List<Modifier> =
-    sortedBy {
-        when (it) {
-            Modifier.Bold -> 0
-            Modifier.Italic -> 1
-            Modifier.Strikethrough -> 2
-            Modifier.Code -> 3
-            Modifier.CodeBlock -> 4
-            is Modifier.Reference -> 5
-        }
-    }
