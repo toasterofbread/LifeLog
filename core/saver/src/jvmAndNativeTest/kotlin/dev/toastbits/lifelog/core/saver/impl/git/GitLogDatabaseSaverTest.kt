@@ -17,13 +17,19 @@ import dev.toastbits.lifelog.core.saver.LogFileSplitStrategy
 import dev.toastbits.lifelog.core.saver.RemoteLogDatabaseSaver
 import dev.toastbits.lifelog.core.saver.impl.LogDatabaseFileStructureProviderImpl
 import dev.toastbits.lifelog.core.saver.model.GitRemoteBranch
+import dev.toastbits.lifelog.core.saver.reference.LogEntityReferenceGeneratorImpl
+import dev.toastbits.lifelog.core.saver.reference.LogEntityReferenceParserImpl
 import dev.toastbits.lifelog.core.specification.converter.LogFileConverterFormats
 import dev.toastbits.lifelog.core.specification.database.LogDatabase
 import dev.toastbits.lifelog.core.specification.impl.converter.LogFileConverterImpl
 import dev.toastbits.lifelog.core.specification.impl.model.entity.date.LogDateImpl
+import dev.toastbits.lifelog.core.specification.model.UserContent
 import dev.toastbits.lifelog.core.specification.model.entity.event.LogEventType
+import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferenceGenerator
+import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferenceParser
 import dev.toastbits.lifelog.core.test.FileSystemTest
 import dev.toastbits.lifelog.extension.media.MediaExtension
+import dev.toastbits.lifelog.extension.media.impl.model.entity.event.MediaConsumeEventTypeImpl
 import dev.toastbits.lifelog.extension.media.impl.model.reference.MovieOrShowMediaReference
 import dev.toastbits.lifelog.extension.media.model.entity.event.MediaConsumeEvent
 import dev.toastbits.lifelog.extension.media.model.entity.event.MediaConsumeEventType
@@ -44,8 +50,6 @@ class GitLogDatabaseSaverTest: FileSystemTest {
     private lateinit var saver: RemoteLogDatabaseSaver
 
     override val fileSystem: FileSystem = FileSystem.SYSTEM
-    private val splitStrategy: LogFileSplitStrategy = LogFileSplitStrategy.Month
-    private val fileStructureProvider: LogDatabaseFileStructureProvider = LogDatabaseFileStructureProviderImpl(splitStrategy)
 
     private val eventText: LogEventType.EventText =
         LogEventType.EventText(
@@ -54,13 +58,27 @@ class GitLogDatabaseSaverTest: FileSystemTest {
             metadata = "Metadata"
         )
     private val mediaConsumeEventType: MediaConsumeEventType = mock {
-        every { canGenerateEvent(any()) } calls { it.args.first() is MediaConsumeEvent }
+        every { eventClass } returns MediaConsumeEvent::class
         every { generateEvent(any(), any(), any(), any()) } returns eventText
     }
+
+//    private val mediaConsumeEventType: MediaConsumeEventType = MediaConsumeEventTypeImpl()
     private val mediaExtension: MediaExtension = MediaExtension(mediaConsumeEventType = mediaConsumeEventType)
 
     private val formats: LogFileConverterFormats = LogFileConverterImpl.DEFAULT_FORMATS
-    private val logFileConverter: LogFileConverterImpl = LogFileConverterImpl(formats).apply { registerExtension(mediaExtension) }
+    private val splitStrategy: LogFileSplitStrategy = LogFileSplitStrategy.Month
+    private val fileStructureProvider: LogDatabaseFileStructureProvider =
+        LogDatabaseFileStructureProviderImpl(formats, splitStrategy).apply {
+            registerExtension(mediaExtension)
+        }
+
+    private val referenceParser: LogEntityReferenceParser = LogEntityReferenceParserImpl(fileStructureProvider)
+    private val logFileConverter: LogFileConverterImpl =
+        LogFileConverterImpl(
+            referenceParser,
+            { LogEntityReferenceGeneratorImpl(fileStructureProvider, it) },
+            formats
+        ).apply { registerExtension(mediaExtension) }
 
     @BeforeTest
     fun setUp() {
@@ -76,8 +94,14 @@ class GitLogDatabaseSaverTest: FileSystemTest {
 
     @Test
     fun testGitLogDatabaseSaver() = runTest {
-        val date: LocalDate = LocalDate.parse("2024-08-14")
-        val event: MovieOrShowMediaConsumeEvent = MovieOrShowMediaConsumeEvent(MovieOrShowMediaReference("test 2"), iteration = 1)
+        val date: LocalDate = LocalDate.parse("2024-08-15")
+        val renderedContent: String = "Hello World!"
+        val event: MovieOrShowMediaConsumeEvent =
+            MovieOrShowMediaConsumeEvent(
+                MovieOrShowMediaReference("test 2"),
+                iteration = 1,
+                content = UserContent.single(renderedContent)
+            )
 
         val database: LogDatabase =
             LogDatabase(
@@ -91,7 +115,7 @@ class GitLogDatabaseSaverTest: FileSystemTest {
         saver.saveDatabaseRemotely(database, "Test ${formats.preferredDateFormat.format(date)}") { assertThat(it).isNull() }
 
         verify {
-            mediaConsumeEventType.canGenerateEvent(event)
+            mediaConsumeEventType.eventClass
             mediaConsumeEventType.generateEvent(event, any(), any(), any())
         }
 
@@ -104,7 +128,9 @@ class GitLogDatabaseSaverTest: FileSystemTest {
         val expectedFileContent: String = buildString {
             appendLine("${formats.datePrefix}${formats.preferredDateFormat.format(date)}")
             appendLine()
-            appendLine("${eventText.prefix}${eventText.body} (${eventText.metadata})")
+            appendLine("${eventText.prefix}${eventText.body} (${eventText.metadata}) {")
+            appendLine(renderedContent.prependIndent(formats.contentIndentation))
+            appendLine('}')
         }
 
         assertThat(logFileContent).isEqualTo(expectedFileContent)

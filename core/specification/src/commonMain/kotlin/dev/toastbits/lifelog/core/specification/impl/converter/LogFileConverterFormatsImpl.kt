@@ -8,6 +8,9 @@ import kotlinx.datetime.format.Padding
 import kotlinx.datetime.format.char
 
 data class LogFileConverterFormatsImpl(
+    override val metadataDirectoryName: String = "metadata",
+    override val extensionDirectoryName: String = "extension",
+
     override val contentIndentation: String = "  ",
     override val datePrefix: String = "----- ",
     override val commentPrefix: String = "//",

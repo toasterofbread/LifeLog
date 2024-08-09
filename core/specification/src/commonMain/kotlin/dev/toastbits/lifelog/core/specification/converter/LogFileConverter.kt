@@ -3,13 +3,12 @@ package dev.toastbits.lifelog.core.specification.converter
 import dev.toastbits.lifelog.core.specification.converter.alert.LogConvertAlert
 import dev.toastbits.lifelog.core.specification.converter.alert.LogGenerateAlert
 import dev.toastbits.lifelog.core.specification.converter.alert.LogParseAlert
+import dev.toastbits.lifelog.core.specification.extension.Extendable
 import dev.toastbits.lifelog.core.specification.extension.SpecificationExtension
 import dev.toastbits.lifelog.core.specification.model.entity.date.LogDate
 import dev.toastbits.lifelog.core.specification.model.entity.event.LogEvent
 
-interface LogFileConverter {
-    fun registerExtension(specificationExtension: SpecificationExtension)
-
+interface LogFileConverter: Extendable {
     fun parseLogFile(lines: Iterable<String>): ParseResult
     fun generateLogFile(days: Map<LogDate, List<LogEvent>>): GenerateResult
 

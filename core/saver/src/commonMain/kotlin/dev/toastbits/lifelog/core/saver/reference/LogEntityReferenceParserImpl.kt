@@ -1,14 +1,13 @@
-package dev.toastbits.lifelog.core.specification.impl.model.reference
+package dev.toastbits.lifelog.core.saver.reference
 
+import dev.toastbits.lifelog.core.saver.LogDatabaseFileStructureProvider
 import dev.toastbits.lifelog.core.specification.converter.alert.LogParseAlert
 import dev.toastbits.lifelog.core.specification.model.entity.event.LogEventType
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReference
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferenceParser
-import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferenceType
 
 class LogEntityReferenceParserImpl(
-    private val eventTypes: List<LogEventType>,
-    private val referenceTypes: List<LogEntityReferenceType>
+    private val fileStructureProvider: LogDatabaseFileStructureProvider
 ): LogEntityReferenceParser {
     override fun parseReference(
         text: String,

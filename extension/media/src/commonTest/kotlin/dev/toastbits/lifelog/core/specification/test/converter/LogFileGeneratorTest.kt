@@ -14,7 +14,6 @@ import dev.toastbits.lifelog.extension.media.MediaExtension
 import dev.toastbits.lifelog.extension.media.impl.model.entity.event.MediaConsumeEventTypeImpl
 import dev.toastbits.lifelog.extension.media.impl.model.reference.MovieOrShowMediaReference
 import dev.toastbits.lifelog.extension.media.model.entity.event.MovieOrShowMediaConsumeEvent
-import dev.toastbits.lifelog.extension.media.model.reference.MediaReferenceType
 import kotlinx.datetime.LocalDate
 import kotlin.test.BeforeTest
 import kotlin.test.Test

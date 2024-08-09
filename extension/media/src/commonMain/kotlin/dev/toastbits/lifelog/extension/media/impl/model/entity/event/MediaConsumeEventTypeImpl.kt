@@ -9,6 +9,7 @@ import dev.toastbits.lifelog.core.specification.model.entity.event.LogEventType
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferenceGenerator
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferenceParser
 import dev.toastbits.lifelog.extension.media.converter.MediaExtensionConverterFormats
+import dev.toastbits.lifelog.extension.media.impl.converter.MediaExtensionConverterFormatsImpl
 import dev.toastbits.lifelog.extension.media.impl.model.mapper.createConsumeEvent
 import dev.toastbits.lifelog.extension.media.impl.model.mapper.createReference
 import dev.toastbits.lifelog.extension.media.model.entity.event.MediaConsumeEvent
@@ -16,11 +17,13 @@ import dev.toastbits.lifelog.extension.media.model.entity.event.MediaConsumeEven
 import dev.toastbits.lifelog.extension.media.model.reference.MediaReference
 import dev.toastbits.lifelog.extension.media.util.MediaEntityType
 import dev.toastbits.lifelog.extension.media.util.MediaStringId
+import kotlin.reflect.KClass
 
 class MediaConsumeEventTypeImpl(
-    private val mediaFormats: MediaExtensionConverterFormats
+    private val mediaFormats: MediaExtensionConverterFormats = MediaExtensionConverterFormatsImpl()
 ): MediaConsumeEventType {
     override val name: MediaStringId = MediaStringId.MediaExtension.NAME
+    override val eventClass: KClass<*> = MediaConsumeEvent::class
 
     override val prefixes: List<String> =
         MediaEntityType.entries.flatMap { entityType ->
@@ -49,9 +52,6 @@ class MediaConsumeEventTypeImpl(
         return event
     }
 
-    override fun canGenerateEvent(event: LogEvent): Boolean =
-        event is MediaConsumeEvent
-
     override fun generateEvent(
         event: LogEvent,
         referenceGenerator: LogEntityReferenceGenerator,
@@ -72,7 +72,7 @@ class MediaConsumeEventTypeImpl(
         referenceGenerator: LogEntityReferenceGenerator,
         onAlert: (LogGenerateAlert) -> Unit
     ): String =
-        "(${event.mediaReference.mediaId})[${referenceGenerator.generateReference(event.mediaReference, onAlert)}]"
+        "[${event.mediaReference.mediaId}](<${referenceGenerator.generateReferencePath(event.mediaReference, onAlert)}>)"
 
     private fun getEventMetadataText(
         event: MediaConsumeEvent,

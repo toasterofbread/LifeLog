@@ -14,7 +14,7 @@ class MarkdownUserContentParserTest: ParserTest() {
     fun testEntityReference() {
         val testReference: MovieOrShowMediaReference = MovieOrShowMediaReference("転生王女と天才令嬢の魔法革命")
 
-        val text: String = "Hello [World!](/media/movie/${testReference.mediaId})".inTemplate()
+        val text: String = "Hello [World!](/media/movie/${testReference.entityId})".inTemplate()
         val renderedText: String = "Hello World!".inTemplate()
 
         val parsed: UserContent = parseAndTest(text, renderedText)

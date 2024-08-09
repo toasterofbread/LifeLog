@@ -1,8 +1,17 @@
 package dev.toastbits.lifelog.core.specification.model.reference
 
-import dev.toastbits.lifelog.core.specification.database.LogDatabase
-import dev.toastbits.lifelog.core.specification.model.entity.LogEntity
+import kotlin.reflect.KClass
 
 interface LogEntityReference {
-    fun getEntity(database: LogDatabase): LogEntity
+    val entityTypeClass: KClass<*>
+    val entityPath: LogEntityPath
+}
+
+class LogEntityPath(val segments: List<String>) {
+    override fun toString(): String = segments.joinToString("/")
+
+    companion object {
+        fun of(vararg segments: String): LogEntityPath =
+            LogEntityPath(segments.toList())
+    }
 }

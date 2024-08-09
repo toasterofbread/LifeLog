@@ -11,37 +11,26 @@ import dev.toastbits.lifelog.core.specification.model.entity.date.LogDate
 import dev.toastbits.lifelog.core.specification.model.entity.event.LogEvent
 import dev.toastbits.lifelog.core.specification.model.entity.event.LogEventType
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferenceGenerator
+import kotlinx.datetime.LocalDate
 
 internal class LogFileGenerator(
     private val formats: LogFileConverterFormats,
     private val eventTypes: List<LogEventType>,
     private val userContentGenerator: UserContentGenerator,
-    private val referenceGenerator: LogEntityReferenceGenerator
+    private val referenceGeneratorProvider: (LocalDate) -> LogEntityReferenceGenerator
 ) {
     private lateinit var lines: MutableList<String>
     private lateinit var alerts: MutableList<GenerateAlertData>
 
     private var currentLineIndex: Int = 0
-//    private var currentDay: LogDate? = null
+    private var currentDate: LogDate? = null
 
     private fun onAlert(error: LogGenerateAlert, line: Int = currentLineIndex) {
         alerts.add(GenerateAlertData(error, line))
     }
 
     private fun UserContent.toText(): String =
-        userContentGenerator.generateUserContent(this, referenceGenerator, ::onAlert)
-
-    private fun lines(lines: List<String>, entity: LogEntity? = null) {
-        if (lines.isEmpty()) {
-            return
-        }
-
-        line(lines.first(), entity)
-
-        for (i in 1 until lines.size) {
-            line(lines[i])
-        }
-    }
+        userContentGenerator.generateUserContent(this, referenceGeneratorProvider(currentDate!!.date), ::onAlert)
 
     private fun line(content: String, entity: LogEntity? = null) {
         check(!content.contains('\n'))
@@ -65,9 +54,9 @@ internal class LogFileGenerator(
         lines = mutableListOf()
         alerts = mutableListOf()
         currentLineIndex = 0
-//        currentDay = null
+        currentDate = null
 
-        val sortedDays: List<LogDate?> = days.keys.sortedBy { it.date }
+        val sortedDays: List<LogDate> = days.keys.sortedBy { it.date }
         for (date in sortedDays) {
             onDate(date)
 
@@ -83,16 +72,17 @@ internal class LogFileGenerator(
         )
     }
 
-    private fun onDate(date: LogDate?) {
-        if (date != null) {
-            line(formats.datePrefix + formats.preferredDateFormat.format(date.date), date)
-            line("")
-        }
+    private fun onDate(date: LogDate) {
+        currentDate = date
+        line(formats.datePrefix + formats.preferredDateFormat.format(date.date), date)
+        line("")
     }
 
     private fun onEvent(event: LogEvent) {
-        val eventType: LogEventType? = eventTypes.firstOrNull { it.canGenerateEvent(event) }
+        val eventType: LogEventType? = eventTypes.firstOrNull { it.eventClass.isInstance(event) }
         checkNotNull(eventType) { "No event type could generate for event $event (${event::class})" }
+
+        val referenceGenerator: LogEntityReferenceGenerator = referenceGeneratorProvider(currentDate!!.date)
 
         val eventText: LogEventType.EventText = eventType.generateEvent(event, referenceGenerator, formats, ::onAlert)
         line(

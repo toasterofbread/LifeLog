@@ -1,15 +1,13 @@
 package dev.toastbits.lifelog.extension.media.impl.model.reference
 
-import dev.toastbits.lifelog.extension.media.model.entity.event.MediaConsumeEvent
+import dev.toastbits.lifelog.extension.media.impl.model.entity.event.MediaConsumeEventTypeImpl
 import dev.toastbits.lifelog.extension.media.model.reference.MediaReference
 import dev.toastbits.lifelog.extension.media.util.MediaEntityType
-import dev.toastbits.lifelog.core.specification.database.LogDatabase
+import kotlin.reflect.KClass
 
 data class BookMediaReference(
     override val mediaId: String
-): MediaReference {
+): MediaReference() {
     override val mediaType: MediaEntityType = MediaEntityType.BOOK
-    override fun getEntity(database: LogDatabase): MediaConsumeEvent {
-        TODO(mediaId)
-    }
+    override val entityTypeClass: KClass<*> = MediaConsumeEventTypeImpl::class
 }

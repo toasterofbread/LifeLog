@@ -3,7 +3,10 @@ package dev.toastbits.lifelog.extension.media.impl.converter
 import dev.toastbits.lifelog.extension.media.converter.MediaExtensionConverterFormats
 import dev.toastbits.lifelog.extension.media.util.MediaEntityType
 
-class MediaExtensionConverterFormatsImpl: MediaExtensionConverterFormats {
+class MediaExtensionConverterFormatsImpl(
+    override val extensionIdentifier: String = "media",
+    override val mediaReferenceTypeIdentifier: String = "media"
+): MediaExtensionConverterFormats {
     override fun getMediaEntityTypeIterationSuffixes(mediaEntityType: MediaEntityType): List<String> =
         when (mediaEntityType) {
             MediaEntityType.MOVIE_OR_SHOW -> listOf(" watch")
