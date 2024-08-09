@@ -107,14 +107,13 @@ Watched Test Test Test (first watch, eps 1-5) { // Inline event comment
         assertThat(day[2]).isEqualTo(
             LogCommentImpl(UserContent.single("Standalone comment"))
         )
-
     }
 
     @Test
     fun test() {
         val testReference: MovieOrShowMediaReference = MovieOrShowMediaReference("Show name")
 
-        val dayContent: String = "Gay people stay winning [Test!](/media/movie/${testReference.entityId})"
+        val dayContent: String = "Gay people stay winning [Test!](/media/movie/${testReference.mediaId})"
         val eventReference: String = "転生王女と天才令嬢の魔法革命"
 
         val text: String = """
@@ -167,6 +166,7 @@ Listened to $eventReference (12th listen) {
         assertThat(result.days).hasSize(1)
 
         val day: List<LogEvent>? = result.days[LogDateImpl(templateDate)]
+        println(day)
         assertThat(day).isEqualTo(expectedEvents)
     }
 }

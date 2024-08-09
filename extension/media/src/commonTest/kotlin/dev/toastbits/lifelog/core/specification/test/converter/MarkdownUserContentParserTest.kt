@@ -12,9 +12,7 @@ import kotlin.test.Test
 class MarkdownUserContentParserTest: ParserTest() {
     @Test
     fun testEntityReference() {
-        val testReference: MovieOrShowMediaReference = MovieOrShowMediaReference("転生王女と天才令嬢の魔法革命")
-
-        val text: String = "Hello [World!](/media/movie/${testReference.entityId})".inTemplate()
+        val text: String = "Hello [World!](ref)".inTemplate()
         val renderedText: String = "Hello World!".inTemplate()
 
         val parsed: UserContent = parseAndTest(text, renderedText)
@@ -25,7 +23,7 @@ class MarkdownUserContentParserTest: ParserTest() {
         assertThat(parsed.parts[2].modifiers).isEmpty()
 
         assertThat(parsed.parts[1].modifiers).hasSize(1)
-        assertThat(parsed.parts[1].modifiers.single()).isEqualTo(UserContent.Modifier.Reference(testReference))
+        assertThat(parsed.parts[1].modifiers.single()).isEqualTo(UserContent.Modifier.Reference(mockResultReference))
     }
 
     @Test

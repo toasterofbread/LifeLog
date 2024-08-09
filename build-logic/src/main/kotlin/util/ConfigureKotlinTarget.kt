@@ -31,7 +31,13 @@ fun KotlinMultiplatformExtension.configureKmpTargets(vararg targets: KmpTarget) 
             }
             KmpTarget.WASMJS -> {
                 wasmJs {
-                    browser()
+                    browser {
+                        testTask {
+                            useKarma {
+                                useFirefox()
+                            }
+                        }
+                    }
                 }
             }
         }
