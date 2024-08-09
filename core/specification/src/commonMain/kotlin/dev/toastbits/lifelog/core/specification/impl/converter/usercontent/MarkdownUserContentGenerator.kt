@@ -74,7 +74,7 @@ class MarkdownUserContentGenerator: UserContentGenerator {
                 UserContent.Modifier.Italic -> "*"
                 UserContent.Modifier.Strikethrough -> "~~"
                 is UserContent.Modifier.Reference -> {
-                    referenceGenerator.generateReferencePath(reference, { onAlert(it, currentLine) }).toString()
+                    referenceGenerator.generateReferencePath(reference, onAlert = { onAlert(it, currentLine) }).toString()
                 }
             }
 

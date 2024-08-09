@@ -62,5 +62,5 @@ class LogDatabaseFileStructureProviderImpl(
         listOf(logsDirectoryName) + splitStrategy.getDateComponents(date).map { it.toString().padStart(2, '0') }
 }
 
-private fun List<String>.toPath(): Path =
+fun List<String>.toPath(): Path =
     joinToString(Path.DIRECTORY_SEPARATOR).toPath()

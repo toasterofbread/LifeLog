@@ -15,16 +15,20 @@ import dev.toastbits.lifelog.core.git.GitWrapper
 import dev.toastbits.lifelog.core.saver.LogDatabaseFileStructureProvider
 import dev.toastbits.lifelog.core.saver.LogFileSplitStrategy
 import dev.toastbits.lifelog.core.saver.RemoteLogDatabaseSaver
+import dev.toastbits.lifelog.core.saver.impl.DatabaseFilesGeneratorImpl
 import dev.toastbits.lifelog.core.saver.impl.LogDatabaseFileStructureProviderImpl
 import dev.toastbits.lifelog.core.saver.model.GitRemoteBranch
 import dev.toastbits.lifelog.core.saver.reference.LogEntityReferenceGeneratorImpl
 import dev.toastbits.lifelog.core.saver.reference.LogEntityReferenceParserImpl
 import dev.toastbits.lifelog.core.specification.converter.LogFileConverterFormats
 import dev.toastbits.lifelog.core.specification.database.LogDatabase
+import dev.toastbits.lifelog.core.specification.database.LogEntityMetadata
 import dev.toastbits.lifelog.core.specification.impl.converter.LogFileConverterImpl
 import dev.toastbits.lifelog.core.specification.impl.model.entity.date.LogDateImpl
 import dev.toastbits.lifelog.core.specification.model.UserContent
 import dev.toastbits.lifelog.core.specification.model.entity.event.LogEventType
+import dev.toastbits.lifelog.core.specification.model.reference.LogEntityPath
+import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReference
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferenceGenerator
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferenceParser
 import dev.toastbits.lifelog.core.test.FileSystemTest
@@ -34,6 +38,7 @@ import dev.toastbits.lifelog.extension.media.impl.model.reference.MovieOrShowMed
 import dev.toastbits.lifelog.extension.media.model.entity.event.MediaConsumeEvent
 import dev.toastbits.lifelog.extension.media.model.entity.event.MediaConsumeEventType
 import dev.toastbits.lifelog.extension.media.model.entity.event.MovieOrShowMediaConsumeEvent
+import dev.toastbits.lifelog.extension.media.model.reference.MediaReference
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -53,7 +58,7 @@ class GitLogDatabaseSaverTest: FileSystemTest {
 
     private val eventText: LogEventType.EventText =
         LogEventType.EventText(
-            prefix = "Prefix",
+            prefix = "Prefix ",
             body = "Body",
             metadata = "Metadata"
         )
@@ -89,7 +94,7 @@ class GitLogDatabaseSaverTest: FileSystemTest {
 
         val remote: GitRemoteBranch = GitRemoteBranch("testRemote", "https://github.com/toasterofbread/test", "lifelog-test")
 
-        saver = GitLogDatabaseSaver(repository, remote, logFileConverter, fileStructureProvider, splitStrategy)
+        saver = GitLogDatabaseSaver(repository, remote, DatabaseFilesGeneratorImpl(logFileConverter, fileStructureProvider, splitStrategy))
     }
 
     @Test
@@ -98,9 +103,10 @@ class GitLogDatabaseSaverTest: FileSystemTest {
         val renderedContent: String = "***Hello World!***"
 
         val date: LocalDate = LocalDate.parse("2024-08-15")
+        val reference: MediaReference = MovieOrShowMediaReference("test 2")
         val event: MovieOrShowMediaConsumeEvent =
             MovieOrShowMediaConsumeEvent(
-                MovieOrShowMediaReference("test 2"),
+                reference,
                 iteration = 1,
                 content = content
             )
@@ -111,8 +117,14 @@ class GitLogDatabaseSaverTest: FileSystemTest {
                     LogDateImpl(date) to listOf(
                         event
                     )
+                ),
+                metadata = mapOf(
+                    reference to LogEntityMetadata(20)
                 )
             )
+
+        val referenceGenerator: LogEntityReferenceGenerator = LogEntityReferenceGeneratorImpl(fileStructureProvider, date)
+//        val referencePath: LogEntityPath = referenceGenerator.generateReferencePath(reference, relativeToOverride = LogEntityPath.ROOT) { assertThat(it).isNull() }!!
 
         saver.saveDatabaseRemotely(database, "Test ${formats.preferredDateFormat.format(date)}") { assertThat(it).isNull() }
 

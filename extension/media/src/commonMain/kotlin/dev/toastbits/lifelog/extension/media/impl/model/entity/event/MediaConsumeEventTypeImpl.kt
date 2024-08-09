@@ -72,7 +72,7 @@ class MediaConsumeEventTypeImpl(
         referenceGenerator: LogEntityReferenceGenerator,
         onAlert: (LogGenerateAlert) -> Unit
     ): String =
-        "[${event.mediaReference.mediaId}](<${referenceGenerator.generateReferencePath(event.mediaReference, onAlert)}>)"
+        "[${event.mediaReference.mediaId}](<${referenceGenerator.generateReferencePath(event.mediaReference, onAlert = onAlert)}>)"
 
     private fun getEventMetadataText(
         event: MediaConsumeEvent,

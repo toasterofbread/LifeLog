@@ -2,12 +2,15 @@ package dev.toastbits.lifelog.core.saver.impl.git
 
 import dev.toastbits.lifelog.core.git.GitWrapper
 import dev.toastbits.lifelog.core.git.resolve
+import dev.toastbits.lifelog.core.saver.DatabaseFileStructure
+import dev.toastbits.lifelog.core.saver.DatabaseFilesGenerator
 import dev.toastbits.lifelog.core.saver.LocalLogDatabaseSaver
 import dev.toastbits.lifelog.core.saver.LogDatabaseFileStructureProvider
 import dev.toastbits.lifelog.core.saver.RemoteLogDatabaseSaver
 import dev.toastbits.lifelog.core.saver.LogFileSplitStrategy
 import dev.toastbits.lifelog.core.saver.model.GitRemoteBranch
 import dev.toastbits.lifelog.core.saver.splitDaysIntoGroups
+import dev.toastbits.lifelog.core.saver.walkFiles
 import dev.toastbits.lifelog.core.specification.converter.GenerateAlertData
 import dev.toastbits.lifelog.core.specification.converter.LogFileConverter
 import dev.toastbits.lifelog.core.specification.database.LogDatabase
@@ -20,26 +23,17 @@ class GitLogDatabaseSaver(
     private val repository: GitWrapper,
     private val remote: GitRemoteBranch?,
 
-    private val converter: LogFileConverter,
-    private val fileStructureProvider: LogDatabaseFileStructureProvider,
-    private val splitStrategy: LogFileSplitStrategy,
+    private val filesGenerator: DatabaseFilesGenerator,
     private val fileSystem: FileSystem = FileSystem.SYSTEM
 ): LocalLogDatabaseSaver, RemoteLogDatabaseSaver {
     override suspend fun saveDatabaseLocally(database: LogDatabase, onAlert: (GenerateAlertData) -> Unit) {
-        val dayGroups: List<List<LogDate>> = splitStrategy.splitDaysIntoGroups(database.days.keys)
+        val fileStructure: DatabaseFileStructure = filesGenerator.generateDatabaseFileStructure(database, onAlert)
 
-        fileSystem.createDirectories(repository.directory)
-
-        for (group in dayGroups) {
-            val generateResult: LogFileConverter.GenerateResult =
-                converter.generateLogFile(group.associateWith { database.days[it]!! })
-            generateResult.alerts.forEach(onAlert)
-
-            val logFile: Path = repository.resolve(fileStructureProvider.getLogFilePath(group.first().date))
-
-            fileSystem.createDirectories(logFile.parent!!)
-            fileSystem.write(logFile) {
-                writeUtf8(generateResult.lines.joinToString("\n"))
+        fileStructure.walkFiles { file, path ->
+            val relativePath: Path = repository.directory.resolve(path)
+            fileSystem.createDirectories(relativePath.parent!!)
+            fileSystem.write(relativePath) {
+                writeUtf8(file.lines.joinToString("\n"))
             }
         }
     }

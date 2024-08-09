@@ -11,6 +11,8 @@ class LogEntityPath(val segments: List<String>) {
     override fun toString(): String = segments.joinToString("/")
 
     companion object {
+        val ROOT: LogEntityPath get() = of("/")
+
         fun of(vararg segments: String): LogEntityPath =
             LogEntityPath(segments.toList())
     }
