@@ -82,7 +82,11 @@ abstract class CommandLineGitWrapper: GitWrapper {
             }
 
     override suspend fun doesBranchExist(branch: String): Boolean {
-        val branches: List<String> = runGitCommand("branch", "--all", "--format='%(refname:short)'").split("\n").filter { it.isNotBlank() }
+        val branches: List<String> =
+            runGitCommand("branch", "--all", "--format='%(refname:short)'")
+                .split("\n")
+                .filter { it.isNotBlank() }
+                .map { it.trim('\'') }
         return branches.contains(branch)
     }
 }

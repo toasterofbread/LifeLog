@@ -11,12 +11,16 @@ import platform.posix._popen
 import platform.posix.fgets
 
 @OptIn(ExperimentalForeignApi::class)
-actual fun runCommand(program: String, args: List<String>): String? {
+actual fun runCommand(program: String, vararg args: String?): String? {
     val command: String =
         buildString {
             append("\"$program\"")
 
             for (arg in args) {
+                if (arg == null) {
+                    continue
+                }
+
                 append(' ')
                 append("\"$arg\"")
             }

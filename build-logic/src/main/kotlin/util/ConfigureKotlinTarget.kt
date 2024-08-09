@@ -66,7 +66,10 @@ fun KotlinMultiplatformExtension.configureKmpTargets(vararg targets: KmpTarget) 
 
             group("jvmAndNative") {
                 ifPresent(KmpTarget.JVM)
-                ifPresent(KmpTarget.NATIVE)
+
+                group("native") {
+                    ifPresent(KmpTarget.NATIVE)
+                }
             }
 
             ifPresent(KmpTarget.WASMJS)

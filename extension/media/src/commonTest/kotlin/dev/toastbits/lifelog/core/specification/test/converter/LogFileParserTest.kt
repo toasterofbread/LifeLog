@@ -100,7 +100,8 @@ Watched Test Test Test (first watch, eps 1-5) { // Inline event comment
             MovieOrShowMediaConsumeEvent(
                 MovieOrShowMediaReference("Test Test Test"),
                 inlineComment = UserContent.single("Inline event comment"),
-                aboveComment = UserContent.single("Event comment")
+                aboveComment = UserContent.single("Event comment"),
+                iteration = 1
             )
         )
         assertThat(day[2]).isEqualTo(

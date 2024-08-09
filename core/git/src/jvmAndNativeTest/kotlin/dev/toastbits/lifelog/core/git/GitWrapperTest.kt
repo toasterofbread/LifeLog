@@ -7,6 +7,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isTrue
+import dev.toastbits.lifelog.core.test.FileSystemTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -17,26 +18,15 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertFails
 
-class GitWrapperTest  {
+class GitWrapperTest: FileSystemTest {
     private lateinit var git: GitWrapper
     private lateinit var directory: Path
 
-    private val fileSystem: FileSystem = FileSystem.SYSTEM
+    override val fileSystem: FileSystem = FileSystem.SYSTEM
 
     @BeforeTest
     fun setUp() {
-        directory = FileSystem.SYSTEM_TEMPORARY_DIRECTORY.resolve("lifelogtest")
-        try {
-            // Some operating systems (Windows) don't like this for some reason
-            fileSystem.deleteRecursively(directory)
-        }
-        catch (_: Throwable) {
-            var i: Int = 2
-            while (fileSystem.exists(directory)) {
-                directory = FileSystem.SYSTEM_TEMPORARY_DIRECTORY.resolve("lifelogtest-${i++}")
-            }
-        }
-
+        directory = getEmptyTempDir("lifelogtest")
         git = GitWrapper.create(directory, UnconfinedTestDispatcher())
     }
 
@@ -171,7 +161,7 @@ class GitWrapperTest  {
         git.remoteAdd(remote, TEST_REMOTES.first())
 
         assertThat(git.doesBranchExist(branch)).isFalse()
-        git.pull(remote, TEST_REMOTE_EXISTING_BRANCH)
+        git.fetch(remote)
         assertThat(git.doesBranchExist(branch)).isTrue()
 
         git.checkout(branch)
@@ -182,11 +172,12 @@ class GitWrapperTest  {
         checkGitInitialisation { git.init("notmain") }
 
         val remote: String = "origin"
+        val branch: String = "$remote/$TEST_REMOTE_NONEXISTENT_BRANCH"
         git.remoteAdd(remote, TEST_REMOTES.first())
 
-        assertThat(git.doesBranchExist(TEST_REMOTE_EXISTING_BRANCH)).isFalse()
-        git.pull(remote, TEST_REMOTE_EXISTING_BRANCH)
-        assertThat(git.doesBranchExist(TEST_REMOTE_NONEXISTENT_BRANCH)).isFalse()
+        assertThat(git.doesBranchExist(branch)).isFalse()
+        git.fetch(remote)
+        assertThat(git.doesBranchExist(branch)).isFalse()
 
         assertFails {
             git.checkout(TEST_REMOTE_NONEXISTENT_BRANCH)

@@ -37,11 +37,8 @@ class LogFileGeneratorTest {
 
     @Test
     fun temp() {
-        val days: Map<LogDate?, List<LogEvent>> =
+        val days: Map<LogDate, List<LogEvent>> =
             mapOf(
-                null to listOf(
-                    MovieOrShowMediaConsumeEvent(MovieOrShowMediaReference("test"), iteration = 3)
-                ),
                 LogDateImpl(LocalDate.parse("2024-08-04")) to listOf(
                     MovieOrShowMediaConsumeEvent(MovieOrShowMediaReference("test 2"), iteration = 1)
                 )

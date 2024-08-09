@@ -15,8 +15,8 @@ class NativeCommandLineGitWrapper(
             FileSystem.SYSTEM.createDirectories(directory, mustCreate = true)
         }
 
-        val finalArgs: List<String> = listOf("-C", directory.toString()) + args.filterNotNull()
-        val output: String? = runCommand(gitBinaryPath, finalArgs)
+        val finalArgs: Array<String> = arrayOf("-C", directory.toString()) + args.filterNotNull()
+        val output: String? = runCommand(gitBinaryPath, *finalArgs)
         checkNotNull(output) { "Failure when running $gitBinaryPath $finalArgs" }
 
         return@withContext output

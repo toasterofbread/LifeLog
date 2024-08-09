@@ -20,8 +20,7 @@ class LogDatabaseFileStructureProviderImpl(
         (getLogFileDirectory(date) + listOf(logImagesDirectoryName)).toPath()
 
     private fun getLogFileDirectory(date: LocalDate): List<String> =
-        listOf(logsDirectoryName) + splitStrategy.getDateComponents(date).map { it.toString() }
-
+        listOf(logsDirectoryName) + splitStrategy.getDateComponents(date).map { it.toString().padStart(2, '0') }
 }
 
 private fun List<String>.toPath(): Path =

@@ -22,6 +22,7 @@ import dev.toastbits.lifelog.core.specification.database.LogDatabase
 import dev.toastbits.lifelog.core.specification.impl.converter.LogFileConverterImpl
 import dev.toastbits.lifelog.core.specification.impl.model.entity.date.LogDateImpl
 import dev.toastbits.lifelog.core.specification.model.entity.event.LogEventType
+import dev.toastbits.lifelog.core.test.FileSystemTest
 import dev.toastbits.lifelog.extension.media.MediaExtension
 import dev.toastbits.lifelog.extension.media.impl.model.reference.MovieOrShowMediaReference
 import dev.toastbits.lifelog.extension.media.model.entity.event.MediaConsumeEvent
@@ -37,12 +38,12 @@ import okio.SYSTEM
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class GitLogDatabaseSaverTest {
+class GitLogDatabaseSaverTest: FileSystemTest {
     private lateinit var directory: Path
     private lateinit var repository: GitWrapper
     private lateinit var saver: RemoteLogDatabaseSaver
 
-    private val fileSystem: FileSystem = FileSystem.SYSTEM
+    override val fileSystem: FileSystem = FileSystem.SYSTEM
     private val splitStrategy: LogFileSplitStrategy = LogFileSplitStrategy.Month
     private val fileStructureProvider: LogDatabaseFileStructureProvider = LogDatabaseFileStructureProviderImpl(splitStrategy)
 
@@ -63,8 +64,7 @@ class GitLogDatabaseSaverTest {
 
     @BeforeTest
     fun setUp() {
-        directory = FileSystem.SYSTEM_TEMPORARY_DIRECTORY.resolve("lifelog-repo")
-        fileSystem.deleteRecursively(directory)
+        directory = getEmptyTempDir("lifelog-repo")
 
         repository = GitWrapper.create(directory, UnconfinedTestDispatcher())
         repository.setCredentials(SecretKeys.credentials)
@@ -76,7 +76,7 @@ class GitLogDatabaseSaverTest {
 
     @Test
     fun testGitLogDatabaseSaver() = runTest {
-        val date: LocalDate = LocalDate.parse("2024-08-06")
+        val date: LocalDate = LocalDate.parse("2024-08-14")
         val event: MovieOrShowMediaConsumeEvent = MovieOrShowMediaConsumeEvent(MovieOrShowMediaReference("test 2"), iteration = 1)
 
         val database: LogDatabase =

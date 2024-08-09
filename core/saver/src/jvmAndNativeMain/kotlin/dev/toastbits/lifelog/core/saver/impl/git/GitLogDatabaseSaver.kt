@@ -61,7 +61,15 @@ class GitLogDatabaseSaver(
         repository.fetch(remote.remoteName)
 
         if (repository.doesBranchExist("${remote.remoteName}/${remote.branch}")) {
-            repository.checkout("${remote.remoteName}/${remote.branch}")
+            if (repository.doesBranchExist(remote.branch)) {
+                repository.checkout(remote.branch)
+            }
+            else {
+                repository.checkout("${remote.remoteName}/${remote.branch}")
+                repository.checkout(remote.branch, createNew = true)
+            }
+
+            repository.pull(remote.remoteName, remote.branch)
         }
         else {
             repository.checkoutOrphan(remote.branch)
@@ -76,12 +84,14 @@ class GitLogDatabaseSaver(
 
         saveDatabaseLocally(database, onAlert)
 
+        // We need to add before checking for changes, because some might just be line ending changes
+        repository.add(".")
+
         val changedFiles: List<Path> = repository.getUncommittedFiles()
         if (changedFiles.isEmpty()) {
             return
         }
 
-        repository.add(".")
         repository.commit(message)
         repository.push(remote.remoteName, branch = remote.branch)
     }

@@ -3,7 +3,6 @@ package dev.toastbits.lifelog.core.git
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import okio.Path
-import okio.Path.Companion.toPath
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.ListBranchCommand
 import org.eclipse.jgit.api.Status
@@ -74,11 +73,22 @@ class DesktopJvmGitWrapper(
 
     override suspend fun getUncommittedFiles(): List<Path> = withGit { git ->
         val status: Status = git.status().call()
-        return@withGit (status.untracked + status.uncommittedChanges).map { it.toPath() }
+        return@withGit (status.changed + status.uncommittedChanges).map { directory.resolve(it) }
     }
 
     override suspend fun doesBranchExist(branch: String): Boolean = withGit { git ->
-        val branches: MutableList<Ref> = git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call()
-        return@withGit branches.any { it.name.split('/', limit = 3).drop(2).single() == branch }
+        return@withGit git.getBranches().containsKey(branch)
     }
+
+    private fun Git.getBranches(): Map<String, Ref> =
+        branchList().setListMode(ListBranchCommand.ListMode.ALL).call()
+            .filter { it.name != "HEAD" }
+            .associateBy { branch ->
+                try {
+                    branch.name.split('/', limit = 3).drop(2).single()
+                }
+                catch (e: Throwable) {
+                    throw RuntimeException(branch.name, e)
+                }
+            }
 }

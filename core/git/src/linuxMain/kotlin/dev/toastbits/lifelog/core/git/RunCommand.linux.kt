@@ -11,12 +11,16 @@ import platform.posix.pclose
 import platform.posix.popen
 
 @OptIn(ExperimentalForeignApi::class)
-actual fun runCommand(program: String, args: List<String>): String? {
+actual fun runCommand(program: String, vararg args: String?): String? {
     val command: String =
         buildString {
             append(program.replace(" ", "\\ "))
 
             for (arg in args) {
+                if (arg == null) {
+                    continue
+                }
+
                 append(' ')
 
                 if (arg.contains(" ")) {

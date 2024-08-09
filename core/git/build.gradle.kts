@@ -27,5 +27,11 @@ kotlin {
                 implementation(libs.kgit)
             }
         }
+
+        val commonTest by getting {
+            dependencies {
+                implementation(projects.core.test)
+            }
+        }
     }
 }
