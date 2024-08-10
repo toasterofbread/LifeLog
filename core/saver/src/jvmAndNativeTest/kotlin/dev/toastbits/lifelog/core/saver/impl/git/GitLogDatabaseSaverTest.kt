@@ -6,11 +6,6 @@ import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
-import dev.mokkery.answering.returns
-import dev.mokkery.every
-import dev.mokkery.matcher.any
-import dev.mokkery.mock
-import dev.mokkery.verify
 import dev.toastbits.lifelog.core.git.GitWrapper
 import dev.toastbits.lifelog.core.saver.LogDatabaseFileStructureProvider
 import dev.toastbits.lifelog.core.saver.LogFileSplitStrategy
@@ -26,18 +21,14 @@ import dev.toastbits.lifelog.core.specification.database.LogEntityMetadata
 import dev.toastbits.lifelog.core.specification.impl.converter.LogFileConverterImpl
 import dev.toastbits.lifelog.core.specification.impl.model.entity.date.LogDateImpl
 import dev.toastbits.lifelog.core.specification.model.UserContent
-import dev.toastbits.lifelog.core.specification.model.entity.event.LogEventType
+import dev.toastbits.lifelog.core.specification.model.entity.event.LogEvent
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityPath
+import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReference
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferenceGenerator
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferenceParser
 import dev.toastbits.lifelog.core.test.FileSystemTest
-import dev.toastbits.lifelog.extension.media.MediaExtension
-import dev.toastbits.lifelog.extension.media.impl.model.entity.event.MediaConsumeEventTypeImpl
-import dev.toastbits.lifelog.extension.media.impl.model.reference.MovieOrShowMediaReference
-import dev.toastbits.lifelog.extension.media.model.entity.event.MediaConsumeEvent
-import dev.toastbits.lifelog.extension.media.model.entity.event.MediaConsumeEventType
-import dev.toastbits.lifelog.extension.media.model.entity.event.MovieOrShowMediaConsumeEvent
-import dev.toastbits.lifelog.extension.media.model.reference.MediaReference
+import dev.toastbits.lifelog.core.test.extension.TestLogEntityReference
+import dev.toastbits.lifelog.core.test.extension.TestLogEvent
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -47,6 +38,7 @@ import okio.Path
 import okio.SYSTEM
 import kotlin.test.BeforeTest
 import kotlin.test.Test
+import dev.toastbits.lifelog.core.test.extension.TextExtension
 
 class GitLogDatabaseSaverTest: FileSystemTest {
     private lateinit var directory: Path
@@ -55,25 +47,11 @@ class GitLogDatabaseSaverTest: FileSystemTest {
 
     override val fileSystem: FileSystem = FileSystem.SYSTEM
 
-//    private val eventText: LogEventType.EventText =
-//        LogEventType.EventText(
-//            prefix = "Prefix ",
-//            body = "Body",
-//            metadata = "Metadata"
-//        )
-//    private val mediaConsumeEventType: MediaConsumeEventType = mock {
-//        every { eventClass } returns MediaConsumeEvent::class
-//        every { generateEvent(any(), any(), any(), any()) } returns eventText
-//    }
-
-    private val mediaConsumeEventType: MediaConsumeEventType = MediaConsumeEventTypeImpl()
-    private val mediaExtension: MediaExtension = MediaExtension(mediaConsumeEventType = mediaConsumeEventType)
-
     private val formats: LogFileConverterFormats = LogFileConverterImpl.DEFAULT_FORMATS
     private val splitStrategy: LogFileSplitStrategy = LogFileSplitStrategy.Month
     private val fileStructureProvider: LogDatabaseFileStructureProvider =
         LogDatabaseFileStructureProviderImpl(formats, splitStrategy).apply {
-            registerExtension(mediaExtension)
+            registerExtension(TextExtension)
         }
 
     private val referenceParser: LogEntityReferenceParser = LogEntityReferenceParserImpl(fileStructureProvider)
@@ -82,7 +60,7 @@ class GitLogDatabaseSaverTest: FileSystemTest {
             referenceParser,
             { LogEntityReferenceGeneratorImpl(fileStructureProvider, it) },
             formats
-        ).apply { registerExtension(mediaExtension) }
+        ).apply { registerExtension(TextExtension) }
 
     @BeforeTest
     fun setUp() {
@@ -102,13 +80,8 @@ class GitLogDatabaseSaverTest: FileSystemTest {
         val renderedContent: String = "***Hello World!***"
 
         val date: LocalDate = LocalDate.parse("2024-08-15")
-        val reference: MediaReference = MovieOrShowMediaReference("test 2")
-        val event: MovieOrShowMediaConsumeEvent =
-            MovieOrShowMediaConsumeEvent(
-                reference,
-                iteration = 1,
-                content = content
-            )
+        val reference: LogEntityReference = TestLogEntityReference(LogEntityPath.of("test 2"))
+        val event: LogEvent = TestLogEvent(reference, content = content)
 
         val database: LogDatabase =
             LogDatabase(
@@ -123,11 +96,6 @@ class GitLogDatabaseSaverTest: FileSystemTest {
             )
 
         saver.saveDatabaseRemotely(database, "Test ${formats.preferredDateFormat.format(date)}") { assertThat(it).isNull() }
-
-//        verify {
-//            mediaConsumeEventType.eventClass
-//            mediaConsumeEventType.generateEvent(event, any(), any(), any())
-//        }
 
         val logFile: Path = fileStructureProvider.getLogFilePath(date)
         val logFileContent: String =

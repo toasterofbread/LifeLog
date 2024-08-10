@@ -3,8 +3,11 @@ import util.configureAllKmpTargets
 plugins {
     id("kmp-conventions")
     id("android-library-conventions")
+    id("publishing-conventions")
 
     alias(libs.plugins.kotlin)
+    alias(libs.plugins.publish)
+//    alias(libs.plugins.kotlin.serialization)
 }
 
 kotlin {
@@ -14,8 +17,6 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(projects.core.specification)
-
-                implementation(libs.okio)
             }
         }
     }
@@ -23,8 +24,12 @@ kotlin {
 
 val projectName: String = libs.versions.project.name.get()
 val projectVersion: String = project.libs.versions.project.name.get()
-val artifactName: String = "core.test"
+val artifactName: String = "mediawatch"
 
 android {
-    namespace = "dev.toastbits.$projectName.$artifactName"
+    namespace = "dev.toastbits.$projectName.extension.$artifactName"
+}
+
+mavenPublishing {
+    coordinates("dev.toastbits.$projectName.extension", artifactName, projectVersion)
 }

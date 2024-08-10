@@ -30,7 +30,6 @@ kotlin {
         val jvmAndNativeTest by getting {
             dependencies {
                 implementation(projects.core.test)
-                implementation(projects.extension.media)
             }
         }
     }
