@@ -14,10 +14,10 @@ import dev.toastbits.lifelog.core.saver.impl.DatabaseFilesGeneratorImpl
 import dev.toastbits.lifelog.core.saver.impl.LogDatabaseFileStructureProviderImpl
 import dev.toastbits.lifelog.core.saver.model.GitRemoteBranch
 import dev.toastbits.lifelog.core.saver.reference.LogEntityReferenceGeneratorImpl
-import dev.toastbits.lifelog.core.saver.reference.LogEntityReferenceParserImpl
-import dev.toastbits.lifelog.core.specification.converter.LogFileConverterFormats
+import dev.toastbits.lifelog.core.specification.converter.LogFileConverterStrings
 import dev.toastbits.lifelog.core.specification.database.LogDatabase
 import dev.toastbits.lifelog.core.specification.database.LogEntityMetadata
+import dev.toastbits.lifelog.core.specification.extension.ExtensionId
 import dev.toastbits.lifelog.core.specification.impl.converter.LogFileConverterImpl
 import dev.toastbits.lifelog.core.specification.impl.model.entity.date.LogDateImpl
 import dev.toastbits.lifelog.core.specification.model.UserContent
@@ -27,7 +27,6 @@ import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferen
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferenceGenerator
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferenceParser
 import dev.toastbits.lifelog.core.test.FileSystemTest
-import dev.toastbits.lifelog.core.test.extension.TestLogEntityReference
 import dev.toastbits.lifelog.core.test.extension.TestLogEvent
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -38,7 +37,7 @@ import okio.Path
 import okio.SYSTEM
 import kotlin.test.BeforeTest
 import kotlin.test.Test
-import dev.toastbits.lifelog.core.test.extension.TextExtension
+import dev.toastbits.lifelog.core.test.extension.TestExtension
 
 class GitLogDatabaseSaverTest: FileSystemTest {
     private lateinit var directory: Path
@@ -47,20 +46,20 @@ class GitLogDatabaseSaverTest: FileSystemTest {
 
     override val fileSystem: FileSystem = FileSystem.SYSTEM
 
-    private val formats: LogFileConverterFormats = LogFileConverterImpl.DEFAULT_FORMATS
+    private val formats: LogFileConverterStrings = LogFileConverterImpl.DEFAULT_FORMATS
     private val splitStrategy: LogFileSplitStrategy = LogFileSplitStrategy.Month
     private val fileStructureProvider: LogDatabaseFileStructureProvider =
         LogDatabaseFileStructureProviderImpl(formats, splitStrategy).apply {
-            registerExtension(TextExtension)
+            registerExtension(TestExtension)
         }
 
-    private val referenceParser: LogEntityReferenceParser = LogEntityReferenceParserImpl(fileStructureProvider)
+    private val referenceParser: LogEntityReferenceParser = fileStructureProvider
     private val logFileConverter: LogFileConverterImpl =
         LogFileConverterImpl(
             referenceParser,
             { LogEntityReferenceGeneratorImpl(fileStructureProvider, it) },
             formats
-        ).apply { registerExtension(TextExtension) }
+        ).apply { registerExtension(TestExtension) }
 
     @BeforeTest
     fun setUp() {
@@ -80,7 +79,11 @@ class GitLogDatabaseSaverTest: FileSystemTest {
         val renderedContent: String = "***Hello World!***"
 
         val date: LocalDate = LocalDate.parse("2024-08-15")
-        val reference: LogEntityReference = TestLogEntityReference(LogEntityPath.of("test 2"))
+        val reference: LogEntityReference.InMetadata =
+            LogEntityReference.InMetadataData(
+                LogEntityPath.of("test 2"),
+                TestExtension.id
+            )
         val event: LogEvent = TestLogEvent(reference, content = content)
 
         val database: LogDatabase =
@@ -111,7 +114,7 @@ class GitLogDatabaseSaverTest: FileSystemTest {
         assertThat(logFileContent).contains(renderedContent.prependIndent(formats.contentIndentation))
         assertThat(logFileContent).contains(referencePath.toString())
 
-        val metadataFile: Path = fileStructureProvider.getEntityReferencePath(reference)
+        val metadataFile: Path = fileStructureProvider.getEntityReferenceFilePath(reference)
         val metadataFileContent: String =
             fileSystem.read(repository.directory.resolve(metadataFile)) {
                 readUtf8()

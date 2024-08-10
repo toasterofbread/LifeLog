@@ -46,8 +46,8 @@ class LogFileParserTest: ParserTest() {
 
         for ((iterationText, iterationNumber) in numberTypes) {
             for (entityType in MediaEntityType.entries) {
-                for (prefix in mediaWatchExtension.converterFormats.getMediaEntityTypeConsumeEventPrefixes(entityType)) {
-                    for (suffix in mediaWatchExtension.converterFormats.getMediaEntityTypeIterationSuffixes(entityType)) {
+                for (prefix in mediaWatchExtension.strings.getMediaEntityTypeConsumeEventPrefixes(entityType)) {
+                    for (suffix in mediaWatchExtension.strings.getMediaEntityTypeIterationSuffixes(entityType)) {
                         val text: String = """
                         ----- ${templateDate.format(ISO)}
                         ${prefix.uppercase()} Test Test Test ($iterationText $suffix)
@@ -77,7 +77,7 @@ class LogFileParserTest: ParserTest() {
 
 // Event comment
 Watched Test Test Test (first watch, eps 1-5) { // Inline event comment
-    
+
 }
 
 // Standalone comment
@@ -98,7 +98,7 @@ Watched Test Test Test (first watch, eps 1-5) { // Inline event comment
         )
         assertThat(day[1]).isEqualTo(
             MovieOrShowMediaConsumeEvent(
-                MovieOrShowMediaReference("Test Test Test"),
+                MovieOrShowMediaReference("Test Test Test", mediaWatchExtension.id),
                 inlineComment = UserContent.single("Inline event comment"),
                 aboveComment = UserContent.single("Event comment"),
                 iteration = 1
@@ -111,7 +111,7 @@ Watched Test Test Test (first watch, eps 1-5) { // Inline event comment
 
     @Test
     fun test() {
-        val testReference: MovieOrShowMediaReference = MovieOrShowMediaReference("Show name")
+        val testReference: MovieOrShowMediaReference = MovieOrShowMediaReference("Show name", mediaWatchExtension.id)
 
         val dayContent: String = "Gay people stay winning [Test!](/media/movie/${testReference.mediaId})"
         val eventReference: String = "転生王女と天才令嬢の魔法革命"
@@ -139,22 +139,22 @@ Listened to $eventReference (12th listen) {
         val expectedEvents: List<LogEvent> =
             listOf(
                 MovieOrShowMediaConsumeEvent(
-                    MovieOrShowMediaReference(eventReference),
+                    MovieOrShowMediaReference(eventReference, mediaWatchExtension.id),
                     content = dayContent.parse(),
                     iteration = 1
                 ),
                 BookMediaConsumeEvent(
-                    BookMediaReference(eventReference),
+                    BookMediaReference(eventReference, mediaWatchExtension.id),
                     content = dayContent.parse(),
                     iteration = 2
                 ),
                 GameMediaConsumeEvent(
-                    GameMediaReference(eventReference),
+                    GameMediaReference(eventReference, mediaWatchExtension.id),
                     content = dayContent.parse(),
                     iteration = 3
                 ),
                 SongMediaConsumeEvent(
-                    SongMediaReference(eventReference),
+                    SongMediaReference(eventReference, mediaWatchExtension.id),
                     content = dayContent.parse(),
                     iteration = 12
                 )

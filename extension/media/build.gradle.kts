@@ -19,6 +19,13 @@ kotlin {
                 implementation(projects.core.specification)
             }
         }
+
+        val commonTest by getting {
+            dependencies {
+                implementation(projects.core.saver)
+                implementation(projects.core.test)
+            }
+        }
     }
 }
 

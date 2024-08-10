@@ -1,15 +1,17 @@
 package dev.toastbits.lifelog.core.specification.impl.converter
 
-import dev.toastbits.lifelog.core.specification.converter.LogFileConverterFormats
+import dev.toastbits.lifelog.core.specification.converter.LogFileConverterStrings
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.format.DateTimeFormat
 import kotlinx.datetime.format.MonthNames
 import kotlinx.datetime.format.Padding
 import kotlinx.datetime.format.char
 
-data class LogFileConverterFormatsImpl(
+data class LogFileConverterStringsImpl(
     override val metadataDirectoryName: String = "metadata",
-    override val extensionDirectoryName: String = "extension",
+    override val metadataExtensionDirectoryName: String = "extension",
+    override val logsDirectoryName: String = "logs",
+    override val logFileName: String = "log.md",
 
     override val contentIndentation: String = "  ",
     override val datePrefix: String = "----- ",
@@ -42,7 +44,7 @@ data class LogFileConverterFormatsImpl(
                 year()
             }
         )
-): LogFileConverterFormats {
+): LogFileConverterStrings {
     override fun numberToIteration(number: Int): String =
         when (number) {
             1 -> "first"

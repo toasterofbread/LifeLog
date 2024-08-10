@@ -1,6 +1,6 @@
 package dev.toastbits.lifelog.core.test.extension
 
-import dev.toastbits.lifelog.core.specification.converter.LogFileConverterFormats
+import dev.toastbits.lifelog.core.specification.converter.LogFileConverterStrings
 import dev.toastbits.lifelog.core.specification.converter.alert.LogGenerateAlert
 import dev.toastbits.lifelog.core.specification.converter.alert.LogParseAlert
 import dev.toastbits.lifelog.core.specification.model.UserContent
@@ -24,7 +24,7 @@ object TestLogEventType: LogEventType {
         metadata: String?,
         content: UserContent?,
         referenceParser: LogEntityReferenceParser,
-        formats: LogFileConverterFormats,
+        formats: LogFileConverterStrings,
         onAlert: (LogParseAlert) -> Unit
     ): LogEvent {
         TODO("Not yet implemented")
@@ -33,13 +33,13 @@ object TestLogEventType: LogEventType {
     override fun generateEvent(
         event: LogEvent,
         referenceGenerator: LogEntityReferenceGenerator,
-        formats: LogFileConverterFormats,
+        formats: LogFileConverterStrings,
         onAlert: (LogGenerateAlert) -> Unit
     ): LogEventType.EventText {
         check(event is TestLogEvent)
         return LogEventType.EventText(
             prefix = "PREFIX",
-            body = "[${event.reference.entityPath.segments.last()}](<${referenceGenerator.generateReferencePath(event.reference, onAlert = onAlert)}>)",
+            body = "[${event.reference.path.segments.last()}](<${referenceGenerator.generateReferencePath(event.reference, onAlert = onAlert)}>)",
             metadata = "METADATA"
         )
     }

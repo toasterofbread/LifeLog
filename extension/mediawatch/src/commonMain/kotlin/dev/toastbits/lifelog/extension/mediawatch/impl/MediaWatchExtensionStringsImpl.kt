@@ -1,12 +1,12 @@
-package dev.toastbits.lifelog.extension.mediawatch.impl.converter
+package dev.toastbits.lifelog.extension.mediawatch.impl
 
-import dev.toastbits.lifelog.extension.mediawatch.converter.MediaExtensionConverterFormats
+import dev.toastbits.lifelog.extension.mediawatch.MediaWatchExtensionStrings
 import dev.toastbits.lifelog.extension.mediawatch.util.MediaEntityType
 
-class MediaExtensionConverterFormatsImpl(
-    override val extensionIdentifier: String = "mediawatch",
+class MediaWatchExtensionStringsImpl(
+    override val extensionName: String = "mediawatch",
     override val mediaReferenceTypeIdentifier: String = "mediawatch"
-): MediaExtensionConverterFormats {
+): MediaWatchExtensionStrings {
     override fun getMediaEntityTypeIterationSuffixes(mediaEntityType: MediaEntityType): List<String> =
         when (mediaEntityType) {
             MediaEntityType.MOVIE_OR_SHOW -> listOf(" watch")

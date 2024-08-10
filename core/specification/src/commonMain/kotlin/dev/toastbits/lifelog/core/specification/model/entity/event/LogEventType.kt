@@ -1,10 +1,9 @@
 package dev.toastbits.lifelog.core.specification.model.entity.event
 
-import dev.toastbits.lifelog.core.specification.converter.LogFileConverterFormats
+import dev.toastbits.lifelog.core.specification.converter.LogFileConverterStrings
 import dev.toastbits.lifelog.core.specification.converter.alert.LogGenerateAlert
 import dev.toastbits.lifelog.core.specification.converter.alert.LogParseAlert
 import dev.toastbits.lifelog.core.specification.model.UserContent
-import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReference
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferenceGenerator
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferenceParser
 import dev.toastbits.lifelog.core.specification.util.StringId
@@ -21,14 +20,14 @@ interface LogEventType {
         metadata: String?,
         content: UserContent?,
         referenceParser: LogEntityReferenceParser,
-        formats: LogFileConverterFormats,
+        formats: LogFileConverterStrings,
         onAlert: (LogParseAlert) -> Unit
     ): LogEvent
 
     fun generateEvent(
         event: LogEvent,
         referenceGenerator: LogEntityReferenceGenerator,
-        formats: LogFileConverterFormats,
+        formats: LogFileConverterStrings,
         onAlert: (LogGenerateAlert) -> Unit
     ): EventText
 

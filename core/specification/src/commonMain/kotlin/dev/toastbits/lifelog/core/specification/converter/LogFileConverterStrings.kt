@@ -3,9 +3,11 @@ package dev.toastbits.lifelog.core.specification.converter
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.format.DateTimeFormat
 
-interface LogFileConverterFormats {
+interface LogFileConverterStrings {
     val metadataDirectoryName: String
-    val extensionDirectoryName: String
+    val metadataExtensionDirectoryName: String
+    val logsDirectoryName: String
+    val logFileName: String
 
     val contentIndentation: String
     val datePrefix: String
@@ -23,7 +25,7 @@ interface LogFileConverterFormats {
 
     fun validate() {
         metadataDirectoryName.checkPath("metadataDirectoryName")
-        extensionDirectoryName.checkPath("extensionDirectoryName")
+        metadataExtensionDirectoryName.checkPath("extensionDirectoryName")
     }
 
     private fun String.checkPath(name: String) {

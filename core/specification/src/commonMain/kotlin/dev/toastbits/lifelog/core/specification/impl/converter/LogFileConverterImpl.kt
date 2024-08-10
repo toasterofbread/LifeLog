@@ -1,7 +1,7 @@
 package dev.toastbits.lifelog.core.specification.impl.converter
 
 import dev.toastbits.lifelog.core.specification.converter.LogFileConverter
-import dev.toastbits.lifelog.core.specification.converter.LogFileConverterFormats
+import dev.toastbits.lifelog.core.specification.converter.LogFileConverterStrings
 import dev.toastbits.lifelog.core.specification.extension.SpecificationExtension
 import dev.toastbits.lifelog.core.specification.extension.validate
 import dev.toastbits.lifelog.core.specification.impl.converter.usercontent.MarkdownUserContentGenerator
@@ -20,7 +20,7 @@ private typealias TypePath = List<String>
 class LogFileConverterImpl(
     private val referenceParser: LogEntityReferenceParser,
     private val referenceGeneratorProvider: (LocalDate) -> LogEntityReferenceGenerator,
-    private val formats: LogFileConverterFormats = DEFAULT_FORMATS,
+    private val formats: LogFileConverterStrings = DEFAULT_FORMATS,
 //    eventTypes: List<LogEventType> = DEFAULT_EVENT_TYPES,
 //    referenceTypes: List<LogEntityReferenceType> = DEFAULT_REFERENCE_TYPES,
     private val userContentParser: UserContentParser = MarkdownUserContentParser(),
@@ -58,7 +58,7 @@ class LogFileConverterImpl(
 
         )
 
-        val DEFAULT_FORMATS: LogFileConverterFormatsImpl =
-            LogFileConverterFormatsImpl()
+        val DEFAULT_FORMATS: LogFileConverterStringsImpl =
+            LogFileConverterStringsImpl()
     }
 }

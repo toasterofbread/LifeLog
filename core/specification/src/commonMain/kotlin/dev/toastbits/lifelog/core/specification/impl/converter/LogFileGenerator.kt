@@ -2,7 +2,7 @@ package dev.toastbits.lifelog.core.specification.impl.converter
 
 import dev.toastbits.lifelog.core.specification.converter.GenerateAlertData
 import dev.toastbits.lifelog.core.specification.converter.LogFileConverter
-import dev.toastbits.lifelog.core.specification.converter.LogFileConverterFormats
+import dev.toastbits.lifelog.core.specification.converter.LogFileConverterStrings
 import dev.toastbits.lifelog.core.specification.converter.alert.LogGenerateAlert
 import dev.toastbits.lifelog.core.specification.impl.converter.usercontent.UserContentGenerator
 import dev.toastbits.lifelog.core.specification.model.UserContent
@@ -14,7 +14,7 @@ import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferen
 import kotlinx.datetime.LocalDate
 
 internal class LogFileGenerator(
-    private val formats: LogFileConverterFormats,
+    private val formats: LogFileConverterStrings,
     private val eventTypes: List<LogEventType>,
     private val userContentGenerator: UserContentGenerator,
     private val referenceGeneratorProvider: (LocalDate) -> LogEntityReferenceGenerator

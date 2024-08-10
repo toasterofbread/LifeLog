@@ -1,8 +1,11 @@
 package dev.toastbits.lifelog.core.specification.model.reference
 
-import kotlin.reflect.KClass
+import dev.toastbits.lifelog.core.specification.converter.alert.LogParseAlert
+import dev.toastbits.lifelog.core.specification.extension.ExtensionId
 
 interface LogEntityReferenceType {
     val identifier: String
-    val referenceClass: KClass<*>
+    val extensionId: ExtensionId
+
+    fun parseReference(path: List<String>, onAlert: (LogParseAlert) -> Unit): LogEntityReference?
 }

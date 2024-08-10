@@ -13,7 +13,7 @@ interface LogFileConverter: Extendable {
     fun generateLogFile(days: Map<LogDate, List<LogEvent>>): GenerateResult
 
     data class ParseResult(
-        val days: Map<LogDate?, List<LogEvent>>,
+        val days: Map<LogDate, List<LogEvent>>,
         val alerts: List<ParseAlertData>
     )
 

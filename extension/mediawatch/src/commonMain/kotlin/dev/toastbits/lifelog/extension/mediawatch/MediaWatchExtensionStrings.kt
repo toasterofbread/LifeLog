@@ -1,9 +1,9 @@
-package dev.toastbits.lifelog.extension.mediawatch.converter
+package dev.toastbits.lifelog.extension.mediawatch
 
 import dev.toastbits.lifelog.extension.mediawatch.util.MediaEntityType
 
-interface MediaExtensionConverterFormats {
-    val extensionIdentifier: String
+interface MediaWatchExtensionStrings {
+    val extensionName: String
 
     val mediaReferenceTypeIdentifier: String
 

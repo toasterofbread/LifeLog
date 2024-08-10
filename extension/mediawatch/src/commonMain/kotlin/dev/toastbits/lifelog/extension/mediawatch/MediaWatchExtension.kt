@@ -1,7 +1,7 @@
 package dev.toastbits.lifelog.extension.mediawatch
 
-import dev.toastbits.lifelog.extension.mediawatch.converter.MediaExtensionConverterFormats
-import dev.toastbits.lifelog.extension.mediawatch.impl.converter.MediaExtensionConverterFormatsImpl
+import dev.toastbits.lifelog.core.specification.extension.ExtensionId
+import dev.toastbits.lifelog.extension.mediawatch.impl.MediaWatchExtensionStringsImpl
 import dev.toastbits.lifelog.extension.mediawatch.impl.model.entity.event.MediaConsumeEventTypeImpl
 import dev.toastbits.lifelog.core.specification.extension.SpecificationExtension
 import dev.toastbits.lifelog.core.specification.model.entity.event.LogEventType
@@ -10,11 +10,12 @@ import dev.toastbits.lifelog.extension.mediawatch.model.entity.event.MediaConsum
 import dev.toastbits.lifelog.extension.mediawatch.model.reference.MediaReferenceType
 
 class MediaWatchExtension(
-    val converterFormats: MediaExtensionConverterFormats = MediaExtensionConverterFormatsImpl(),
-    mediaConsumeEventType: MediaConsumeEventType = MediaConsumeEventTypeImpl(converterFormats),
-    mediaReferenceType: MediaReferenceType = MediaReferenceType()
+    override val id: ExtensionId = "mediawatch",
+    val strings: MediaWatchExtensionStrings = MediaWatchExtensionStringsImpl(),
+    mediaConsumeEventType: MediaConsumeEventType = MediaConsumeEventTypeImpl(strings, id),
+    mediaReferenceType: MediaReferenceType = MediaReferenceType(strings, id)
 ): SpecificationExtension {
-    override val identifier: String get() = converterFormats.extensionIdentifier
+    override val name: String get() = strings.extensionName
 
     override val extraEventTypes: List<LogEventType> =
         listOf(

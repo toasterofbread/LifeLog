@@ -29,7 +29,7 @@ open class ParserTest {
     lateinit var referenceGenerator: LogEntityReferenceGenerator
         private set
 
-    val mockResultReference: LogEntityReference get() = BookMediaReference("TEST")
+    val mockResultReference: LogEntityReference get() = BookMediaReference("TEST", mediaWatchExtension.id)
 
     val mediaWatchExtension: MediaWatchExtension = MediaWatchExtension()
 

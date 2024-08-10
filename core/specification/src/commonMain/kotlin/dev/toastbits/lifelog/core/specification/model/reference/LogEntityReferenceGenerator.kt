@@ -7,5 +7,5 @@ interface LogEntityReferenceGenerator {
         reference: LogEntityReference,
         relativeToOverride: LogEntityPath? = null,
         onAlert: (LogGenerateAlert) -> Unit
-    ): LogEntityPath?
+    ): LogEntityPath
 }

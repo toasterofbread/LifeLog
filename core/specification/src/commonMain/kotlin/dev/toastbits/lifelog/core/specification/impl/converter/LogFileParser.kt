@@ -1,7 +1,7 @@
 package dev.toastbits.lifelog.core.specification.impl.converter
 
 import dev.toastbits.lifelog.core.specification.converter.LogFileConverter
-import dev.toastbits.lifelog.core.specification.converter.LogFileConverterFormats
+import dev.toastbits.lifelog.core.specification.converter.LogFileConverterStrings
 import dev.toastbits.lifelog.core.specification.converter.ParseAlertData
 import dev.toastbits.lifelog.core.specification.converter.alert.LogParseAlert
 import dev.toastbits.lifelog.core.specification.impl.converter.usercontent.UserContentParser
@@ -16,12 +16,12 @@ import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferen
 import kotlinx.datetime.LocalDate
 
 internal class LogFileParser(
-    private val formats: LogFileConverterFormats,
+    private val formats: LogFileConverterStrings,
     private val eventTypes: List<LogEventType>,
     private val userContentParser: UserContentParser,
     private val referenceParser: LogEntityReferenceParser
 ) {
-    private lateinit var days: MutableMap<LogDate?, MutableList<LogEvent>>
+    private lateinit var days: MutableMap<LogDate, MutableList<LogEvent>>
     private lateinit var alerts: MutableList<ParseAlertData>
 
     private lateinit var iterator: Iterator<String>
@@ -48,7 +48,7 @@ internal class LogFileParser(
     }
 
     private fun getDayEvents(): MutableList<LogEvent> =
-        days.getOrPut(currentDay) { mutableListOf() }
+        days.getOrPut(currentDay!!) { mutableListOf() }
 
     fun parse(lines: Iterable<String>): LogFileConverter.ParseResult {
         days = mutableMapOf()

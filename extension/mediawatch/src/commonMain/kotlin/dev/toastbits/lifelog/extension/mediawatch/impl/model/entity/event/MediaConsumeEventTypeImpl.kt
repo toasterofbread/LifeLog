@@ -1,15 +1,16 @@
 package dev.toastbits.lifelog.extension.mediawatch.impl.model.entity.event
 
-import dev.toastbits.lifelog.core.specification.converter.LogFileConverterFormats
+import dev.toastbits.lifelog.core.specification.converter.LogFileConverterStrings
 import dev.toastbits.lifelog.core.specification.converter.alert.LogGenerateAlert
 import dev.toastbits.lifelog.core.specification.converter.alert.LogParseAlert
+import dev.toastbits.lifelog.core.specification.extension.ExtensionId
 import dev.toastbits.lifelog.core.specification.model.UserContent
 import dev.toastbits.lifelog.core.specification.model.entity.event.LogEvent
 import dev.toastbits.lifelog.core.specification.model.entity.event.LogEventType
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferenceGenerator
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferenceParser
-import dev.toastbits.lifelog.extension.mediawatch.converter.MediaExtensionConverterFormats
-import dev.toastbits.lifelog.extension.mediawatch.impl.converter.MediaExtensionConverterFormatsImpl
+import dev.toastbits.lifelog.extension.mediawatch.MediaWatchExtensionStrings
+import dev.toastbits.lifelog.extension.mediawatch.impl.MediaWatchExtensionStringsImpl
 import dev.toastbits.lifelog.extension.mediawatch.impl.model.mapper.createConsumeEvent
 import dev.toastbits.lifelog.extension.mediawatch.impl.model.mapper.createReference
 import dev.toastbits.lifelog.extension.mediawatch.model.entity.event.MediaConsumeEvent
@@ -20,7 +21,8 @@ import dev.toastbits.lifelog.extension.mediawatch.util.MediaStringId
 import kotlin.reflect.KClass
 
 class MediaConsumeEventTypeImpl(
-    private val mediaFormats: MediaExtensionConverterFormats = MediaExtensionConverterFormatsImpl()
+    private val mediaFormats: MediaWatchExtensionStrings,
+    private val extensionId: ExtensionId
 ): MediaConsumeEventType {
     override val name: MediaStringId = MediaStringId.MediaExtension.NAME
     override val eventClass: KClass<*> = MediaConsumeEvent::class
@@ -36,11 +38,11 @@ class MediaConsumeEventTypeImpl(
         metadata: String?,
         content: UserContent?,
         referenceParser: LogEntityReferenceParser,
-        formats: LogFileConverterFormats,
+        formats: LogFileConverterStrings,
         onAlert: (LogParseAlert) -> Unit
     ): MediaConsumeEvent {
         val entityType: MediaEntityType = getPrefixIndexMediaEntityType(prefixIndex)
-        val mediaReference: MediaReference = entityType.createReference(body.trim())
+        val mediaReference: MediaReference = entityType.createReference(body.trim(), extensionId)
 
         val event: MediaConsumeEvent = entityType.createConsumeEvent(mediaReference)
         event.content = content
@@ -55,7 +57,7 @@ class MediaConsumeEventTypeImpl(
     override fun generateEvent(
         event: LogEvent,
         referenceGenerator: LogEntityReferenceGenerator,
-        formats: LogFileConverterFormats,
+        formats: LogFileConverterStrings,
         onAlert: (LogGenerateAlert) -> Unit
     ): LogEventType.EventText {
         check(event is MediaConsumeEvent)
@@ -77,7 +79,7 @@ class MediaConsumeEventTypeImpl(
     private fun getEventMetadataText(
         event: MediaConsumeEvent,
         referenceGenerator: LogEntityReferenceGenerator,
-        formats: LogFileConverterFormats,
+        formats: LogFileConverterStrings,
         onAlert: (LogGenerateAlert) -> Unit
     ): String? = buildString {
         event.iteration?.also { iteration ->
@@ -93,7 +95,7 @@ class MediaConsumeEventTypeImpl(
     private fun applyEventMetadata(
         text: String,
         event: MediaConsumeEvent,
-        formats: MediaExtensionConverterFormats,
+        formats: MediaWatchExtensionStrings,
         onAlert: (LogParseAlert) -> Unit
     ) {
         val iterationSuffixes: List<String> = formats.getMediaEntityTypeIterationSuffixes(event.mediaEntityType).map { it.lowercase() }

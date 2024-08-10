@@ -52,7 +52,7 @@ class DatabaseFilesGeneratorImpl(
         onAlert: (GenerateAlertData) -> Unit
     ) {
         for ((reference, metadata) in metadataEntries) {
-            val filePath: Path = fileStructureProvider.getEntityReferencePath(reference)
+            val filePath: Path = fileStructureProvider.getEntityReferenceFilePath(reference)
             createFile(filePath, listOf("TEMP"))
         }
     }

@@ -1,5 +1,6 @@
 package dev.toastbits.lifelog.extension.mediawatch.impl.model.mapper
 
+import dev.toastbits.lifelog.core.specification.extension.ExtensionId
 import dev.toastbits.lifelog.extension.mediawatch.impl.model.reference.BookMediaReference
 import dev.toastbits.lifelog.extension.mediawatch.impl.model.reference.GameMediaReference
 import dev.toastbits.lifelog.extension.mediawatch.impl.model.reference.MovieOrShowMediaReference
@@ -12,12 +13,12 @@ import dev.toastbits.lifelog.extension.mediawatch.model.entity.event.SongMediaCo
 import dev.toastbits.lifelog.extension.mediawatch.model.reference.MediaReference
 import dev.toastbits.lifelog.extension.mediawatch.util.MediaEntityType
 
-fun MediaEntityType.createReference(mediaId: String): MediaReference =
+fun MediaEntityType.createReference(mediaId: String, extensionId: ExtensionId): MediaReference =
     when (this) {
-        MediaEntityType.MOVIE_OR_SHOW -> MovieOrShowMediaReference(mediaId)
-        MediaEntityType.BOOK -> BookMediaReference(mediaId)
-        MediaEntityType.GAME -> GameMediaReference(mediaId)
-        MediaEntityType.SONG -> SongMediaReference(mediaId)
+        MediaEntityType.MOVIE_OR_SHOW -> MovieOrShowMediaReference(mediaId, extensionId)
+        MediaEntityType.BOOK -> BookMediaReference(mediaId, extensionId)
+        MediaEntityType.GAME -> GameMediaReference(mediaId, extensionId)
+        MediaEntityType.SONG -> SongMediaReference(mediaId, extensionId)
     }
 
 fun MediaEntityType.createConsumeEvent(mediaReference: MediaReference): MediaConsumeEvent =

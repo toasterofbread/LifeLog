@@ -5,7 +5,7 @@ import dev.toastbits.lifelog.core.specification.model.entity.event.LogEvent
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReference
 
 class TestLogEvent(
-    val reference: LogEntityReference,
+    val reference: LogEntityReference.InMetadata,
     override var inlineComment: UserContent? = null,
     override var content: UserContent? = null,
     override var aboveComment: UserContent? = null

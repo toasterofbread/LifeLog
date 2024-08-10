@@ -8,7 +8,7 @@ import dev.mokkery.every
 import dev.mokkery.matcher.any
 import dev.mokkery.mock
 import dev.toastbits.lifelog.core.specification.converter.LogFileConverter
-import dev.toastbits.lifelog.core.specification.converter.LogFileConverterFormats
+import dev.toastbits.lifelog.core.specification.converter.LogFileConverterStrings
 import dev.toastbits.lifelog.core.specification.impl.converter.LogFileConverterImpl
 import dev.toastbits.lifelog.core.specification.impl.converter.LogFileConverterImpl.Companion.DEFAULT_FORMATS
 import dev.toastbits.lifelog.core.specification.impl.converter.usercontent.MarkdownUserContentGenerator
@@ -30,7 +30,7 @@ class LogFileGeneratorTest {
     private lateinit var markdownGenerator: MarkdownUserContentGenerator
     private lateinit var referenceGenerator: LogEntityReferenceGenerator
 
-    private val formats: LogFileConverterFormats = DEFAULT_FORMATS
+    private val formats: LogFileConverterStrings = DEFAULT_FORMATS
     private val mediaWatchExtension: MediaWatchExtension = MediaWatchExtension()
     private val mockResultReferencePath: LogEntityPath = LogEntityPath.of("TEST1", "TEST2")
 
@@ -48,7 +48,7 @@ class LogFileGeneratorTest {
     @Test
     fun temp() {
         val date: LocalDate = LocalDate.parse("2024-08-04")
-        val mediaReference: MediaReference = MovieOrShowMediaReference("test 2")
+        val mediaReference: MediaReference = MovieOrShowMediaReference("test 2", mediaWatchExtension.id)
         val days: Map<LogDate, List<LogEvent>> =
             mapOf(
                 LogDateImpl(date) to listOf(
@@ -63,7 +63,7 @@ class LogFileGeneratorTest {
             listOf(
                 formats.datePrefix + formats.preferredDateFormat.format(date),
                 "",
-                mediaWatchExtension.converterFormats.getMediaEntityTypeConsumeEventPrefixes(mediaReference.mediaType).first() + "[${mediaReference.mediaId}](<$mockResultReferencePath>) (first watch)",
+                mediaWatchExtension.strings.getMediaEntityTypeConsumeEventPrefixes(mediaReference.mediaType).first() + "[${mediaReference.mediaId}](<$mockResultReferencePath>) (first watch)",
                 ""
             )
 
