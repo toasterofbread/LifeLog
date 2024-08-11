@@ -1,6 +1,7 @@
 package dev.toastbits.lifelog.core.specification.impl.converter.usercontent
 
 import dev.toastbits.lifelog.core.specification.converter.alert.LogParseAlert
+import dev.toastbits.lifelog.core.specification.converter.alert.SpecificationLogParseAlert
 import dev.toastbits.lifelog.core.specification.model.UserContent
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReference
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferenceParser
@@ -65,6 +66,10 @@ class MarkdownUserContentParser: UserContentParser {
                     val children: List<ASTNode> = node.children.removeSides("CODE_FENCE_START", "CODE_FENCE_END").removeSides("EOL", "EOL")
                     return listOf(UserContent.Part.Composite(children.getParts(), setOf(UserContent.Modifier.CodeBlock)))
                 }
+                "IMAGE" -> {
+                    val linkNode: ASTNode? = node.children.getOrNull(1)?.children?.getOrNull(1)?.children?.removeSides("[", "]")?.firstOrNull()
+                    return listOfNotNull(UserContent.Part.Image(linkNode?.getTextInNode(text).toString()))
+                }
                 "INLINE_LINK" -> {
                     var linkTextParts: List<UserContent.Part>? = null
                     var linkReference: LogEntityReference? = null
@@ -109,7 +114,13 @@ class MarkdownUserContentParser: UserContentParser {
     }
 
     private fun ASTNode.toUnhandledAlert(scope: String, markdownText: String): LogParseAlert =
-        LogParseAlert.UnhandledMarkdownNodeType(type.name, startOffset, endOffset, scope, getTextInNode(markdownText).toString())
+        SpecificationLogParseAlert.UnhandledMarkdownNodeType(
+            type.name,
+            startOffset,
+            endOffset,
+            scope,
+            getTextInNode(markdownText).toString()
+        )
 
     private fun List<ASTNode>.removeSides(startType: String, endType: String): List<ASTNode> {
         if (firstOrNull()?.type?.name != startType) {

@@ -8,7 +8,7 @@ import dev.toastbits.lifelog.extension.media.impl.GDocsExtensionStringsImpl
 
 class GDocsExtension(
     val strings: GDocsExtensionStrings = GDocsExtensionStringsImpl(),
-    preprocessor: GDocsDatabaseFileStructurePreprocessor = GDocsDatabaseFileStructurePreprocessor()
+    preprocessor: GDocsDatabaseFileStructurePreprocessor = GDocsDatabaseFileStructurePreprocessor(strings)
 ): DatabaseFileStructureExtension {
     override val id: ExtensionId get() = strings.extensionId
 

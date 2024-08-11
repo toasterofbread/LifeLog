@@ -1,6 +1,7 @@
 package dev.toastbits.lifelog.extension.mediawatch.impl.model.entity.event
 
 import dev.toastbits.lifelog.core.specification.converter.alert.LogParseAlert
+import dev.toastbits.lifelog.core.specification.converter.alert.SpecificationLogParseAlert
 import dev.toastbits.lifelog.extension.mediawatch.MediaWatchExtensionStrings
 import dev.toastbits.lifelog.extension.mediawatch.model.entity.event.MovieOrShowMediaConsumeEvent
 
@@ -10,13 +11,17 @@ internal fun applyMovieOrShowEventMetadata(
     strings: MediaWatchExtensionStrings,
     onAlert: (LogParseAlert) -> Unit
 ) {
-    if (text.startsWith("ep ") || text.startsWith("eps ")) {
-        val epsText: String = text.split(' ', limit = 2).getOrNull(1).orEmpty()
-        applyEventEpisodesString(epsText, event, onAlert)
+    for (prefix in strings.episodeRangePrefixes) {
+        if (!text.startsWith(prefix)) {
+            continue
+        }
+
+        val episodeRangeText: String = text.drop(prefix.length).trimStart()
+        applyEventEpisodesString(episodeRangeText, event, onAlert)
+        return
     }
-    else {
-        TODO(text)
-    }
+
+    TODO(text)
 }
 
 private fun applyEventEpisodesString(
@@ -28,7 +33,7 @@ private fun applyEventEpisodesString(
 
     val splitIndex: Int = text.indexOfFirst { splitChars.contains(it) }
     if (splitIndex == -1) {
-        onAlert(LogParseAlert.InvalidEpisodesSpecifier(text))
+        onAlert(SpecificationLogParseAlert.InvalidEpisodesSpecifier(text))
         return
     }
 
@@ -36,14 +41,14 @@ private fun applyEventEpisodesString(
     val lastWhitespace: Int = lhsText.lastIndexOf(' ')
     val lhs: Int? = lhsText.substring(lastWhitespace + 1).toIntOrNull()
     if (lhs == null) {
-        onAlert(LogParseAlert.InvalidEpisodesSpecifier(text))
+        onAlert(SpecificationLogParseAlert.InvalidEpisodesSpecifier(text))
         return
     }
 
     val rhsText: String = text.substring(splitIndex + 1).split(' ', limit = 2).first()
     val rhs: Int? = rhsText.toIntOrNull()
     if (rhs == null) {
-        onAlert(LogParseAlert.InvalidEpisodesSpecifier(text))
+        onAlert(SpecificationLogParseAlert.InvalidEpisodesSpecifier(text))
         return
     }
 

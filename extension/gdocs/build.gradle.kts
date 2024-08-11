@@ -18,6 +18,7 @@ kotlin {
             dependencies {
                 implementation(projects.core.specification)
                 implementation(projects.core.accessor)
+                implementation(projects.extension.media)
             }
         }
 

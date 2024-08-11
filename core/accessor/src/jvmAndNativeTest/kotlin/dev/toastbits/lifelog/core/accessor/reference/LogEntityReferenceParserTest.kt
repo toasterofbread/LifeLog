@@ -8,6 +8,7 @@ import dev.toastbits.lifelog.core.accessor.LogFileSplitStrategy
 import dev.toastbits.lifelog.core.accessor.impl.DatabaseFileStructureProviderImpl
 import dev.toastbits.lifelog.core.specification.converter.LogFileConverterStrings
 import dev.toastbits.lifelog.core.specification.converter.alert.LogParseAlert
+import dev.toastbits.lifelog.core.specification.converter.alert.SpecificationLogParseAlert
 import dev.toastbits.lifelog.core.specification.impl.converter.LogFileConverterStringsImpl
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityPath
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReference
@@ -89,7 +90,12 @@ class LogEntityReferenceParserTest {
 
         assertThat(result).isNull()
         assertThat(alerts).isEqualTo(
-            listOf(LogParseAlert.UnknownReferenceType(path.split("/"), firstInvalidIndex))
+            listOf(
+                SpecificationLogParseAlert.UnknownReferenceType(
+                    path.split("/"),
+                    firstInvalidIndex
+                )
+            )
         )
     }
 }

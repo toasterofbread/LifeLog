@@ -4,6 +4,7 @@ import dev.toastbits.lifelog.core.specification.converter.LogFileConverter
 import dev.toastbits.lifelog.core.specification.converter.LogFileConverterStrings
 import dev.toastbits.lifelog.core.specification.converter.ParseAlertData
 import dev.toastbits.lifelog.core.specification.converter.alert.LogParseAlert
+import dev.toastbits.lifelog.core.specification.converter.alert.SpecificationLogParseAlert
 import dev.toastbits.lifelog.core.specification.converter.parseOrNull
 import dev.toastbits.lifelog.core.specification.impl.converter.usercontent.UserContentParser
 import dev.toastbits.lifelog.core.specification.impl.model.entity.date.LogDateImpl
@@ -20,8 +21,21 @@ internal class LogFileParser(
     private val strings: LogFileConverterStrings,
     private val eventTypes: List<LogEventType>,
     private val userContentParser: UserContentParser,
-    private val referenceParser: LogEntityReferenceParser
+    private val referenceParser: LogEntityReferenceParser,
 ) {
+    private val dateLineParser: DateLineParser =
+        object : DateLineParser(strings) {
+            override fun onAlert(alert: LogParseAlert) {
+                this@LogFileParser.onAlert(alert)
+            }
+
+            override fun String.extractComment(): Pair<String, UserContent?> {
+                with (this@LogFileParser) {
+                    return extractComment()
+                }
+            }
+        }
+
     private lateinit var days: MutableMap<LogDate, MutableList<LogEvent>>
     private lateinit var alerts: MutableList<ParseAlertData>
 
@@ -52,7 +66,7 @@ internal class LogFileParser(
     private fun getDayEvents(): MutableList<LogEvent> {
         val day = currentDay
         if (day == null) {
-            onAlert(LogParseAlert.LogEventOutsideDay)
+            onAlert(SpecificationLogParseAlert.LogEventOutsideDay)
             return mutableListOf()
         }
         return days.getOrPut(day) { mutableListOf() }
@@ -89,18 +103,9 @@ internal class LogFileParser(
             return
         }
 
-        if (line.startsWith(strings.datePrefix)) {
-            var (dateText, inlineComment) = line.drop(strings.datePrefix.length).extractComment()
-            var ambiguous: Boolean = false
-
-            if (dateText.lowercase().startsWith(strings.ambiguousDatePrefix.lowercase())) {
-                ambiguous = true
-                dateText = dateText.drop(strings.ambiguousDatePrefix.length).trimStart()
-            }
-
-            val date: LocalDate? = parseDate(dateText)
-            onDateLine(date, ambiguous, inlineComment)
-
+        val dateLine: DateLineParser.DateLineData? = dateLineParser.attemptParseDateLine(line)
+        if (dateLine != null) {
+            onDateLine(dateLine.date, dateLine.ambiguous, dateLine.inlineComment)
             return
         }
 
@@ -131,17 +136,11 @@ internal class LogFileParser(
             }
         }
 
-        onAlert(LogParseAlert.UnmatchedEventFormat(line, eventTypes.flatMap { it.prefixes }))
-    }
-
-    private fun parseDate(text: String): LocalDate? {
-        for (dateFormat in strings.dateFormats) {
-            val date: LocalDate = dateFormat.parseOrNull(text) ?: continue
-            return date
-        }
-
-        onAlert(LogParseAlert.NoMatchingDateFormat(text))
-        return null
+        onAlert(
+            SpecificationLogParseAlert.UnmatchedEventFormat(
+                line,
+                eventTypes.flatMap { it.prefixes })
+        )
     }
 
     private fun parseUserContent(text: String, lineOffset: Int = 0): UserContent {
@@ -168,7 +167,7 @@ internal class LogFileParser(
 
     private fun onDateLine(date: LocalDate?, ambiguous: Boolean, inlineComment: UserContent?) {
         if (date == null) {
-            onAlert(LogParseAlert.MissingDateError)
+            onAlert(SpecificationLogParseAlert.MissingDateError)
             return
         }
 
@@ -195,7 +194,7 @@ internal class LogFileParser(
             val metadataEnd: Int = line.indexOf(strings.eventMetadataEnd, metadataStart)
 
             if (metadataEnd == -1) {
-                onAlert(LogParseAlert.UnterminatedEventMetadata)
+                onAlert(SpecificationLogParseAlert.UnterminatedEventMetadata)
                 return
             }
 
@@ -211,10 +210,6 @@ internal class LogFileParser(
             else {
                 body = line.substring(0, contentStart)
             }
-        }
-
-        if (line.contains("もののけ姫")) {
-            TODO("$metadataStart $contentStart | $line")
         }
 
         if (contentStart != -1) {
@@ -244,7 +239,7 @@ internal class LogFileParser(
             }
 
             if (contentEnd == -1) {
-                onAlert(LogParseAlert.EventContentNotTerminated)
+                onAlert(SpecificationLogParseAlert.EventContentNotTerminated)
             }
         }
 

@@ -2,6 +2,7 @@ package dev.toastbits.lifelog.core.test.extension
 
 import dev.toastbits.lifelog.core.specification.converter.ParseAlertData
 import dev.toastbits.lifelog.core.specification.converter.alert.LogParseAlert
+import dev.toastbits.lifelog.core.specification.converter.alert.SpecificationLogParseAlert
 import dev.toastbits.lifelog.core.specification.database.LogEntityMetadata
 import dev.toastbits.lifelog.core.specification.extension.ExtensionId
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityPath
@@ -17,7 +18,7 @@ object TestLogEntityReferenceType: LogEntityReferenceType {
         onAlert: (LogParseAlert) -> Unit
     ): LogEntityReference? {
         if (path.isEmpty()) {
-            onAlert(LogParseAlert.UnknownReferenceType(path, 0))
+            onAlert(SpecificationLogParseAlert.UnknownReferenceType(path, 0))
             return null
         }
 

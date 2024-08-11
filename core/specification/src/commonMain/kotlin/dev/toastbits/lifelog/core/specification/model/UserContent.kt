@@ -14,7 +14,7 @@ data class UserContent(
         fun asText(): String
         fun withModifiers(modifiers: Set<Modifier>): Part
         fun isNotEmpty(): Boolean
-        
+
         data class Single(
             val text: String,
             override val modifiers: Set<Modifier> = emptySet()
@@ -32,6 +32,16 @@ data class UserContent(
             override fun asText(): String = parts.joinToString("") { it.asText() }
             override fun withModifiers(modifiers: Set<Modifier>): Part = copy(modifiers = modifiers)
             override fun isNotEmpty(): Boolean = parts.any { it.isNotEmpty() }
+        }
+
+        data class Image(
+            val location: String,
+            override val modifiers: Set<Modifier> = emptySet()
+        ): Part {
+            override val parts: List<Part> get() = listOf(this)
+            override fun asText(): String = "<image at $location>"
+            override fun withModifiers(modifiers: Set<Modifier>): Part = copy(modifiers = modifiers)
+            override fun isNotEmpty(): Boolean = location.isNotEmpty()
         }
     }
 
@@ -73,7 +83,7 @@ private fun List<Part>.normalised(): List<Part> {
     val newParts: MutableList<Part> = mutableListOf()
     for (part in this) {
         val previous: Part? = newParts.lastOrNull()
-        if (previous != null && part.modifiers.matches(previous.modifiers)) {
+        if (previous != null && part.modifiers.isNotEmpty() && part.modifiers.matches(previous.modifiers)) {
             newParts[newParts.size - 1] = part.appendTo(previous, part.modifiers)
         }
         else {

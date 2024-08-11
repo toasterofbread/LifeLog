@@ -2,6 +2,7 @@ package dev.toastbits.lifelog.extension.mediawatch.model.reference
 
 import dev.toastbits.lifelog.core.specification.converter.ParseAlertData
 import dev.toastbits.lifelog.core.specification.converter.alert.LogParseAlert
+import dev.toastbits.lifelog.core.specification.converter.alert.SpecificationLogParseAlert
 import dev.toastbits.lifelog.core.specification.database.LogEntityMetadata
 import dev.toastbits.lifelog.core.specification.extension.ExtensionId
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReference
@@ -12,14 +13,14 @@ import dev.toastbits.lifelog.extension.mediawatch.util.MediaEntityType
 
 class MediaReferenceType(
     private val strings: MediaWatchExtensionStrings
-): LogEntityReferenceType {
+): LogEntityReferenceType.InMetadata() {
     override val id: String get() = strings.mediaReferenceTypeId
     override val extensionId: ExtensionId get() = strings.extensionId
 
     override fun parseReference(
         path: List<String>,
         onAlert: (LogParseAlert) -> Unit
-    ): LogEntityReference? {
+    ): LogEntityReference.InMetadata? {
         val (entityType: MediaEntityType, mediaId: String) = parsePath(path, onAlert) ?: return null
         return entityType.createReference(mediaId, extensionId, strings.mediaReferenceTypeId)
     }
@@ -38,7 +39,7 @@ class MediaReferenceType(
 
     private fun parsePath(path: List<String>, onAlert: (LogParseAlert) -> Unit): Pair<MediaEntityType, String>? {
         if (path.size != 2) {
-            onAlert(LogParseAlert.InvalidReferenceSize(path, 2))
+            onAlert(SpecificationLogParseAlert.InvalidReferenceSize(path, 2))
             return null
         }
 
@@ -46,7 +47,7 @@ class MediaReferenceType(
         val entityType: MediaEntityType? = MediaEntityType.entries.firstOrNull { it.name.lowercase() == entityTypeName }
 
         if (entityType == null) {
-            onAlert(LogParseAlert.UnknownReferenceType(path ,0))
+            onAlert(SpecificationLogParseAlert.UnknownReferenceType(path, 0))
             return null
         }
 

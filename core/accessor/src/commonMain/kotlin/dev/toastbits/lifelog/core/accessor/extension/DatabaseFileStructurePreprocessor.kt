@@ -8,9 +8,10 @@ import dev.toastbits.lifelog.core.specification.extension.SpecificationExtension
 import okio.FileSystem
 
 interface DatabaseFileStructurePreprocessor {
-    fun processDatabaseFileStructure(
+    suspend fun processDatabaseFileStructure(
         fileStructure: DatabaseFileStructure,
         fileStructureProvider: DatabaseFileStructureProvider,
+        fileSystem: FileSystem,
         strings: LogFileConverterStrings,
         extensions: List<SpecificationExtension>,
         onAlert: (ParseAlertData) -> Unit

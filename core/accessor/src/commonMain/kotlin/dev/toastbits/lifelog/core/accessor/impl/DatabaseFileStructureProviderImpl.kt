@@ -4,6 +4,7 @@ import dev.toastbits.lifelog.core.accessor.DatabaseFileStructureProvider
 import dev.toastbits.lifelog.core.accessor.LogFileSplitStrategy
 import dev.toastbits.lifelog.core.specification.converter.LogFileConverterStrings
 import dev.toastbits.lifelog.core.specification.converter.alert.LogParseAlert
+import dev.toastbits.lifelog.core.specification.converter.alert.SpecificationLogParseAlert
 import dev.toastbits.lifelog.core.specification.converter.validate
 import dev.toastbits.lifelog.core.specification.extension.SpecificationExtension
 import dev.toastbits.lifelog.core.specification.impl.extension.ExtendableImpl
@@ -38,7 +39,7 @@ class DatabaseFileStructureProviderImpl(
             is LogEntityReference.InMetadata -> {
                 for (extension in extensions) {
                     val referenceType: LogEntityReferenceType =
-                        extension.extraReferenceTypes.firstOrNull { it.extensionId == reference.extensionId } ?: continue
+                        extension.extraInMetadataReferenceTypes.firstOrNull { it.extensionId == reference.extensionId } ?: continue
 
                     return (
                         listOf(
@@ -62,20 +63,25 @@ class DatabaseFileStructureProviderImpl(
         val normalisedPath: List<String> = text.toPath().normalized().segments
 
         if (normalisedPath.any { it == ".." }) {
-            onAlert(LogParseAlert.InvalidReferenceFormat(text))
+            onAlert(SpecificationLogParseAlert.InvalidReferenceFormat(text))
             return null
         }
 
         when (normalisedPath.firstOrNull()) {
             strings.metadataDirectoryName -> {
                 return parseMetadataReference(normalisedPath.drop(1), onAlert) {
-                    onAlert(LogParseAlert.UnknownReferenceType(normalisedPath, it + 1))
+                    onAlert(SpecificationLogParseAlert.UnknownReferenceType(normalisedPath, it + 1))
                 }
             }
             strings.logsDirectoryName -> {
                 return getPathLogFile(normalisedPath.drop(1)) { alert ->
-                    if (alert is LogParseAlert.UnknownReferenceType) {
-                        onAlert(LogParseAlert.UnknownReferenceType(normalisedPath, alert.firstUnknownSegment + 1))
+                    if (alert is SpecificationLogParseAlert.UnknownReferenceType) {
+                        onAlert(
+                            SpecificationLogParseAlert.UnknownReferenceType(
+                                normalisedPath,
+                                alert.firstUnknownSegment + 1
+                            )
+                        )
                     }
                     else {
                         onAlert(alert)
@@ -83,7 +89,7 @@ class DatabaseFileStructureProviderImpl(
                 }
             }
             else -> {
-                onAlert(LogParseAlert.UnknownReferenceType(normalisedPath, 0))
+                onAlert(SpecificationLogParseAlert.UnknownReferenceType(normalisedPath, 0))
                 return null
             }
         }
@@ -108,14 +114,14 @@ class DatabaseFileStructureProviderImpl(
             return null
         }
 
-        val referenceType: LogEntityReferenceType? = extension.extraReferenceTypes.firstOrNull { it.id == path.getOrNull(1) }
+        val referenceType: LogEntityReferenceType.InMetadata? = extension.extraInMetadataReferenceTypes.firstOrNull { it.id == path.getOrNull(1) }
         if (referenceType == null) {
             onFailure(1)
             return null
         }
 
         return referenceType.parseReference(path.drop(2)) { alert ->
-            if (alert is LogParseAlert.UnknownReferenceType) {
+            if (alert is SpecificationLogParseAlert.UnknownReferenceType) {
                 onFailure(alert.firstUnknownSegment + 2)
             }
             else {
@@ -126,7 +132,7 @@ class DatabaseFileStructureProviderImpl(
 
     override fun getPathLogFile(path: List<String>, onAlert: (LogParseAlert) -> Unit): LogEntityReference.InLog? {
         if (path.size < splitStrategy.componentsCount) {
-            onAlert(LogParseAlert.UnknownReferenceType(path, 0))
+            onAlert(SpecificationLogParseAlert.UnknownReferenceType(path, 0))
             return null
         }
 
@@ -134,7 +140,7 @@ class DatabaseFileStructureProviderImpl(
             path.take(splitStrategy.componentsCount).mapIndexed { index, part ->
                 val int: Int? = part.toIntOrNull()
                 if (int == null) {
-                    onAlert(LogParseAlert.UnknownReferenceType(path, index))
+                    onAlert(SpecificationLogParseAlert.UnknownReferenceType(path, index))
                     return null
                 }
                 return@mapIndexed int

@@ -8,6 +8,9 @@ interface MediaWatchExtensionStrings {
 
     val mediaReferenceTypeId: ExtensionId
 
+    val episodeRangePrefixes: List<String>
+    val unsureIterationsPrefix: String
+
     fun getMediaEntityTypeIterationSuffixes(mediaEntityType: MediaEntityType): List<String>
     fun getMediaEntityTypeConsumeEventPrefixes(mediaEntityType: MediaEntityType): List<String>
 }

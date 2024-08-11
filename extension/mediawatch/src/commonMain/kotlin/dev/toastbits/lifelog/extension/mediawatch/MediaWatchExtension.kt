@@ -21,7 +21,7 @@ class MediaWatchExtension(
             mediaConsumeEventType
         )
 
-    override val extraReferenceTypes: List<LogEntityReferenceType> =
+    override val extraInMetadataReferenceTypes: List<LogEntityReferenceType.InMetadata> =
         listOf(
             mediaReferenceType
         )

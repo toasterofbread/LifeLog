@@ -6,7 +6,10 @@ import dev.toastbits.lifelog.extension.mediawatch.util.MediaEntityType
 
 class MediaWatchExtensionStringsImpl(
     override val extensionId: ExtensionId = "mediawatch",
-    override val mediaReferenceTypeId: ExtensionId = "media"
+    override val mediaReferenceTypeId: ExtensionId = "media",
+
+    override val episodeRangePrefixes: List<String> = listOf("ep ", "eps ", "episode ", "episodes "),
+    override val unsureIterationsPrefix: String = "at least"
 ): MediaWatchExtensionStrings {
     override fun getMediaEntityTypeIterationSuffixes(mediaEntityType: MediaEntityType): List<String> =
         when (mediaEntityType) {

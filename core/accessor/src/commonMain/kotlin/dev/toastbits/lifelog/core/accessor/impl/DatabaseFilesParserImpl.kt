@@ -8,7 +8,7 @@ import dev.toastbits.lifelog.core.accessor.walkFiles
 import dev.toastbits.lifelog.core.specification.converter.LogFileConverter
 import dev.toastbits.lifelog.core.specification.converter.LogFileConverterStrings
 import dev.toastbits.lifelog.core.specification.converter.ParseAlertData
-import dev.toastbits.lifelog.core.specification.converter.alert.LogParseAlert
+import dev.toastbits.lifelog.core.specification.converter.alert.SpecificationLogParseAlert
 import dev.toastbits.lifelog.core.specification.database.LogDatabase
 import dev.toastbits.lifelog.core.specification.database.LogEntityMetadata
 import dev.toastbits.lifelog.core.specification.extension.SpecificationExtension
@@ -38,10 +38,10 @@ class DatabaseFilesParserImpl(
 
         val scope: Scope = Scope(days, metadata, fileSystem, onAlert)
 
-        structure.preprocess(onAlert).walkFiles { file, path ->
+        structure.preprocess(fileSystem, onAlert).walkFiles { file, path ->
             val reference: LogEntityReference =
                 fileStructureProvider.parseReference(path.toString()) {
-                    if (it is LogParseAlert.UnknownReferenceType && it.firstUnknownSegment == 0) {
+                    if (it is SpecificationLogParseAlert.UnknownReferenceType && it.firstUnknownSegment == 0) {
                         return@parseReference
                     }
                     onAlert(ParseAlertData(it, null, path.toString()))
@@ -60,7 +60,7 @@ class DatabaseFilesParserImpl(
         return@withContext LogDatabase(days = scope.days, metadata = scope.metadata)
     }
 
-    private fun DatabaseFileStructure.preprocess(onAlert: (ParseAlertData) -> Unit): DatabaseFileStructure {
+    private suspend fun DatabaseFileStructure.preprocess(fileSystem: FileSystem, onAlert: (ParseAlertData) -> Unit): DatabaseFileStructure {
         var structure: DatabaseFileStructure = this
         for (extension in extensions) {
             if (extension !is DatabaseFileStructureExtension) {
@@ -68,7 +68,7 @@ class DatabaseFilesParserImpl(
             }
 
             for (preprocessor in extension.extraPreprocessors) {
-                structure = preprocessor.processDatabaseFileStructure(structure, fileStructureProvider, strings, extensions, onAlert)
+                structure = preprocessor.processDatabaseFileStructure(structure, fileStructureProvider, fileSystem, strings, extensions, onAlert)
             }
         }
         return structure
@@ -91,18 +91,22 @@ class DatabaseFilesParserImpl(
 
     private suspend fun Scope.onInMetadataEntityReference(reference: LogEntityReference.InMetadata, file: DatabaseFileStructure.Node.File, path: Path) {
         if (metadata.containsKey(reference)) {
-            onAlert(ParseAlertData(LogParseAlert.RedefinedMetadataValue(reference), null, path.toString()))
+            onAlert(ParseAlertData(SpecificationLogParseAlert.RedefinedMetadataValue(reference), null, path.toString()))
         }
 
         val extension: SpecificationExtension? = fileStructureProvider.findRegisteredExtension(reference.extensionId)
         if (extension == null) {
-            onAlert(ParseAlertData(LogParseAlert.UnregisteredExtension(reference.extensionId), null, path.toString()))
+            onAlert(ParseAlertData(SpecificationLogParseAlert.UnregisteredExtension(reference.extensionId), null, path.toString()))
             return
         }
 
-        val referenceType: LogEntityReferenceType? = extension.extraReferenceTypes.firstOrNull { it.id == reference.referenceTypeId }
+        val referenceType: LogEntityReferenceType.InMetadata? = extension.extraInMetadataReferenceTypes.firstOrNull { it.id == reference.referenceTypeId }
         if (referenceType == null) {
-            onAlert(ParseAlertData(LogParseAlert.UnregisteredReferenceType(reference.referenceTypeId, reference.extensionId), null, path.toString()))
+            onAlert(ParseAlertData(
+                SpecificationLogParseAlert.UnregisteredReferenceType(
+                    reference.referenceTypeId,
+                    reference.extensionId
+                ), null, path.toString()))
             return
         }
 

@@ -15,7 +15,7 @@ class MediaExtension(
 
     override val extraEventTypes: List<LogEventType> = emptyList()
 
-    override val extraReferenceTypes: List<LogEntityReferenceType> =
+    override val extraInLogReferenceTypes: List<LogEntityReferenceType.InLog> =
         listOf(
             mediaReferenceType
         )

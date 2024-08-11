@@ -10,12 +10,13 @@ interface SpecificationExtension {
     val id: ExtensionId
 
     val extraEventTypes: List<LogEventType> get() = emptyList()
-    val extraReferenceTypes: List<LogEntityReferenceType> get() = emptyList()
+    val extraInLogReferenceTypes: List<LogEntityReferenceType.InLog> get() = emptyList()
+    val extraInMetadataReferenceTypes: List<LogEntityReferenceType.InMetadata> get() = emptyList()
 }
 
 fun SpecificationExtension.validate() {
-    for (type in extraReferenceTypes) {
-        check(type.id.isNotBlank()) { "Identifier for reference type $type is blank" }
-        check(type.id.none { LogFileConverterStrings.ILLEGAL_PATH_CHARS.contains(it) }) { "Reference type identifier '${type.id}' contains illegal character(s)" }
+    for (referenceType in extraInLogReferenceTypes + extraInMetadataReferenceTypes) {
+        check(referenceType.id.isNotBlank()) { "Identifier for reference type $referenceType is blank" }
+        check(referenceType.id.none { LogFileConverterStrings.ILLEGAL_PATH_CHARS.contains(it) }) { "Reference type identifier '${referenceType.id}' contains illegal character(s)" }
     }
 }
