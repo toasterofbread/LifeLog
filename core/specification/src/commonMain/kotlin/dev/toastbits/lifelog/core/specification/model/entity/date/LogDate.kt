@@ -7,6 +7,7 @@ import kotlinx.datetime.LocalDate
 
 interface LogDate: LogEntity {
     var date: LocalDate
+    var ambiguous: Boolean
 
     override fun getCompanion(): LogEntityCompanion<*> = Companion
 

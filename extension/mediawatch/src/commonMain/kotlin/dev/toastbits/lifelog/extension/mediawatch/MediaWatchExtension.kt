@@ -10,12 +10,11 @@ import dev.toastbits.lifelog.extension.mediawatch.model.entity.event.MediaConsum
 import dev.toastbits.lifelog.extension.mediawatch.model.reference.MediaReferenceType
 
 class MediaWatchExtension(
-    override val id: ExtensionId = "mediawatch",
     val strings: MediaWatchExtensionStrings = MediaWatchExtensionStringsImpl(),
-    mediaConsumeEventType: MediaConsumeEventType = MediaConsumeEventTypeImpl(strings, id),
-    mediaReferenceType: MediaReferenceType = MediaReferenceType(strings, id)
+    mediaConsumeEventType: MediaConsumeEventType = MediaConsumeEventTypeImpl(strings),
+    mediaReferenceType: MediaReferenceType = MediaReferenceType(strings)
 ): SpecificationExtension {
-    override val name: String get() = strings.extensionName
+    override val id: ExtensionId get() = strings.extensionId
 
     override val extraEventTypes: List<LogEventType> =
         listOf(

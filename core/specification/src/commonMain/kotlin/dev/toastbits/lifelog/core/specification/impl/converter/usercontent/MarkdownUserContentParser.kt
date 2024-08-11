@@ -38,6 +38,10 @@ class MarkdownUserContentParser: UserContentParser {
                     currentLine++
                     return listOf(UserContent.Part.Single("\n"))
                 }
+                "BR" -> {
+                    currentLine += 2
+                    return listOf(UserContent.Part.Single("\n\n"))
+                }
                 "EMPH", "STRONG", "CODE_SPAN" -> {
                     var children: List<ASTNode> = node.children
 

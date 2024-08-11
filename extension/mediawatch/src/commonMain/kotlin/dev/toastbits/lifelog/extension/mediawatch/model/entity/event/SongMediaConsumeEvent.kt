@@ -9,7 +9,8 @@ data class SongMediaConsumeEvent(
     override var inlineComment: UserContent? = null,
     override var aboveComment: UserContent? = null,
     override var content: UserContent? = null,
-    override var iteration: Int? = null
+    override var iteration: Int? = null,
+    override var iterationsUnsure: Boolean = false
 ): MediaConsumeEvent {
     override val mediaEntityType: MediaEntityType = MediaEntityType.SONG
 }

@@ -49,7 +49,6 @@ kotlin {
     sourceSets {
         all {
             languageSettings.apply {
-                enableLanguageFeature("ExpectActualClasses")
                 optIn("org.jetbrains.compose.resources.ExperimentalResourceApi")
                 optIn("androidx.compose.foundation.ExperimentalFoundationApi")
                 optIn("androidx.compose.foundation.layout.ExperimentalLayoutApi")

@@ -4,7 +4,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import okio.Path
 
 @Throws(GitWrapperCreationException::class)
-internal actual fun createGitWrapper(directory: Path, dispatcher: CoroutineDispatcher): GitWrapper {
+internal actual fun createGitWrapper(directory: Path, ioDispatcher: CoroutineDispatcher): GitWrapper {
     val binaryPath: String = getGitBinaryPath()
     try {
         checkNotNull(runCommand(binaryPath, "--version"))
@@ -12,5 +12,5 @@ internal actual fun createGitWrapper(directory: Path, dispatcher: CoroutineDispa
     catch (e: Throwable) {
         throw GitWrapperCreationException.GitBinaryNotFunctional(binaryPath)
     }
-    return NativeCommandLineGitWrapper(binaryPath, directory, dispatcher)
+    return NativeCommandLineGitWrapper(binaryPath, directory, ioDispatcher)
 }

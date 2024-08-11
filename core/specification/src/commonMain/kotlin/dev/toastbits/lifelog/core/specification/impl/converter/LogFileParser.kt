@@ -4,6 +4,7 @@ import dev.toastbits.lifelog.core.specification.converter.LogFileConverter
 import dev.toastbits.lifelog.core.specification.converter.LogFileConverterStrings
 import dev.toastbits.lifelog.core.specification.converter.ParseAlertData
 import dev.toastbits.lifelog.core.specification.converter.alert.LogParseAlert
+import dev.toastbits.lifelog.core.specification.converter.parseOrNull
 import dev.toastbits.lifelog.core.specification.impl.converter.usercontent.UserContentParser
 import dev.toastbits.lifelog.core.specification.impl.model.entity.date.LogDateImpl
 import dev.toastbits.lifelog.core.specification.impl.model.entity.event.LogCommentImpl
@@ -16,7 +17,7 @@ import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferen
 import kotlinx.datetime.LocalDate
 
 internal class LogFileParser(
-    private val formats: LogFileConverterStrings,
+    private val strings: LogFileConverterStrings,
     private val eventTypes: List<LogEventType>,
     private val userContentParser: UserContentParser,
     private val referenceParser: LogEntityReferenceParser
@@ -31,24 +32,31 @@ internal class LogFileParser(
     private var lastDayTopLevelComment: IndexedValue<LogComment>? = null
 
     private fun hasNext(): Boolean = iterator.hasNext()
-    private fun goNext(): String = iterator.next().also { currentLineIndex++ }
+    private fun goNext(): String = iterator.next().also { currentLineIndex++ }.also { println("LINE $it") }
 
     private fun onAlert(error: LogParseAlert, line: Int = currentLineIndex) {
-        alerts.add(ParseAlertData(error, line))
+        TODO("$error")
+        alerts.add(ParseAlertData(error, line.toUInt(), null))
     }
 
     private fun String.extractComment(): Pair<String, UserContent?> {
-        val commentStart: Int = indexOf(formats.commentPrefix)
+        val commentStart: Int = indexOf(strings.commentPrefix)
         if (commentStart == -1) {
             return this to null
         }
 
-        val comment: String = drop(commentStart + formats.commentPrefix.length).trim()
+        val comment: String = drop(commentStart + strings.commentPrefix.length).trim()
         return substring(0, commentStart).trim() to parseUserContent(comment)
     }
 
-    private fun getDayEvents(): MutableList<LogEvent> =
-        days.getOrPut(currentDay!!) { mutableListOf() }
+    private fun getDayEvents(): MutableList<LogEvent> {
+        val day = currentDay
+        if (day == null) {
+            onAlert(LogParseAlert.LogEventOutsideDay)
+            return mutableListOf()
+        }
+        return days.getOrPut(day) { mutableListOf() }
+    }
 
     fun parse(lines: Iterable<String>): LogFileConverter.ParseResult {
         days = mutableMapOf()
@@ -75,17 +83,24 @@ internal class LogFileParser(
             return
         }
 
-        if (line.startsWith(formats.commentPrefix)) {
-            val commentText: String = line.drop(formats.commentPrefix.length).trimStart()
+        if (line.startsWith(strings.commentPrefix)) {
+            val commentText: String = line.drop(strings.commentPrefix.length).trimStart()
             onCommentLine(parseUserContent(commentText))
             return
         }
 
-        if (line.startsWith(formats.datePrefix)) {
-            val (dateText, inlineComment) = line.drop(formats.datePrefix.length).extractComment()
-            val date: LocalDate? = parseDate(dateText)
+        if (line.startsWith(strings.datePrefix)) {
+            var (dateText, inlineComment) = line.drop(strings.datePrefix.length).extractComment()
+            var ambiguous: Boolean = false
 
-            onDateLine(date, inlineComment)
+            if (dateText.lowercase().startsWith(strings.ambiguousDatePrefix.lowercase())) {
+                ambiguous = true
+                dateText = dateText.drop(strings.ambiguousDatePrefix.length).trimStart()
+            }
+
+            val date: LocalDate? = parseDate(dateText)
+            onDateLine(date, ambiguous, inlineComment)
+
             return
         }
 
@@ -102,9 +117,9 @@ internal class LogFileParser(
                 var eventLine: String = line.drop(prefix.length).trimStart()
                 val comment: UserContent?
 
-                val commentStart: Int = eventLine.indexOf(formats.commentPrefix)
+                val commentStart: Int = eventLine.indexOf(strings.commentPrefix)
                 if (commentStart != -1) {
-                    comment = parseUserContent(eventLine.substring(commentStart + formats.commentPrefix.length).trimStart())
+                    comment = parseUserContent(eventLine.substring(commentStart + strings.commentPrefix.length).trimStart())
                     eventLine = eventLine.substring(0, commentStart).trimEnd()
                 }
                 else {
@@ -116,16 +131,16 @@ internal class LogFileParser(
             }
         }
 
-        onAlert(LogParseAlert.UnmatchedEventFormat(line))
+        onAlert(LogParseAlert.UnmatchedEventFormat(line, eventTypes.flatMap { it.prefixes }))
     }
 
     private fun parseDate(text: String): LocalDate? {
-        for (dateFormat in formats.dateFormats) {
+        for (dateFormat in strings.dateFormats) {
             val date: LocalDate = dateFormat.parseOrNull(text) ?: continue
             return date
         }
 
-        onAlert(LogParseAlert.NoMatchingDateFormat)
+        onAlert(LogParseAlert.NoMatchingDateFormat(text))
         return null
     }
 
@@ -151,14 +166,15 @@ internal class LogFileParser(
             return@let lastDayTopLevelComment!!.value.content
         }
 
-    private fun onDateLine(date: LocalDate?, inlineComment: UserContent?) {
+    private fun onDateLine(date: LocalDate?, ambiguous: Boolean, inlineComment: UserContent?) {
         if (date == null) {
             onAlert(LogParseAlert.MissingDateError)
             return
         }
 
         currentDay = LogDateImpl(
-            date,
+            date = date,
+            ambiguous = ambiguous,
             inlineComment = inlineComment,
             aboveComment = getLastTopLevelCommentIfAdjacent()
         )
@@ -172,11 +188,11 @@ internal class LogFileParser(
 
         val aboveComment: UserContent? = getLastTopLevelCommentIfAdjacent()
 
-        val metadataStart: Int = line.indexOf(formats.eventMetadataStart)
-        val contentStart: Int = line.indexOf(formats.eventContentStart)
+        val metadataStart: Int = line.indexOf(strings.eventMetadataStart)
+        val contentStart: Int = line.indexOf(strings.eventContentStart)
 
-        if (metadataStart < contentStart || contentStart == -1) {
-            val metadataEnd: Int = line.indexOf(formats.eventMetadataEnd, metadataStart)
+        if (metadataStart != -1 && (metadataStart < contentStart || contentStart == -1)) {
+            val metadataEnd: Int = line.indexOf(strings.eventMetadataEnd, metadataStart)
 
             if (metadataEnd == -1) {
                 onAlert(LogParseAlert.UnterminatedEventMetadata)
@@ -197,8 +213,12 @@ internal class LogFileParser(
             }
         }
 
+        if (line.contains("もののけ姫")) {
+            TODO("$metadataStart $contentStart | $line")
+        }
+
         if (contentStart != -1) {
-            var contentEnd: Int = line.indexOf(formats.eventContentEnd, contentStart)
+            var contentEnd: Int = line.indexOf(strings.eventContentEnd, contentStart)
 
             if (contentStart + 1 < line.length) {
                 if (contentEnd != -1) {
@@ -213,7 +233,7 @@ internal class LogFileParser(
 
             while (hasNext()) {
                 val contentLine: String = goNext()
-                contentEnd = contentLine.indexOf(formats.eventContentEnd)
+                contentEnd = contentLine.indexOf(strings.eventContentEnd)
                 if (contentEnd != -1) {
                     contentLines.add(contentLine.substring(0, contentEnd))
                     break
@@ -231,7 +251,7 @@ internal class LogFileParser(
         val content: UserContent? =
             parseUserContent(contentLines.joinToString("\n").trimIndent(), -1).takeIf { it.isNotEmpty() }
 
-        val event: LogEvent = eventType.parseEvent(eventPrefixIndex, body, metadata, content, referenceParser, formats, ::onAlert)
+        val event: LogEvent = eventType.parseEvent(eventPrefixIndex, body, metadata, content, referenceParser, strings, ::onAlert)
         event.inlineComment = inlineComment
         event.aboveComment = aboveComment
 

@@ -7,6 +7,10 @@ plugins {
 
 kotlin {
     sourceSets {
+        all {
+            languageSettings.enableLanguageFeature("ExpectActualClasses")
+        }
+
         commonTest {
             addTestDependencies(project)
         }

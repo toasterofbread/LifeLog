@@ -8,9 +8,20 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(projects.core.specification)
+                implementation(projects.core.helper)
 
-                implementation(libs.ktor.core)
+                implementation(projects.extension.media)
+                implementation(projects.extension.mediawatch)
+                implementation(projects.extension.gdocs)
+
+                implementation(libs.okio)
+//                implementation(libs.ktor.core)
+            }
+        }
+
+        val desktopMain by getting {
+            dependencies {
+                implementation(projects.core.git)
             }
         }
     }

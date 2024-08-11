@@ -6,7 +6,8 @@ import dev.toastbits.lifelog.extension.mediawatch.util.MediaEntityType
 
 data class BookMediaReference(
     override val mediaId: String,
-    override val extensionId: ExtensionId
+    override val extensionId: ExtensionId,
+    override val referenceTypeId: ExtensionId
 ): MediaReference() {
     override val mediaType: MediaEntityType = MediaEntityType.BOOK
 }

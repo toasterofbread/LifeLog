@@ -9,4 +9,4 @@ data class LogDatabase(
     val metadata: Map<LogEntityReference, LogEntityMetadata> = emptyMap()
 )
 
-data class LogEntityMetadata(val d: Int)
+data class LogEntityMetadata(val temp: String)

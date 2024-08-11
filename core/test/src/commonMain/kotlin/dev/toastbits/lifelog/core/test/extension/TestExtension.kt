@@ -7,7 +7,6 @@ import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferen
 
 object TestExtension: SpecificationExtension {
     override val id: ExtensionId = "test"
-    override val name: String = "test"
     override val extraEventTypes: List<LogEventType> = listOf(TestLogEventType)
     override val extraReferenceTypes: List<LogEntityReferenceType> = listOf(TestLogEntityReferenceType)
 }

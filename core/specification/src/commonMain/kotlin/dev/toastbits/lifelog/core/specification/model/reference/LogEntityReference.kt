@@ -11,6 +11,7 @@ sealed interface LogEntityReference {
     interface InMetadata: LogEntityReference {
         val path: LogEntityPath
         val extensionId: ExtensionId
+        val referenceTypeId: ExtensionId
     }
 
     data class InLogData(
@@ -19,7 +20,8 @@ sealed interface LogEntityReference {
     ) : InLog
     data class InMetadataData(
         override val path: LogEntityPath,
-        override val extensionId: ExtensionId
+        override val extensionId: ExtensionId,
+        override val referenceTypeId: ExtensionId
     ) : InMetadata
 }
 

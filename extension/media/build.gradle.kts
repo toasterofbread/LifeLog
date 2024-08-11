@@ -22,7 +22,7 @@ kotlin {
 
         val commonTest by getting {
             dependencies {
-                implementation(projects.core.saver)
+                implementation(projects.core.accessor)
                 implementation(projects.core.test)
             }
         }

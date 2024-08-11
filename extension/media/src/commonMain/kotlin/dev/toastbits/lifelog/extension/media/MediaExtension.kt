@@ -8,11 +8,10 @@ import dev.toastbits.lifelog.extension.media.impl.MediaExtensionStringsImpl
 import dev.toastbits.lifelog.extension.media.model.reference.MediaReferenceType
 
 class MediaExtension(
-    override val id: ExtensionId = "media",
     val strings: MediaExtensionStrings = MediaExtensionStringsImpl(),
-    mediaReferenceType: MediaReferenceType = MediaReferenceType(strings, id)
+    mediaReferenceType: MediaReferenceType = MediaReferenceType(strings)
 ): SpecificationExtension {
-    override val name: String get() = strings.extensionIdentifier
+    override val id: ExtensionId get() = strings.extensionId
 
     override val extraEventTypes: List<LogEventType> = emptyList()
 

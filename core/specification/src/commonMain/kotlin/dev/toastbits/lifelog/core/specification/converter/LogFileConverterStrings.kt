@@ -1,7 +1,6 @@
 package dev.toastbits.lifelog.core.specification.converter
 
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.format.DateTimeFormat
+import dev.toastbits.lifelog.core.specification.converter.LogFileConverterStrings.Companion.ILLEGAL_PATH_CHARS
 
 interface LogFileConverterStrings {
     val metadataDirectoryName: String
@@ -12,28 +11,30 @@ interface LogFileConverterStrings {
     val contentIndentation: String
     val datePrefix: String
     val commentPrefix: String
+    val ambiguousDatePrefix: String
 
     val eventMetadataStart: String
     val eventMetadataEnd: String
     val eventContentStart: String
     val eventContentEnd: String
 
-    val preferredDateFormat: DateTimeFormat<LocalDate>
-    val dateFormats: List<DateTimeFormat<LocalDate>>
+    val preferredDateFormat: LogDateFormat
+    val dateFormats: List<LogDateFormat>
 
     fun numberToIteration(number: Int): String
-
-    fun validate() {
-        metadataDirectoryName.checkPath("metadataDirectoryName")
-        metadataExtensionDirectoryName.checkPath("extensionDirectoryName")
-    }
-
-    private fun String.checkPath(name: String) {
-        check(isNotBlank()) { "Path $name is blank" }
-        check(ILLEGAL_PATH_CHARS.none { this@checkPath.contains(it) }) { "Path $name '$this' contains illegal character(s)" }
-    }
 
     companion object {
         const val ILLEGAL_PATH_CHARS: String = "/"
     }
+}
+
+fun LogFileConverterStrings.validate() {
+    metadataDirectoryName.checkPath("metadataDirectoryName")
+    metadataExtensionDirectoryName.checkPath("extensionDirectoryName")
+    check(contentIndentation.isNotEmpty())
+}
+
+private fun String.checkPath(name: String) {
+    check(isNotBlank()) { "Path $name is blank" }
+    check(ILLEGAL_PATH_CHARS.none { this@checkPath.contains(it) }) { "Path $name '$this' contains illegal character(s)" }
 }

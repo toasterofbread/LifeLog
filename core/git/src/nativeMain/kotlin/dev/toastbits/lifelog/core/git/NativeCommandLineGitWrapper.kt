@@ -8,9 +8,9 @@ import okio.Path
 class NativeCommandLineGitWrapper(
     private val gitBinaryPath: String,
     override val directory: Path,
-    private val dispatcher: CoroutineDispatcher
+    private val ioDispatcher: CoroutineDispatcher
 ): CommandLineGitWrapper() {
-    override suspend fun runGitCommand(vararg args: String?): String = withContext(dispatcher) {
+    override suspend fun runGitCommand(vararg args: String?): String = withContext(ioDispatcher) {
         if (!FileSystem.SYSTEM.exists(directory)) {
             FileSystem.SYSTEM.createDirectories(directory, mustCreate = true)
         }

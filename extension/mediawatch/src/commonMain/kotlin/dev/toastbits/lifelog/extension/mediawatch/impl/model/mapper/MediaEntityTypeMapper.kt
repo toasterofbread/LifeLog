@@ -13,12 +13,12 @@ import dev.toastbits.lifelog.extension.mediawatch.model.entity.event.SongMediaCo
 import dev.toastbits.lifelog.extension.mediawatch.model.reference.MediaReference
 import dev.toastbits.lifelog.extension.mediawatch.util.MediaEntityType
 
-fun MediaEntityType.createReference(mediaId: String, extensionId: ExtensionId): MediaReference =
+fun MediaEntityType.createReference(mediaId: String, extensionId: ExtensionId, referenceTypeId: ExtensionId): MediaReference =
     when (this) {
-        MediaEntityType.MOVIE_OR_SHOW -> MovieOrShowMediaReference(mediaId, extensionId)
-        MediaEntityType.BOOK -> BookMediaReference(mediaId, extensionId)
-        MediaEntityType.GAME -> GameMediaReference(mediaId, extensionId)
-        MediaEntityType.SONG -> SongMediaReference(mediaId, extensionId)
+        MediaEntityType.MOVIE_OR_SHOW -> MovieOrShowMediaReference(mediaId, extensionId, referenceTypeId)
+        MediaEntityType.BOOK -> BookMediaReference(mediaId, extensionId, referenceTypeId)
+        MediaEntityType.GAME -> GameMediaReference(mediaId, extensionId, referenceTypeId)
+        MediaEntityType.SONG -> SongMediaReference(mediaId, extensionId, referenceTypeId)
     }
 
 fun MediaEntityType.createConsumeEvent(mediaReference: MediaReference): MediaConsumeEvent =

@@ -24,7 +24,8 @@ interface LogFileConverter: Extendable {
 
     data class AlertOnLine<T: LogConvertAlert>(
         val alert: T,
-        val lineIndex: Int
+        val lineIndex: UInt?,
+        val filePath: String?
     )
 }
 

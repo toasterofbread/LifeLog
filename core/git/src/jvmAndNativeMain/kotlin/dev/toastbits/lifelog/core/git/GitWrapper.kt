@@ -27,8 +27,8 @@ interface GitWrapper {
 
     companion object {
         @Throws(GitWrapperCreationException::class)
-        fun create(directory: Path, dispatcher: CoroutineDispatcher) =
-            createGitWrapper(directory, dispatcher)
+        fun create(directory: Path, ioDispatcher: CoroutineDispatcher) =
+            createGitWrapper(directory, ioDispatcher)
     }
 }
 
@@ -36,4 +36,4 @@ fun GitWrapper.resolve(path: Path): Path =
     directory.resolve(path)
 
 @Throws(GitWrapperCreationException::class)
-internal expect fun createGitWrapper(directory: Path, dispatcher: CoroutineDispatcher): GitWrapper
+internal expect fun createGitWrapper(directory: Path, ioDispatcher: CoroutineDispatcher): GitWrapper

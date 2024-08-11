@@ -13,7 +13,7 @@ import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 
 class DesktopJvmGitWrapper(
     override val directory: Path,
-    private val dispatcher: CoroutineDispatcher
+    private val ioDispatcher: CoroutineDispatcher
 ): GitWrapper {
     private var credentials: CredentialsProvider? = null
 
@@ -23,15 +23,15 @@ class DesktopJvmGitWrapper(
         }
     }
 
-    private suspend fun <T> withGit(block: (Git) -> T) = withContext(dispatcher) {
+    private suspend fun <T> withGit(block: (Git) -> T) = withContext(ioDispatcher) {
         return@withContext block(Git.open(directory.toFile()))
     }
 
-    override suspend fun init(initialBranch: String): Unit = withContext(dispatcher) {
+    override suspend fun init(initialBranch: String): Unit = withContext(ioDispatcher) {
         Git.init().setDirectory(directory.toFile()).setInitialBranch(initialBranch).call()
     }
 
-    override suspend fun clone(url: String): Unit = withContext(dispatcher) {
+    override suspend fun clone(url: String): Unit = withContext(ioDispatcher) {
         Git.cloneRepository().setDirectory(directory.toFile()).setURI(url).call()
     }
 

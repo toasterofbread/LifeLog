@@ -8,14 +8,14 @@ typealias ExtensionId = String
 
 interface SpecificationExtension {
     val id: ExtensionId
-    val name: String
-    val extraEventTypes: List<LogEventType>
-    val extraReferenceTypes: List<LogEntityReferenceType>
+
+    val extraEventTypes: List<LogEventType> get() = emptyList()
+    val extraReferenceTypes: List<LogEntityReferenceType> get() = emptyList()
 }
 
 fun SpecificationExtension.validate() {
     for (type in extraReferenceTypes) {
-        check(type.identifier.isNotBlank()) { "Identifier for reference type $type is blank" }
-        check(type.identifier.none { LogFileConverterStrings.ILLEGAL_PATH_CHARS.contains(it) }) { "Reference type identifier '${type.identifier}' contains illegal character(s)" }
+        check(type.id.isNotBlank()) { "Identifier for reference type $type is blank" }
+        check(type.id.none { LogFileConverterStrings.ILLEGAL_PATH_CHARS.contains(it) }) { "Reference type identifier '${type.id}' contains illegal character(s)" }
     }
 }

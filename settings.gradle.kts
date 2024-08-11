@@ -2,7 +2,6 @@
 
 include(":application:androidMain")
 
-
 pluginManagement {
     includeBuild("build-logic")
 
@@ -23,9 +22,11 @@ dependencyResolutionManagement {
 
 rootProject.name = "lifelog"
 include(":core:specification")
-include(":core:saver")
+include(":core:accessor")
 include(":core:git")
+include(":core:helper")
 include(":core:test")
 include(":application")
 include(":extension:media")
 include(":extension:mediawatch")
+include(":extension:gdocs")

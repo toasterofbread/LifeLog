@@ -7,9 +7,10 @@ import dev.toastbits.lifelog.core.specification.model.entity.LogEntity
 import dev.toastbits.lifelog.core.specification.model.entity.LogEntityCompanion
 import dev.toastbits.lifelog.core.specification.model.entity.event.LogEvent
 
-interface MediaConsumeEvent: LogEvent {
+sealed interface MediaConsumeEvent: LogEvent {
     var mediaReference: MediaReference
     var iteration: Int?
+    var iterationsUnsure: Boolean
     val mediaEntityType: MediaEntityType
 
     companion object: LogEntityCompanion<MediaConsumeEvent>(LogEvent) {

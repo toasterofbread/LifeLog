@@ -14,7 +14,7 @@ import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferen
 import kotlinx.datetime.LocalDate
 
 internal class LogFileGenerator(
-    private val formats: LogFileConverterStrings,
+    private val strings: LogFileConverterStrings,
     private val eventTypes: List<LogEventType>,
     private val userContentGenerator: UserContentGenerator,
     private val referenceGeneratorProvider: (LocalDate) -> LogEntityReferenceGenerator
@@ -26,7 +26,7 @@ internal class LogFileGenerator(
     private var currentDate: LogDate? = null
 
     private fun onAlert(error: LogGenerateAlert, line: Int = currentLineIndex) {
-        alerts.add(GenerateAlertData(error, line))
+        alerts.add(GenerateAlertData(error, line.toUInt(), null))
     }
 
     private fun UserContent.toText(): String =
@@ -36,13 +36,13 @@ internal class LogFileGenerator(
         check(!content.contains('\n'))
 
         entity?.aboveComment?.also { aboveComment ->
-            lines.add(formats.commentPrefix + aboveComment.toText())
+            lines.add(strings.commentPrefix + aboveComment.toText())
             currentLineIndex++
         }
 
         val lineContent: String =
             entity?.inlineComment?.let { inlineComment ->
-                formats.commentPrefix + inlineComment.toText()
+                strings.commentPrefix + inlineComment.toText()
             } ?: content
 
         lines.add(lineContent)
@@ -74,7 +74,22 @@ internal class LogFileGenerator(
 
     private fun onDate(date: LogDate) {
         currentDate = date
-        line(formats.datePrefix + formats.preferredDateFormat.format(date.date), date)
+
+        val formattedDateString: String = strings.preferredDateFormat.format(date.date)
+        val dateLine: String =
+            buildString {
+                append(strings.datePrefix)
+
+                if (date.ambiguous) {
+                    append(strings.ambiguousDatePrefix)
+                    append(formattedDateString.replaceFirstChar { it.lowercase() })
+                }
+                else {
+                    append(formattedDateString)
+                }
+            }
+
+        line(dateLine, date)
         line("")
     }
 
@@ -84,7 +99,7 @@ internal class LogFileGenerator(
 
         val referenceGenerator: LogEntityReferenceGenerator = referenceGeneratorProvider(currentDate!!.date)
 
-        val eventText: LogEventType.EventText = eventType.generateEvent(event, referenceGenerator, formats, ::onAlert)
+        val eventText: LogEventType.EventText = eventType.generateEvent(event, referenceGenerator, strings, ::onAlert)
         line(
             buildString {
                 append(eventText.prefix)
@@ -105,7 +120,7 @@ internal class LogFileGenerator(
         event.content?.also { content ->
             line("")
             val contentText: String = userContentGenerator.generateUserContent(content, referenceGenerator, ::onAlert)
-            line(contentText.prependIndent(formats.contentIndentation))
+            line(contentText.prependIndent(strings.contentIndentation))
             line("")
             line("}")
         }

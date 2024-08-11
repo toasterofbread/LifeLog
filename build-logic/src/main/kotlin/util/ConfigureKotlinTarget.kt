@@ -78,6 +78,11 @@ fun KotlinMultiplatformExtension.configureKmpTargets(vararg targets: KmpTarget) 
                 }
             }
 
+            group("androidAndWasmJs") {
+                ifPresent(KmpTarget.ANDROID)
+                ifPresent(KmpTarget.WASMJS)
+            }
+
             ifPresent(KmpTarget.WASMJS)
         }
     }
