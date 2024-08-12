@@ -48,10 +48,10 @@ class LogFileGeneratorTest {
     @Test
     fun temp() {
         val date: LocalDate = LocalDate.parse("2024-08-04")
-        val mediaReference: MediaReference = MovieOrShowMediaReference("test 2", mediaWatchExtension.id)
+        val mediaReference: MediaReference = MovieOrShowMediaReference("test 2", mediaWatchExtension.id, mediaWatchExtension.strings.mediaReferenceTypeId)
         val days: Map<LogDate, List<LogEvent>> =
             mapOf(
-                LogDateImpl(date) to listOf(
+                LogDateImpl(date, ambiguous = false) to listOf(
                     MovieOrShowMediaConsumeEvent(mediaReference, iteration = 1)
                 )
             )

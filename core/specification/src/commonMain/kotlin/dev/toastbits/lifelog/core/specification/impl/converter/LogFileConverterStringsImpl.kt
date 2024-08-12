@@ -1,14 +1,15 @@
 package dev.toastbits.lifelog.core.specification.impl.converter
 
-import dev.toastbits.lifelog.core.specification.converter.LogFileConverterStrings
 import dev.toastbits.lifelog.core.specification.converter.LogDateFormat
-import dev.toastbits.lifelog.core.specification.converter.logDateFormatOf
+import dev.toastbits.lifelog.core.specification.converter.LogFileConverterStrings
 import dev.toastbits.lifelog.core.specification.converter.customLogDateFormat
+import dev.toastbits.lifelog.core.specification.converter.logDateFormatOf
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.format.DateTimeFormat
 import kotlinx.datetime.format.MonthNames
 import kotlinx.datetime.format.Padding
+import kotlinx.datetime.format.alternativeParsing
 import kotlinx.datetime.format.char
+import kotlinx.datetime.format.optional
 
 data class LogFileConverterStringsImpl(
     override val metadataDirectoryName: String = "metadata",
@@ -18,10 +19,13 @@ data class LogFileConverterStringsImpl(
 
     override val contentIndentation: String = "  ",
     override val datePrefix: String = "----- ",
-    override val commentPrefix: String = "//",
+    override val commentPrefix: String = "// ",
     override val ambiguousDatePrefix: String = "Since ",
 
-    override val eventMetadataStart: String = "(",
+    override val blockCommentStart: String = "/*",
+    override val blockCommentEnd: String = "*/",
+
+    override val eventMetadataStart: String = " (",
     override val eventMetadataEnd: String = ")",
     override val eventContentStart: String = "{",
     override val eventContentEnd: String = "}",
@@ -32,6 +36,17 @@ data class LogFileConverterStringsImpl(
             add(
                 // 2024-08-04
                 logDateFormatOf(LocalDate.Formats.ISO)
+            )
+
+            add(
+                // 2024/8/4
+                logDateFormatOf {
+                    year()
+                    char('/')
+                    monthNumber(Padding.NONE)
+                    char('/')
+                    dayOfMonth(Padding.NONE)
+                }
             )
 
             add(
@@ -53,6 +68,19 @@ data class LogFileConverterStringsImpl(
                     char(' ')
                     year()
                 }
+            )
+
+            add(
+                // August 2024
+                customLogDateFormat(
+                    format = { date ->
+                        MonthNames.ENGLISH_FULL.names[date.monthNumber - 1] + ' ' + date.year.toString()
+                    },
+                    parse = { input ->
+                        val (month, year) = input.split(' ', limit = 2)
+                        LocalDate(year.toInt(), MonthNames.ENGLISH_FULL.names.map { it.lowercase() }.indexOf(month.lowercase()) + 1, 1)
+                    }
+                )
             )
 
             // Summer 2024

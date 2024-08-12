@@ -30,7 +30,21 @@ class MarkdownUserContentParser: UserContentParser {
             fun List<ASTNode>.getParts(): List<UserContent.Part> = flatMap { getNodeParts(it) }
 
             when (node.type.name) {
-                "PARAGRAPH" -> return node.children.getParts()
+                "PARAGRAPH",
+                "CODE_BLOCK",
+                "CODE_LINE",
+                "HORIZONTAL_RULE",
+                "ORDERED_LIST",
+                "UNORDERED_LIST",
+                "LIST_ITEM",
+                "LIST_BULLET",
+                "LIST_NUMBER",
+                "SHORT_REFERENCE_LINK",
+                "BLOCK_QUOTE",
+                "HTML_TAG",
+                "SETEXT_2",
+                "SETEXT_CONTENT",
+                "BACKTICK" -> return node.children.getParts()
                 "TEXT", "WHITE_SPACE", "CODE_FENCE_CONTENT" -> {
                     val nodeText: String = node.getTextInNode(text).toString()
                     return listOf(UserContent.Part.Single(nodeText))
@@ -69,6 +83,10 @@ class MarkdownUserContentParser: UserContentParser {
                 "IMAGE" -> {
                     val linkNode: ASTNode? = node.children.getOrNull(1)?.children?.getOrNull(1)?.children?.removeSides("[", "]")?.firstOrNull()
                     return listOfNotNull(UserContent.Part.Image(linkNode?.getTextInNode(text).toString()))
+                }
+                "GFM_AUTOLINK" -> {
+                    val link: String = node.getTextInNode(text).toString()
+                    return listOf(UserContent.Part.Single(link, setOf(UserContent.Modifier.Reference(LogEntityReference.URL(link)))))
                 }
                 "INLINE_LINK" -> {
                     var linkTextParts: List<UserContent.Part>? = null

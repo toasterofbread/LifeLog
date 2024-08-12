@@ -125,11 +125,11 @@ class GDocsDatabaseFileStructurePreprocessor(
         for (_line in lines) {
             currentLine++
 
-            var line: String = _line
+            var line: String = _line.replace("\\", "")
 
-            if (line.startsWith("\\-")) {
-                line = line.drop(1)
-            }
+//            if (line.startsWith("\\-")) {
+//                line = line.drop(1)
+//            }
 
             val dateLine: DateLineParser.DateLineData? = dateLineParser.attemptParseDateLine(line)
             if (dateLine != null) {

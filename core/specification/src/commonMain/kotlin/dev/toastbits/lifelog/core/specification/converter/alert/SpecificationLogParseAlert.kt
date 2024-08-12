@@ -9,6 +9,7 @@ sealed class SpecificationLogParseAlert: LogParseAlert {
     data class NoMatchingDateFormat(val dateText: String): SpecificationLogParseAlert(), LogParseAlert.Error
     data object MissingDateError: SpecificationLogParseAlert(), LogParseAlert.Error
     data object UnterminatedEventMetadata: SpecificationLogParseAlert(), LogParseAlert.Error
+    data object UnterminatedBlockComment: SpecificationLogParseAlert(), LogParseAlert.Error
     data object EventContentNotTerminated: SpecificationLogParseAlert(), LogParseAlert.Warning
     data class UnhandledMarkdownNodeType(val typeName: String, val startIndex: Int, val endIndex: Int, val scope: String, val text: String): SpecificationLogParseAlert(), LogParseAlert.Warning
     data class UnmatchedEventFormat(val text: String, val availablePrefixes: List<String>): SpecificationLogParseAlert(), LogParseAlert.Warning

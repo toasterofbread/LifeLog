@@ -5,7 +5,6 @@ import dev.toastbits.lifelog.core.specification.converter.LogFileConverterString
 import dev.toastbits.lifelog.core.specification.converter.ParseAlertData
 import dev.toastbits.lifelog.core.specification.converter.alert.LogParseAlert
 import dev.toastbits.lifelog.core.specification.converter.alert.SpecificationLogParseAlert
-import dev.toastbits.lifelog.core.specification.converter.parseOrNull
 import dev.toastbits.lifelog.core.specification.impl.converter.usercontent.UserContentParser
 import dev.toastbits.lifelog.core.specification.impl.model.entity.date.LogDateImpl
 import dev.toastbits.lifelog.core.specification.impl.model.entity.event.LogCommentImpl
@@ -46,7 +45,25 @@ internal class LogFileParser(
     private var lastDayTopLevelComment: IndexedValue<LogComment>? = null
 
     private fun hasNext(): Boolean = iterator.hasNext()
-    private fun goNext(): String = iterator.next().also { currentLineIndex++ }.also { println("LINE $it") }
+    private var queuedLineContent: MutableList<String> = mutableListOf()
+    private fun goNext(): String {
+        val nextLine: String =
+            if (queuedLineContent.isNotEmpty())
+                queuedLineContent.joinToString("").also { queuedLineContent.clear() }
+            else
+                iterator.next().also { currentLineIndex++ }
+
+        // debug
+        println("NEXT $nextLine")
+
+        return nextLine
+    }
+
+    private fun queueLineContent(content: String) {
+        if (content.isNotEmpty()) {
+            queuedLineContent.add(content)
+        }
+    }
 
     private fun onAlert(error: LogParseAlert, line: Int = currentLineIndex) {
         TODO("$error")
@@ -56,17 +73,19 @@ internal class LogFileParser(
     private fun String.extractComment(): Pair<String, UserContent?> {
         val commentStart: Int = indexOf(strings.commentPrefix)
         if (commentStart == -1) {
-            return this to null
+            return this.trim() to null
         }
 
         val comment: String = drop(commentStart + strings.commentPrefix.length).trim()
         return substring(0, commentStart).trim() to parseUserContent(comment)
     }
 
-    private fun getDayEvents(): MutableList<LogEvent> {
+    private fun getDayEvents(allowOutsideDay: Boolean = false): MutableList<LogEvent> {
         val day = currentDay
         if (day == null) {
-            onAlert(SpecificationLogParseAlert.LogEventOutsideDay)
+            if (!allowOutsideDay) {
+                onAlert(SpecificationLogParseAlert.LogEventOutsideDay)
+            }
             return mutableListOf()
         }
         return days.getOrPut(day) { mutableListOf() }
@@ -92,6 +111,38 @@ internal class LogFileParser(
         )
     }
 
+    private fun parseBlockComment(startLine: String): String {
+        val startLineCommentEndIndex: Int = startLine.indexOf(strings.blockCommentEnd)
+        if (startLineCommentEndIndex != -1) {
+            val commentText: String = startLine.substring(strings.blockCommentStart.length, startLineCommentEndIndex)
+            queueLineContent(startLine.drop(startLineCommentEndIndex + strings.blockCommentEnd.length))
+            return commentText
+        }
+
+        return buildString {
+            appendLine(startLine.drop(strings.blockCommentStart.length))
+
+            var terminated: Boolean = false
+            while (hasNext()) {
+                val line: String = goNext()
+                val commentEndIndex: Int = line.indexOf(strings.blockCommentEnd)
+                if (commentEndIndex != -1) {
+                    append(line.substring(0, commentEndIndex))
+                    queueLineContent(line.substring(commentEndIndex + strings.blockCommentEnd.length))
+                    terminated = true
+                    break
+                }
+                else {
+                    appendLine(line)
+                }
+            }
+
+            if (!terminated) {
+                onAlert(SpecificationLogParseAlert.UnterminatedBlockComment)
+            }
+        }
+    }
+
     private fun parseTopLevelLine(line: String) {
         if (line.isBlank()) {
             return
@@ -99,6 +150,12 @@ internal class LogFileParser(
 
         if (line.startsWith(strings.commentPrefix)) {
             val commentText: String = line.drop(strings.commentPrefix.length).trimStart()
+            onCommentLine(parseUserContent(commentText))
+            return
+        }
+
+        if (line.startsWith(strings.blockCommentStart)) {
+            val commentText: String = parseBlockComment(line)
             onCommentLine(parseUserContent(commentText))
             return
         }
@@ -149,7 +206,7 @@ internal class LogFileParser(
             text,
             referenceParser,
             onAlert = { alert, line -> onAlert(alert, currentLineIndex + line - newLines + lineOffset) }
-        )
+        ).normalised()
     }
 
     private fun getLastTopLevelCommentIfAdjacent(): UserContent? =
@@ -158,9 +215,11 @@ internal class LogFileParser(
                 return@let null
             }
 
-            val events: MutableList<LogEvent> = getDayEvents()
-            check(events.contains(lastComment.value))
-            events.remove(lastComment.value)
+            if (currentDay != null) {
+                val events: MutableList<LogEvent> = getDayEvents()
+                check(events.contains(lastComment.value))
+                events.remove(lastComment.value)
+            }
 
             return@let lastDayTopLevelComment!!.value.content
         }
@@ -199,7 +258,7 @@ internal class LogFileParser(
             }
 
             body = line.substring(0, metadataStart).trim()
-            metadata = line.substring(metadataStart + 1, metadataEnd).trim()
+            metadata = line.substring(metadataStart + strings.eventMetadataStart.length, metadataEnd).trim()
         }
         else {
             metadata = null
@@ -257,6 +316,6 @@ internal class LogFileParser(
         val comment: LogCommentImpl = LogCommentImpl(content)
         lastDayTopLevelComment = IndexedValue(currentLineIndex, comment)
 
-        getDayEvents().add(comment)
+        getDayEvents(allowOutsideDay = true).add(comment)
     }
 }

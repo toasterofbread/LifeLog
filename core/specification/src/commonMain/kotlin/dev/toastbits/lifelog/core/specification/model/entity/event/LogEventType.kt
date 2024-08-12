@@ -20,14 +20,14 @@ interface LogEventType {
         metadata: String?,
         content: UserContent?,
         referenceParser: LogEntityReferenceParser,
-        formats: LogFileConverterStrings,
+        logStrings: LogFileConverterStrings,
         onAlert: (LogParseAlert) -> Unit
     ): LogEvent
 
     fun generateEvent(
         event: LogEvent,
         referenceGenerator: LogEntityReferenceGenerator,
-        formats: LogFileConverterStrings,
+        logStrings: LogFileConverterStrings,
         onAlert: (LogGenerateAlert) -> Unit
     ): EventText
 

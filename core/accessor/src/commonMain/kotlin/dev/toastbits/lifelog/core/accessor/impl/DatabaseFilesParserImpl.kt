@@ -54,6 +54,7 @@ class DatabaseFilesParserImpl(
                 is LogEntityReference.InMetadata -> {
                     scope.onInMetadataEntityReference(reference, file, path)
                 }
+                is LogEntityReference.URL -> throw IllegalStateException(reference.toString())
             }
         }
 

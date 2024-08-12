@@ -1,5 +1,6 @@
 package dev.toastbits.lifelog.extension.mediawatch.impl.model.entity.event
 
+import dev.toastbits.lifelog.core.specification.converter.LogFileConverterStrings
 import dev.toastbits.lifelog.core.specification.converter.alert.LogParseAlert
 import dev.toastbits.lifelog.extension.mediawatch.MediaWatchExtensionStrings
 import dev.toastbits.lifelog.extension.mediawatch.alert.MediaWatchLogParseAlert
@@ -13,13 +14,14 @@ internal fun applyEventMetadata(
     text: String,
     event: MediaConsumeEvent,
     strings: MediaWatchExtensionStrings,
+    logStrings: LogFileConverterStrings,
     onAlert: (LogParseAlert) -> Unit
 ) {
     val iterationSuffixes: List<String> = strings.getMediaEntityTypeIterationSuffixes(event.mediaEntityType).map { it.lowercase() }
 
     val parts: List<String> = text.split(',').filter { it.isNotBlank() }
     for (part in parts) {
-        var lowerPart: String? = part.lowercase()
+        var lowerPart: String? = part.trimStart().lowercase()
 
         for (suffix in iterationSuffixes) {
             if (!lowerPart!!.endsWith(suffix)) {
@@ -37,9 +39,9 @@ internal fun applyEventMetadata(
         }
 
         when (event) {
-            is MovieOrShowMediaConsumeEvent -> applyMovieOrShowEventMetadata(lowerPart, event, strings, onAlert)
-            is BookMediaConsumeEvent -> TODO(lowerPart)
-            is GameMediaConsumeEvent -> TODO(lowerPart)
+            is MovieOrShowMediaConsumeEvent -> applyMovieOrShowEventMetadata(lowerPart, event, strings, logStrings, onAlert)
+            is BookMediaConsumeEvent -> applyBookEventMetadata(lowerPart, event, strings, logStrings, onAlert)
+            is GameMediaConsumeEvent -> applyGameEventMetadata(lowerPart, event, strings, logStrings, onAlert)
             is SongMediaConsumeEvent -> TODO(lowerPart)
         }
     }
@@ -51,10 +53,15 @@ private fun applyEventIterationString(
     strings: MediaWatchExtensionStrings,
     onAlert: (LogParseAlert) -> Unit
 ) {
-    val unsure: Boolean = text.startsWith(strings.unsureIterationsPrefix)
-    val iterationText: String =
-        if (unsure) text.drop(strings.unsureIterationsPrefix.length).trimStart()
-        else text
+    var iterationText: String = text
+    var unsure: Boolean = false
+
+    for (prefix in strings.unsurePrefixes) {
+        if (iterationText.startsWith(prefix)) {
+            iterationText = iterationText.drop(prefix.length).trimStart()
+            unsure = true
+        }
+    }
 
     var number: Int? =
         when (iterationText) {
@@ -79,7 +86,7 @@ private fun applyEventIterationString(
     }
 
     if (number == null) {
-        onAlert(MediaWatchLogParseAlert.UnknownIterationSpecifier(strings.extensionId, iterationText))
+        onAlert(MediaWatchLogParseAlert.UnknownIterationSpecifier(strings.extensionId, text))
         return
     }
 

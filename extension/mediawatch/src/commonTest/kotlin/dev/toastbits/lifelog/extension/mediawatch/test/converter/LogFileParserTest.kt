@@ -56,7 +56,7 @@ class LogFileParserTest: ParserTest() {
                         val result: LogFileConverter.ParseResult = converter.parseLogFile(text.split('\n'))
                         assertThat(result.alerts).isEmpty()
 
-                        val event: LogEvent = result.days[LogDateImpl(templateDate)]!!.single()
+                        val event: LogEvent = result.days[LogDateImpl(templateDate, ambiguous = false)]!!.single()
                         assertThat(event).isInstanceOf<MediaConsumeEvent>()
 
                         assertThat((event as MediaConsumeEvent).iteration).isEqualTo(iterationNumber)
@@ -68,6 +68,13 @@ class LogFileParserTest: ParserTest() {
 
     @Test
     fun testComments() {
+        val blockCommentContent: String = """
+            Block comment
+
+            Multiple lines
+            Very cool
+            Such comment
+        """.trimIndent()
 
         val text: String = """
 // Date comment
@@ -80,38 +87,56 @@ Watched Test Test Test (first watch, eps 1-5) { // Inline event comment
 
 }
 
+/*$blockCommentContent*/
+Watched Test Test Test (first watch, eps 1-5) {
+
+}
+
+/*$blockCommentContent*/
+
 // Standalone comment
         """
 
         val result: LogFileConverter.ParseResult = converter.parseLogFile(text.split('\n'))
         assertThat(result.alerts).isEmpty()
 
-        val (date: LogDate?, day: List<LogEvent>) = result.days.entries.single()
-        assertThat(date?.date).isEqualTo(templateDate)
-        assertThat(date?.inlineComment).isEqualTo(UserContent.single("Inline date comment"))
-        assertThat(date?.aboveComment).isEqualTo(UserContent.single("Date comment"))
+        val (date: LogDate, day: List<LogEvent>) = result.days.entries.single()
+        assertThat(date.date).isEqualTo(templateDate)
+        assertThat(date.inlineComment).isEqualTo(UserContent.single("Inline date comment"))
+        assertThat(date.aboveComment).isEqualTo(UserContent.single("Date comment"))
 
-        assertThat(day).hasSize(3)
+        assertThat(day).hasSize(5)
 
         assertThat(day[0]).isEqualTo(
             LogCommentImpl(UserContent.single("Standalone comment"))
         )
         assertThat(day[1]).isEqualTo(
             MovieOrShowMediaConsumeEvent(
-                MovieOrShowMediaReference("Test Test Test", mediaWatchExtension.id),
+                MovieOrShowMediaReference("Test Test Test", mediaWatchExtension.id, mediaWatchExtension.strings.mediaReferenceTypeId),
                 inlineComment = UserContent.single("Inline event comment"),
                 aboveComment = UserContent.single("Event comment"),
                 iteration = 1
             )
         )
         assertThat(day[2]).isEqualTo(
+            MovieOrShowMediaConsumeEvent(
+                MovieOrShowMediaReference("Test Test Test", mediaWatchExtension.id, mediaWatchExtension.strings.mediaReferenceTypeId),
+                inlineComment = null,
+                aboveComment = UserContent.single(blockCommentContent),
+                iteration = 1
+            )
+        )
+        assertThat(day[3]).isEqualTo(
+            LogCommentImpl(UserContent.single(blockCommentContent))
+        )
+        assertThat(day[4]).isEqualTo(
             LogCommentImpl(UserContent.single("Standalone comment"))
         )
     }
 
     @Test
     fun test() {
-        val testReference: MovieOrShowMediaReference = MovieOrShowMediaReference("Show name", mediaWatchExtension.id)
+        val testReference: MovieOrShowMediaReference = MovieOrShowMediaReference("Show name", mediaWatchExtension.id, mediaWatchExtension.strings.mediaReferenceTypeId)
 
         val dayContent: String = "Gay people stay winning [Test!](/media/movie/${testReference.mediaId})"
         val eventReference: String = "転生王女と天才令嬢の魔法革命"
@@ -139,22 +164,22 @@ Listened to $eventReference (12th listen) {
         val expectedEvents: List<LogEvent> =
             listOf(
                 MovieOrShowMediaConsumeEvent(
-                    MovieOrShowMediaReference(eventReference, mediaWatchExtension.id),
+                    MovieOrShowMediaReference(eventReference, mediaWatchExtension.id, mediaWatchExtension.strings.mediaReferenceTypeId),
                     content = dayContent.parse(),
                     iteration = 1
                 ),
                 BookMediaConsumeEvent(
-                    BookMediaReference(eventReference, mediaWatchExtension.id),
+                    BookMediaReference(eventReference, mediaWatchExtension.id, mediaWatchExtension.strings.mediaReferenceTypeId),
                     content = dayContent.parse(),
                     iteration = 2
                 ),
                 GameMediaConsumeEvent(
-                    GameMediaReference(eventReference, mediaWatchExtension.id),
+                    GameMediaReference(eventReference, mediaWatchExtension.id, mediaWatchExtension.strings.mediaReferenceTypeId),
                     content = dayContent.parse(),
                     iteration = 3
                 ),
                 SongMediaConsumeEvent(
-                    SongMediaReference(eventReference, mediaWatchExtension.id),
+                    SongMediaReference(eventReference, mediaWatchExtension.id, mediaWatchExtension.strings.mediaReferenceTypeId),
                     content = dayContent.parse(),
                     iteration = 12
                 )
@@ -165,7 +190,7 @@ Listened to $eventReference (12th listen) {
 
         assertThat(result.days).hasSize(1)
 
-        val day: List<LogEvent>? = result.days[LogDateImpl(templateDate)]
+        val day: List<LogEvent>? = result.days[LogDateImpl(templateDate, ambiguous = false)]
         println(day)
         assertThat(day).isEqualTo(expectedEvents)
     }

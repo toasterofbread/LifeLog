@@ -24,7 +24,7 @@ object TestLogEventType: LogEventType {
         metadata: String?,
         content: UserContent?,
         referenceParser: LogEntityReferenceParser,
-        formats: LogFileConverterStrings,
+        logStrings: LogFileConverterStrings,
         onAlert: (LogParseAlert) -> Unit
     ): LogEvent {
         TODO("Not yet implemented")
@@ -33,7 +33,7 @@ object TestLogEventType: LogEventType {
     override fun generateEvent(
         event: LogEvent,
         referenceGenerator: LogEntityReferenceGenerator,
-        formats: LogFileConverterStrings,
+        logStrings: LogFileConverterStrings,
         onAlert: (LogGenerateAlert) -> Unit
     ): LogEventType.EventText {
         check(event is TestLogEvent)

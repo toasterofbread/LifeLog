@@ -53,6 +53,7 @@ class DatabaseFileStructureProviderImpl(
 
                 throw IllegalStateException("Could not find extension providing reference type for $this")
             }
+            is LogEntityReference.URL -> throw IllegalStateException(reference.toString())
         }
     }
 
@@ -60,6 +61,10 @@ class DatabaseFileStructureProviderImpl(
         text: String,
         onAlert: (LogParseAlert) -> Unit
     ): LogEntityReference? {
+        if (URL_REGEX.matches(text)) {
+            return LogEntityReference.URL(text)
+        }
+
         val normalisedPath: List<String> = text.toPath().normalized().segments
 
         if (normalisedPath.any { it == ".." }) {
@@ -148,6 +153,10 @@ class DatabaseFileStructureProviderImpl(
 
         val date: LocalDate = splitStrategy.parseDateComponents(dateParts)
         return LogEntityReference.InLogData(date, LogEntityPath(path.drop(splitStrategy.componentsCount)))
+    }
+
+    companion object {
+        private val URL_REGEX: Regex = "\\b[a-zA-Z][a-zA-Z0-9+.-]*://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%?=~_|]".toRegex()
     }
 }
 

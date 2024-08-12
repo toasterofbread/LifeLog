@@ -23,6 +23,8 @@ sealed interface LogEntityReference {
         override val extensionId: ExtensionId,
         override val referenceTypeId: ExtensionId
     ) : InMetadata
+
+    data class URL(val url: String): LogEntityReference
 }
 
 data class LogEntityPath(val segments: List<String>) {

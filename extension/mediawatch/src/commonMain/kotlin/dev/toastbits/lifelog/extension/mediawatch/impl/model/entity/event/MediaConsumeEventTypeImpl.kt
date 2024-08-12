@@ -3,7 +3,6 @@ package dev.toastbits.lifelog.extension.mediawatch.impl.model.entity.event
 import dev.toastbits.lifelog.core.specification.converter.LogFileConverterStrings
 import dev.toastbits.lifelog.core.specification.converter.alert.LogGenerateAlert
 import dev.toastbits.lifelog.core.specification.converter.alert.LogParseAlert
-import dev.toastbits.lifelog.core.specification.extension.ExtensionId
 import dev.toastbits.lifelog.core.specification.model.UserContent
 import dev.toastbits.lifelog.core.specification.model.entity.event.LogEvent
 import dev.toastbits.lifelog.core.specification.model.entity.event.LogEventType
@@ -36,7 +35,7 @@ class MediaConsumeEventTypeImpl(
         metadata: String?,
         content: UserContent?,
         referenceParser: LogEntityReferenceParser,
-        formats: LogFileConverterStrings,
+        logStrings: LogFileConverterStrings,
         onAlert: (LogParseAlert) -> Unit
     ): MediaConsumeEvent {
         val entityType: MediaEntityType = getPrefixIndexMediaEntityType(prefixIndex)
@@ -46,7 +45,7 @@ class MediaConsumeEventTypeImpl(
         event.content = content
 
         if (metadata != null) {
-            applyEventMetadata(metadata, event, strings, onAlert)
+            applyEventMetadata(metadata, event, strings, logStrings, onAlert)
         }
 
         return event
@@ -55,7 +54,7 @@ class MediaConsumeEventTypeImpl(
     override fun generateEvent(
         event: LogEvent,
         referenceGenerator: LogEntityReferenceGenerator,
-        formats: LogFileConverterStrings,
+        logStrings: LogFileConverterStrings,
         onAlert: (LogGenerateAlert) -> Unit
     ): LogEventType.EventText {
         check(event is MediaConsumeEvent)
@@ -63,7 +62,7 @@ class MediaConsumeEventTypeImpl(
         return LogEventType.EventText(
             prefix = strings.getMediaEntityTypeConsumeEventPrefixes(event.mediaEntityType).first(),
             body = getEventBodyText(event, referenceGenerator, onAlert),
-            metadata = getEventMetadataText(event, referenceGenerator, formats, onAlert)
+            metadata = getEventMetadataText(event, referenceGenerator, logStrings, onAlert)
         )
     }
 

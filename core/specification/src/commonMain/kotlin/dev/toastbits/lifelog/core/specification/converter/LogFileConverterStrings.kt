@@ -13,6 +13,9 @@ interface LogFileConverterStrings {
     val commentPrefix: String
     val ambiguousDatePrefix: String
 
+    val blockCommentStart: String
+    val blockCommentEnd: String
+
     val eventMetadataStart: String
     val eventMetadataEnd: String
     val eventContentStart: String

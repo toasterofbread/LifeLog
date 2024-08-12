@@ -83,7 +83,7 @@ private fun List<Part>.normalised(): List<Part> {
     val newParts: MutableList<Part> = mutableListOf()
     for (part in this) {
         val previous: Part? = newParts.lastOrNull()
-        if (previous != null && part.modifiers.isNotEmpty() && part.modifiers.matches(previous.modifiers)) {
+        if (previous != null && part.modifiers.matches(previous.modifiers) && part !is Part.Image && previous !is Part.Image) {
             newParts[newParts.size - 1] = part.appendTo(previous, part.modifiers)
         }
         else {

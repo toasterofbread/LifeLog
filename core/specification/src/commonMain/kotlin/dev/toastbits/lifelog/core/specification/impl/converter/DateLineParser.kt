@@ -44,7 +44,7 @@ abstract class DateLineParser(
     open fun String.extractComment(): Pair<String, UserContent?> {
         val commentStart: Int = indexOf(strings.commentPrefix)
         if (commentStart == -1) {
-            return this to null
+            return this.trim() to null
         }
         return substring(0, commentStart).trim() to null
     }
