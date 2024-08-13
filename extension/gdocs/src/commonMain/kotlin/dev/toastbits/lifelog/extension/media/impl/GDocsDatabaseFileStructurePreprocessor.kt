@@ -181,7 +181,7 @@ class GDocsDatabaseFileStructurePreprocessor(
                 }
                 else ""
 
-            string = string.replaceRange(linkStart, linkEnd, replacement)
+            string = string.replaceRange(linkStart, linkEnd + 1, replacement)
         }
 
         return string

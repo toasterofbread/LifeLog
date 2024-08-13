@@ -46,7 +46,7 @@ fun main() = runBlocking {
     checkNotNull(credentials)
 
     outAccessor.setCredentials(credentials)
-    outAccessor.saveDatabaseRemotely(database, "Initial commit") { TODO(it.toString()) }
+    outAccessor.saveDatabaseRemotely(database, "Subsequent commit") { TODO(it.toString()) }
 
     println("---END---")
 }
