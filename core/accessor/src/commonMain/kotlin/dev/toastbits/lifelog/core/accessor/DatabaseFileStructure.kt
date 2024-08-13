@@ -9,12 +9,22 @@ interface DatabaseFileStructure {
     val nodes: Map<String, Node>
 
     sealed interface Node {
-        interface File: Node {
-            suspend fun readLines(fileSystem: FileSystem): Sequence<String>
+        sealed interface File: Node {
+            interface FileLines: File {
+                suspend fun readLines(fileSystem: FileSystem): Sequence<String>
+            }
+
+            interface FileBytes: File {
+                suspend fun readBytes(fileSystem: FileSystem): ByteArray
+            }
         }
 
-        data class FileData(val lines: List<String>): File {
+        class FileLinesData(private val lines: List<String>): File.FileLines {
             override suspend fun readLines(fileSystem: FileSystem): Sequence<String> = lines.asSequence()
+        }
+
+        class FileBytesData(private val bytes: ByteArray): File.FileBytes {
+            override suspend fun readBytes(fileSystem: FileSystem): ByteArray = bytes
         }
 
         open class Directory(open val nodes: Map<String, Node>): Node {

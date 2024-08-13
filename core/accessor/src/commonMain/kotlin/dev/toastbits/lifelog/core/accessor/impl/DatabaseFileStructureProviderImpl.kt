@@ -6,6 +6,7 @@ import dev.toastbits.lifelog.core.specification.converter.LogFileConverterString
 import dev.toastbits.lifelog.core.specification.converter.alert.LogParseAlert
 import dev.toastbits.lifelog.core.specification.converter.alert.SpecificationLogParseAlert
 import dev.toastbits.lifelog.core.specification.converter.validate
+import dev.toastbits.lifelog.core.specification.extension.ExtensionId
 import dev.toastbits.lifelog.core.specification.extension.SpecificationExtension
 import dev.toastbits.lifelog.core.specification.impl.extension.ExtendableImpl
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityPath
@@ -34,7 +35,11 @@ class DatabaseFileStructureProviderImpl(
     override fun getEntityReferenceFilePath(reference: LogEntityReference): Path {
         when (reference) {
             is LogEntityReference.InLog -> {
-                return (getLogFileDirectory(reference.logDate) + reference.path.segments).toPath()
+                val subdir: List<String> =
+                    if (reference.extensionId == null) emptyList()
+                    else listOf(strings.extensionContentDirectoryName, reference.extensionId.toString(), reference.referenceTypeId!!.toString())
+
+                return (getLogFileDirectory(reference.logDate) + subdir + reference.path.segments).toPath()
             }
             is LogEntityReference.InMetadata -> {
                 for (extension in extensions) {
@@ -44,7 +49,7 @@ class DatabaseFileStructureProviderImpl(
                     return (
                         listOf(
                             strings.metadataDirectoryName,
-                            strings.metadataExtensionDirectoryName,
+                            strings.extensionContentDirectoryName,
                             extension.id,
                             referenceType.id
                         ) + reference.path.segments
@@ -102,7 +107,7 @@ class DatabaseFileStructureProviderImpl(
 
     private fun parseMetadataReference(path: List<String>, onAlert: (LogParseAlert) -> Unit, onFailure: (Int) -> Unit): LogEntityReference? {
         when (path.firstOrNull()) {
-            strings.metadataExtensionDirectoryName -> {
+            strings.extensionContentDirectoryName -> {
                 return parseExtensionMetadataReference(path.drop(1), onAlert) { onFailure(it + 1) }
             }
             else -> {
@@ -152,7 +157,27 @@ class DatabaseFileStructureProviderImpl(
             }
 
         val date: LocalDate = splitStrategy.parseDateComponents(dateParts)
-        return LogEntityReference.InLogData(date, LogEntityPath(path.drop(splitStrategy.componentsCount)))
+
+        val extensionId: ExtensionId?
+        val referenceTypeId: ExtensionId?
+
+        var inLogPath: List<String> = path.drop(splitStrategy.componentsCount)
+        if (inLogPath.firstOrNull() == strings.extensionContentDirectoryName) {
+            if (inLogPath.size < 3) {
+                onAlert(SpecificationLogParseAlert.UnknownReferenceType(path, splitStrategy.componentsCount))
+                return null
+            }
+
+            extensionId = inLogPath[1]
+            referenceTypeId = inLogPath[2]
+            inLogPath = inLogPath.drop(3)
+        }
+        else {
+            extensionId = null
+            referenceTypeId = null
+        }
+
+        return LogEntityReference.InLogData(date, LogEntityPath(inLogPath), extensionId = extensionId, referenceTypeId = referenceTypeId)
     }
 
     companion object {

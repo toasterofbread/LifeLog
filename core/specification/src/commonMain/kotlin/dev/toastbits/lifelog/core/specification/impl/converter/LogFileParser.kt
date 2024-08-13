@@ -53,9 +53,6 @@ internal class LogFileParser(
             else
                 iterator.next().also { currentLineIndex++ }
 
-        // debug
-        println("NEXT $nextLine")
-
         return nextLine
     }
 

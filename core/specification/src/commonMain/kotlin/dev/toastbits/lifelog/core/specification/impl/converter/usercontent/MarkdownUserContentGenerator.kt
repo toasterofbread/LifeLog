@@ -39,7 +39,7 @@ class MarkdownUserContentGenerator: UserContentGenerator {
                             addPart(subPart)
                         }
                     }
-                    is UserContent.Part.Image -> append("![][${part.location}]")
+                    is UserContent.Part.Image -> append("![](${part.location})")
                 }
             }
         }

@@ -3,7 +3,7 @@ package dev.toastbits.lifelog.extension.mediawatch.model.reference
 import dev.toastbits.lifelog.core.specification.converter.ParseAlertData
 import dev.toastbits.lifelog.core.specification.converter.alert.LogParseAlert
 import dev.toastbits.lifelog.core.specification.converter.alert.SpecificationLogParseAlert
-import dev.toastbits.lifelog.core.specification.database.LogEntityMetadata
+import dev.toastbits.lifelog.core.specification.database.LogDataFile
 import dev.toastbits.lifelog.core.specification.extension.ExtensionId
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReference
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferenceType
@@ -29,12 +29,12 @@ class MediaReferenceType(
         path: List<String>,
         lines: Sequence<String>,
         onAlert: (ParseAlertData) -> Unit
-    ): LogEntityMetadata? {
+    ): LogDataFile? {
         val (entityType: MediaEntityType, mediaId: String) =
             parsePath(path) { onAlert(ParseAlertData(it, null, null)) } ?: return null
 
         // TODO
-        return LogEntityMetadata("TODO $entityType $mediaId")
+        return LogDataFile.Lines(listOf("TODO $entityType $mediaId"))
     }
 
     private fun parsePath(path: List<String>, onAlert: (LogParseAlert) -> Unit): Pair<MediaEntityType, String>? {

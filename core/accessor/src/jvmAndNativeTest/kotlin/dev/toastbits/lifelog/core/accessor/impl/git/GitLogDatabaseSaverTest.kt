@@ -17,7 +17,7 @@ import dev.toastbits.lifelog.core.accessor.model.GitRemoteBranch
 import dev.toastbits.lifelog.core.accessor.reference.LogEntityReferenceGeneratorImpl
 import dev.toastbits.lifelog.core.specification.converter.LogFileConverterStrings
 import dev.toastbits.lifelog.core.specification.database.LogDatabase
-import dev.toastbits.lifelog.core.specification.database.LogEntityMetadata
+import dev.toastbits.lifelog.core.specification.database.LogDataFile
 import dev.toastbits.lifelog.core.specification.impl.converter.LogFileConverterImpl
 import dev.toastbits.lifelog.core.specification.impl.model.entity.date.LogDateImpl
 import dev.toastbits.lifelog.core.specification.model.UserContent
@@ -102,8 +102,8 @@ class GitLogDatabaseSaverTest: FileSystemTest {
                         event
                     )
                 ),
-                metadata = mapOf(
-                    reference to LogEntityMetadata("test")
+                data = mapOf(
+                    reference to LogDataFile("test")
                 )
             )
 

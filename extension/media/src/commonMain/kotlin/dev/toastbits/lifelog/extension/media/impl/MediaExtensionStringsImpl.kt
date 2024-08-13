@@ -6,5 +6,5 @@ import dev.toastbits.lifelog.extension.media.MediaExtensionStrings
 data class MediaExtensionStringsImpl(
     override val extensionId: ExtensionId = "media",
 
-    override val mediaReferenceTypeIdentifier: String = "media"
+    override val mediaReferenceTypeId: String = "media"
 ) : MediaExtensionStrings

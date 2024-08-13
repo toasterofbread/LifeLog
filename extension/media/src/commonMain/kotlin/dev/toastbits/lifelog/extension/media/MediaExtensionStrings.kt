@@ -5,5 +5,5 @@ import dev.toastbits.lifelog.core.specification.extension.ExtensionId
 interface MediaExtensionStrings {
     val extensionId: ExtensionId
 
-    val mediaReferenceTypeIdentifier: String
+    val mediaReferenceTypeId: String
 }

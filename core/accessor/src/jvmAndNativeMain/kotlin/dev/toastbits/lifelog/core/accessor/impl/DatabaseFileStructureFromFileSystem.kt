@@ -24,7 +24,7 @@ internal fun FileSystem.getDatabaseFileStructure(path: Path): DatabaseFileStruct
     return fileStructure
 }
 
-private data class OkioNodeFile(private val path: Path): DatabaseFileStructure.Node.File {
+private data class OkioNodeFile(private val path: Path): DatabaseFileStructure.Node.File.FileLines {
     override suspend fun readLines(fileSystem: FileSystem): Sequence<String> = sequence {
         fileSystem.read(path) {
             while (true) {

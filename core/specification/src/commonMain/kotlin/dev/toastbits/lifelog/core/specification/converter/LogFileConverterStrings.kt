@@ -4,7 +4,7 @@ import dev.toastbits.lifelog.core.specification.converter.LogFileConverterString
 
 interface LogFileConverterStrings {
     val metadataDirectoryName: String
-    val metadataExtensionDirectoryName: String
+    val extensionContentDirectoryName: String
     val logsDirectoryName: String
     val logFileName: String
 
@@ -33,7 +33,7 @@ interface LogFileConverterStrings {
 
 fun LogFileConverterStrings.validate() {
     metadataDirectoryName.checkPath("metadataDirectoryName")
-    metadataExtensionDirectoryName.checkPath("extensionDirectoryName")
+    extensionContentDirectoryName.checkPath("extensionDirectoryName")
     check(contentIndentation.isNotEmpty())
 }
 

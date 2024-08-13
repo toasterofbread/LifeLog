@@ -9,7 +9,7 @@ import dev.toastbits.lifelog.core.accessor.splitDaysIntoGroups
 import dev.toastbits.lifelog.core.specification.converter.GenerateAlertData
 import dev.toastbits.lifelog.core.specification.converter.LogFileConverter
 import dev.toastbits.lifelog.core.specification.database.LogDatabase
-import dev.toastbits.lifelog.core.specification.database.LogEntityMetadata
+import dev.toastbits.lifelog.core.specification.database.LogDataFile
 import dev.toastbits.lifelog.core.specification.model.entity.date.LogDate
 import dev.toastbits.lifelog.core.specification.model.entity.event.LogEvent
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReference
@@ -27,7 +27,7 @@ class DatabaseFilesGeneratorImpl(
         val structure: MutableDatabaseFileStructure = MutableDatabaseFileStructure()
 
         structure.writeDays(database.days, onAlert)
-        structure.writeMetadata(database.metadata, onAlert)
+        structure.writeDataFiles(database.data, onAlert)
 
         return structure
     }
@@ -50,13 +50,19 @@ class DatabaseFilesGeneratorImpl(
         }
     }
 
-    private fun MutableDatabaseFileStructure.writeMetadata(
-        metadataEntries: Map<LogEntityReference, LogEntityMetadata>,
+    private fun MutableDatabaseFileStructure.writeDataFiles(
+        dataEntries: Map<LogEntityReference, LogDataFile>,
         onAlert: (GenerateAlertData) -> Unit
     ) {
-        for ((reference, metadata) in metadataEntries) {
+        for ((reference, data) in dataEntries) {
             val filePath: Path = fileStructureProvider.getEntityReferenceFilePath(reference)
-            createFile(filePath, listOf(metadata.temp))
+            createFile(
+                filePath,
+                when (data) {
+                    is LogDataFile.Lines -> DatabaseFileStructure.Node.FileLinesData(data.lines)
+                    is LogDataFile.Bytes -> DatabaseFileStructure.Node.FileBytesData(data.bytes)
+                }
+            )
         }
     }
 }

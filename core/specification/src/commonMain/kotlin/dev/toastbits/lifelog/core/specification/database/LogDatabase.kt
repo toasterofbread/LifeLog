@@ -6,7 +6,10 @@ import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferen
 
 data class LogDatabase(
     val days: Map<LogDate, List<LogEvent>> = emptyMap(),
-    val metadata: Map<LogEntityReference, LogEntityMetadata> = emptyMap()
+    val data: Map<LogEntityReference, LogDataFile> = emptyMap()
 )
 
-data class LogEntityMetadata(val temp: String)
+sealed interface LogDataFile {
+    class Lines(val lines: List<String>): LogDataFile
+    class Bytes(val bytes: ByteArray): LogDataFile
+}

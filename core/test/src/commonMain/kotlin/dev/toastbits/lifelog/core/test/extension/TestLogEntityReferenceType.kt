@@ -3,7 +3,7 @@ package dev.toastbits.lifelog.core.test.extension
 import dev.toastbits.lifelog.core.specification.converter.ParseAlertData
 import dev.toastbits.lifelog.core.specification.converter.alert.LogParseAlert
 import dev.toastbits.lifelog.core.specification.converter.alert.SpecificationLogParseAlert
-import dev.toastbits.lifelog.core.specification.database.LogEntityMetadata
+import dev.toastbits.lifelog.core.specification.database.LogDataFile
 import dev.toastbits.lifelog.core.specification.extension.ExtensionId
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityPath
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReference
@@ -33,7 +33,7 @@ object TestLogEntityReferenceType: LogEntityReferenceType.InMetadata() {
         path: List<String>,
         lines: Sequence<String>,
         onAlert: (ParseAlertData) -> Unit
-    ): LogEntityMetadata {
-        return LogEntityMetadata("TODO")
+    ): LogDataFile {
+        return LogDataFile("TODO")
     }
 }

@@ -36,7 +36,7 @@ class LogEntityReferenceParserTest {
     @Test
     fun testValidPath() {
         val testEntityPath: LogEntityPath = LogEntityPath.of("test path 1", "test path 2", "test path 3")
-        val path: String = "${strings.metadataDirectoryName}/${strings.metadataExtensionDirectoryName}/${TestExtension.id}/${TestLogEntityReferenceType.id}/" + testEntityPath.segments.joinToString("/")
+        val path: String = "${strings.metadataDirectoryName}/${strings.extensionContentDirectoryName}/${TestExtension.id}/${TestLogEntityReferenceType.id}/" + testEntityPath.segments.joinToString("/")
 
         val result: LogEntityReference? = referenceParser.parseReference(path) { assertThat(it).isNull() }
         assertThat(result).isEqualTo(
@@ -47,7 +47,7 @@ class LogEntityReferenceParserTest {
     @Test
     fun testInvalidMetadataPath() {
         testInvalidPath(
-            "${strings.metadataDirectoryName}uistbdstacbybu/${strings.metadataExtensionDirectoryName}/${TestExtension.id}/${TestLogEntityReferenceType.id}",
+            "${strings.metadataDirectoryName}uistbdstacbybu/${strings.extensionContentDirectoryName}/${TestExtension.id}/${TestLogEntityReferenceType.id}",
             0
         )
     }
@@ -55,7 +55,7 @@ class LogEntityReferenceParserTest {
     @Test
     fun testInvalidMetadataSubPath() {
         testInvalidPath(
-            "${strings.metadataDirectoryName}/${strings.metadataExtensionDirectoryName}uistbdstacbybu/${TestExtension.id}/${TestLogEntityReferenceType.id}",
+            "${strings.metadataDirectoryName}/${strings.extensionContentDirectoryName}uistbdstacbybu/${TestExtension.id}/${TestLogEntityReferenceType.id}",
             1
         )
     }
@@ -63,7 +63,7 @@ class LogEntityReferenceParserTest {
     @Test
     fun testInvalidExtensionPath() {
         testInvalidPath(
-            "${strings.metadataDirectoryName}/${strings.metadataExtensionDirectoryName}/${TestExtension.id}uistbdstacbybu/${TestLogEntityReferenceType.id}",
+            "${strings.metadataDirectoryName}/${strings.extensionContentDirectoryName}/${TestExtension.id}uistbdstacbybu/${TestLogEntityReferenceType.id}",
             2
         )
     }
@@ -71,7 +71,7 @@ class LogEntityReferenceParserTest {
     @Test
     fun testInvalidReferenceTypePath() {
         testInvalidPath(
-            "${strings.metadataDirectoryName}/${strings.metadataExtensionDirectoryName}/${TestExtension.id}/${TestLogEntityReferenceType.id}uistbdstacbybu",
+            "${strings.metadataDirectoryName}/${strings.extensionContentDirectoryName}/${TestExtension.id}/${TestLogEntityReferenceType.id}uistbdstacbybu",
             3
         )
     }
@@ -79,7 +79,7 @@ class LogEntityReferenceParserTest {
     @Test
     fun testInvalidReferencePath() {
         testInvalidPath(
-            "${strings.metadataDirectoryName}/${strings.metadataExtensionDirectoryName}/${TestExtension.id}/${TestLogEntityReferenceType.id}",
+            "${strings.metadataDirectoryName}/${strings.extensionContentDirectoryName}/${TestExtension.id}/${TestLogEntityReferenceType.id}",
             4
         )
     }

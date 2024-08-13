@@ -9,9 +9,9 @@ import dev.toastbits.lifelog.extension.media.MediaExtensionStrings
 import kotlinx.datetime.LocalDate
 
 class MediaReferenceType(
-    private val strings: MediaExtensionStrings
+    val strings: MediaExtensionStrings
 ): LogEntityReferenceType.InLog() {
-    override val id: String get() = strings.mediaReferenceTypeIdentifier
+    override val id: String get() = strings.mediaReferenceTypeId
     override val extensionId: ExtensionId get() = strings.extensionId
 
     override fun parseReference(
@@ -25,7 +25,7 @@ class MediaReferenceType(
         }
 
         val mediaType: MediaReference.Type? = MediaReference.Type.entries.firstOrNull() {
-            it.name.equals(
+            it.getGroup().equals(
                 path.first(),
                 ignoreCase = true
             )
@@ -44,7 +44,8 @@ class MediaReferenceType(
         return MediaReference(
             index = index,
             type = mediaType,
-            logDate = date
+            logDate = date,
+            strings = strings
         )
     }
 }

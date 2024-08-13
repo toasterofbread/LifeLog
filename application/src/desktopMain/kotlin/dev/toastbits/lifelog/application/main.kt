@@ -31,7 +31,6 @@ fun main() = runBlocking {
         helper.createAccessor(DesktopJvmGitWrapper("/home/toaster/Downloads/test".toPath(), Dispatchers.IO))
 
     val database: LogDatabase = inAccessor.loadDatabaseLocally { TODO(it.toString()) }
-    println(database)
 
     val outAccessor: GitLogDatabaseAccessor =
         helper.createAccessor(
@@ -46,6 +45,9 @@ fun main() = runBlocking {
     checkNotNull(credentials)
 
     outAccessor.setCredentials(credentials)
+
+    println("Saving...")
+//    outAccessor.saveDatabaseLocally(database) { TODO(it.toString()) }
     outAccessor.saveDatabaseRemotely(database, "Subsequent commit") { TODO(it.toString()) }
 
     println("---END---")

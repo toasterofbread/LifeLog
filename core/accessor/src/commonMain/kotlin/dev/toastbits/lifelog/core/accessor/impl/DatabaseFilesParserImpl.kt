@@ -10,7 +10,7 @@ import dev.toastbits.lifelog.core.specification.converter.LogFileConverterString
 import dev.toastbits.lifelog.core.specification.converter.ParseAlertData
 import dev.toastbits.lifelog.core.specification.converter.alert.SpecificationLogParseAlert
 import dev.toastbits.lifelog.core.specification.database.LogDatabase
-import dev.toastbits.lifelog.core.specification.database.LogEntityMetadata
+import dev.toastbits.lifelog.core.specification.database.LogDataFile
 import dev.toastbits.lifelog.core.specification.extension.SpecificationExtension
 import dev.toastbits.lifelog.core.specification.impl.extension.ExtendableImpl
 import dev.toastbits.lifelog.core.specification.model.entity.date.LogDate
@@ -34,9 +34,9 @@ class DatabaseFilesParserImpl(
         onAlert: (ParseAlertData) -> Unit
     ): LogDatabase = withContext(ioDispatcher) {
         val days: MutableMap<LogDate, List<LogEvent>> = mutableMapOf()
-        val metadata: MutableMap<LogEntityReference, LogEntityMetadata> = mutableMapOf()
+        val data: MutableMap<LogEntityReference, LogDataFile> = mutableMapOf()
 
-        val scope: Scope = Scope(days, metadata, fileSystem, onAlert)
+        val scope: Scope = Scope(days, data, fileSystem, onAlert)
 
         structure.preprocess(fileSystem, onAlert).walkFiles { file, path ->
             val reference: LogEntityReference =
@@ -52,13 +52,14 @@ class DatabaseFilesParserImpl(
                     scope.onInLogEntityReference(reference, file)
                 }
                 is LogEntityReference.InMetadata -> {
+                    check(file is DatabaseFileStructure.Node.File.FileLines)
                     scope.onInMetadataEntityReference(reference, file, path)
                 }
                 is LogEntityReference.URL -> throw IllegalStateException(reference.toString())
             }
         }
 
-        return@withContext LogDatabase(days = scope.days, metadata = scope.metadata)
+        return@withContext LogDatabase(days = scope.days, data = scope.data)
     }
 
     private suspend fun DatabaseFileStructure.preprocess(fileSystem: FileSystem, onAlert: (ParseAlertData) -> Unit): DatabaseFileStructure {
@@ -76,8 +77,21 @@ class DatabaseFilesParserImpl(
     }
 
     private suspend fun Scope.onInLogEntityReference(reference: LogEntityReference.InLog, file: DatabaseFileStructure.Node.File) {
+        if (reference.extensionId != null) {
+            val dataFile: LogDataFile =
+                when (file) {
+                    is DatabaseFileStructure.Node.File.FileLines -> LogDataFile.Lines(file.readLines(fileSystem).toList())
+                    is DatabaseFileStructure.Node.File.FileBytes -> LogDataFile.Bytes(file.readBytes(fileSystem))
+                }
+
+            data[reference] = dataFile
+            return
+        }
+
         when (reference.path.segments.lastOrNull()) {
             strings.logFileName -> {
+                check(file is DatabaseFileStructure.Node.File.FileLines)
+
                 val log: LogFileConverter.ParseResult = converter.parseLogFile(file.readLines(fileSystem).asIterable())
                 log.alerts.forEach(onAlert)
 
@@ -90,14 +104,14 @@ class DatabaseFilesParserImpl(
         }
     }
 
-    private suspend fun Scope.onInMetadataEntityReference(reference: LogEntityReference.InMetadata, file: DatabaseFileStructure.Node.File, path: Path) {
-        if (metadata.containsKey(reference)) {
+    private suspend fun Scope.onInMetadataEntityReference(reference: LogEntityReference.InMetadata, file: DatabaseFileStructure.Node.File.FileLines, path: Path) {
+        if (data.containsKey(reference)) {
             onAlert(ParseAlertData(SpecificationLogParseAlert.RedefinedMetadataValue(reference), null, path.toString()))
         }
 
-        val extension: SpecificationExtension? = fileStructureProvider.findRegisteredExtension(reference.extensionId)
+        val extension: SpecificationExtension? = fileStructureProvider.findRegisteredExtension(reference.extensionId!!)
         if (extension == null) {
-            onAlert(ParseAlertData(SpecificationLogParseAlert.UnregisteredExtension(reference.extensionId), null, path.toString()))
+            onAlert(ParseAlertData(SpecificationLogParseAlert.UnregisteredExtension(reference.extensionId!!), null, path.toString()))
             return
         }
 
@@ -112,16 +126,16 @@ class DatabaseFilesParserImpl(
         }
 
         val lines: Sequence<String> = file.readLines(fileSystem)
-        val parsedMetadata: LogEntityMetadata =
+        val parsedMetadata: LogDataFile =
             referenceType.parseReferenceMetadata(reference.path.segments, lines) { onAlert(it.copy(filePath = path.toString())) }
             ?: return
 
-        metadata[reference] = parsedMetadata
+        data[reference] = parsedMetadata
     }
 
     private class Scope(
         val days: MutableMap<LogDate, List<LogEvent>>,
-        val metadata: MutableMap<LogEntityReference, LogEntityMetadata>,
+        val data: MutableMap<LogEntityReference, LogDataFile>,
         val fileSystem: FileSystem,
         val onAlert: (ParseAlertData) -> Unit
     )

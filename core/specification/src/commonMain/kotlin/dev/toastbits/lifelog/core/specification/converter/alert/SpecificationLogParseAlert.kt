@@ -23,7 +23,7 @@ sealed class SpecificationLogParseAlert: LogParseAlert {
     data class InvalidEpisodesSpecifier(val text: String): SpecificationLogParseAlert(), LogParseAlert.Warning
 
     data class UnregisteredExtension(val extensionId: ExtensionId): SpecificationLogParseAlert(), LogParseAlert.Warning
-    data class UnregisteredReferenceType(val referenceTypeId: ExtensionId, val extensionId: ExtensionId): SpecificationLogParseAlert(), LogParseAlert.Warning
+    data class UnregisteredReferenceType(val referenceTypeId: ExtensionId?, val extensionId: ExtensionId?): SpecificationLogParseAlert(), LogParseAlert.Warning
 
     data object LogEventOutsideDay: SpecificationLogParseAlert(), LogParseAlert.Warning
 

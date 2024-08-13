@@ -81,7 +81,13 @@ class MarkdownUserContentParser: UserContentParser {
                     return listOf(UserContent.Part.Composite(children.getParts(), setOf(UserContent.Modifier.CodeBlock)))
                 }
                 "IMAGE" -> {
-                    val linkNode: ASTNode? = node.children.getOrNull(1)?.children?.getOrNull(1)?.children?.removeSides("[", "]")?.firstOrNull()
+                    val children: List<ASTNode>? = node.children.getOrNull(1)?.children
+
+                    var linkNode: ASTNode? = children?.firstOrNull { it.type.name == "LINK_LABEL" || it.type.name == "LINK_DESTINATION" }
+                    if (linkNode?.type?.name == "LINK_LABEL") {
+                        linkNode = linkNode.children.getOrNull(1)
+                    }
+
                     return listOfNotNull(UserContent.Part.Image(linkNode?.getTextInNode(text).toString()))
                 }
                 "GFM_AUTOLINK" -> {

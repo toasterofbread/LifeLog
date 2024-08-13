@@ -13,7 +13,7 @@ import kotlinx.datetime.format.optional
 
 data class LogFileConverterStringsImpl(
     override val metadataDirectoryName: String = "metadata",
-    override val metadataExtensionDirectoryName: String = "extension",
+    override val extensionContentDirectoryName: String = "extension",
     override val logsDirectoryName: String = "logs",
     override val logFileName: String = "log.md",
 

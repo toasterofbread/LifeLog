@@ -4,27 +4,34 @@ import dev.toastbits.lifelog.core.specification.extension.ExtensionId
 import kotlinx.datetime.LocalDate
 
 sealed interface LogEntityReference {
+    val extensionId: ExtensionId?
+    val referenceTypeId: ExtensionId?
+    val path: LogEntityPath
+
     interface InLog: LogEntityReference {
         val logDate: LocalDate
-        val path: LogEntityPath
     }
-    interface InMetadata: LogEntityReference {
-        val path: LogEntityPath
-        val extensionId: ExtensionId
-        val referenceTypeId: ExtensionId
-    }
+    interface InMetadata: LogEntityReference
 
     data class InLogData(
         override val logDate: LocalDate,
-        override val path: LogEntityPath
+        override val path: LogEntityPath,
+        override val extensionId: ExtensionId?,
+        override val referenceTypeId: ExtensionId?
     ) : InLog
+
     data class InMetadataData(
         override val path: LogEntityPath,
         override val extensionId: ExtensionId,
         override val referenceTypeId: ExtensionId
     ) : InMetadata
 
-    data class URL(val url: String): LogEntityReference
+    // TODO | Should probably be separate
+    data class URL(val url: String): LogEntityReference {
+        override val extensionId: ExtensionId? = null
+        override val referenceTypeId: ExtensionId? = null
+        override val path: LogEntityPath get() = throw NotImplementedError()
+    }
 }
 
 data class LogEntityPath(val segments: List<String>) {

@@ -2,7 +2,7 @@ package dev.toastbits.lifelog.core.specification.model.reference
 
 import dev.toastbits.lifelog.core.specification.converter.ParseAlertData
 import dev.toastbits.lifelog.core.specification.converter.alert.LogParseAlert
-import dev.toastbits.lifelog.core.specification.database.LogEntityMetadata
+import dev.toastbits.lifelog.core.specification.database.LogDataFile
 import dev.toastbits.lifelog.core.specification.extension.ExtensionId
 import kotlinx.datetime.LocalDate
 
@@ -12,7 +12,7 @@ sealed interface LogEntityReferenceType {
 
     abstract class InMetadata: LogEntityReferenceType {
         abstract fun parseReference(path: List<String>, onAlert: (LogParseAlert) -> Unit): LogEntityReference.InMetadata?
-        abstract fun parseReferenceMetadata(path: List<String>, lines: Sequence<String>, onAlert: (ParseAlertData) -> Unit): LogEntityMetadata?
+        abstract fun parseReferenceMetadata(path: List<String>, lines: Sequence<String>, onAlert: (ParseAlertData) -> Unit): LogDataFile?
     }
 
     abstract class InLog: LogEntityReferenceType {

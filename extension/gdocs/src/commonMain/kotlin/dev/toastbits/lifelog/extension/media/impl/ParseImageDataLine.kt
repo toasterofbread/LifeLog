@@ -11,7 +11,7 @@ import kotlin.io.encoding.ExperimentalEncodingApi
 internal fun parseImageDataLine(
     line: String,
     onAlert: (LogParseAlert) -> Unit
-): Pair<Int, ImageData>? {
+): Pair<UInt, ImageData>? {
     if (!line.startsWith("[image")) {
         return null
     }
@@ -21,7 +21,7 @@ internal fun parseImageDataLine(
         return null
     }
 
-    val imageIndex: Int? = line.substring(6, imageIndexEnd).toIntOrNull()
+    val imageIndex: UInt? = line.substring(6, imageIndexEnd).toUIntOrNull()
     if (imageIndex == null) {
         return null
     }
