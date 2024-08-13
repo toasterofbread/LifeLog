@@ -8,7 +8,10 @@ plugins {
 kotlin {
     sourceSets {
         all {
-            languageSettings.enableLanguageFeature("ExpectActualClasses")
+            languageSettings.apply {
+                enableLanguageFeature("ExpectActualClasses")
+                optIn("kotlinx.cinterop.ExperimentalForeignApi")
+            }
         }
 
         commonTest {

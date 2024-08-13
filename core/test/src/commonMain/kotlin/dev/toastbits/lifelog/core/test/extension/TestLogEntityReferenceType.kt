@@ -9,14 +9,14 @@ import dev.toastbits.lifelog.core.specification.model.reference.LogEntityPath
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReference
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferenceType
 
-object TestLogEntityReferenceType: LogEntityReferenceType {
+object TestLogEntityReferenceType: LogEntityReferenceType.InMetadata() {
     override val id: ExtensionId = "testlogentityreference"
     override val extensionId: ExtensionId get() = TestExtension.id
 
     override fun parseReference(
         path: List<String>,
         onAlert: (LogParseAlert) -> Unit
-    ): LogEntityReference? {
+    ): LogEntityReference.InMetadata? {
         if (path.isEmpty()) {
             onAlert(SpecificationLogParseAlert.UnknownReferenceType(path, 0))
             return null

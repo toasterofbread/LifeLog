@@ -1,16 +1,13 @@
 package dev.toastbits.lifelog.core.git
 
 import kotlinx.coroutines.CoroutineDispatcher
+import okio.FileSystem
 import okio.Path
 
 @Throws(GitWrapperCreationException::class)
-internal actual fun createGitWrapper(directory: Path, ioDispatcher: CoroutineDispatcher): GitWrapper {
-    val binaryPath: String = getGitBinaryPath()
-    try {
-        checkNotNull(runCommand(binaryPath, "--version"))
-    }
-    catch (e: Throwable) {
-        throw GitWrapperCreationException.GitBinaryNotFunctional(binaryPath)
-    }
-    return NativeCommandLineGitWrapper(binaryPath, directory, ioDispatcher)
-}
+internal actual fun createSystemDefaultGitWrapper(
+    directory: Path,
+    ioDispatcher: CoroutineDispatcher,
+    fileSystem: FileSystem
+): GitWrapper =
+    CommandLineGitWrapper(getAndCheckGitBinaryPath(), directory, fileSystem, ioDispatcher)

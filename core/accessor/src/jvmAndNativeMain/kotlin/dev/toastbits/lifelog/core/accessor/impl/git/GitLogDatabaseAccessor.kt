@@ -24,7 +24,7 @@ class GitLogDatabaseAccessor(
     private val filesParser: DatabaseFilesParser,
     private val filesGenerator: DatabaseFilesGenerator,
     private val fileSystem: FileSystem = FileSystem.SYSTEM
-): LocalLogDatabaseAccessor, RemoteLogDatabaseAccessor {
+): LocalLogDatabaseAccessor, RemoteLogDatabaseAccessor, GitWrapper by repository {
     override suspend fun saveDatabaseLocally(database: LogDatabase, onAlert: (GenerateAlertData) -> Unit) {
         val fileStructure: DatabaseFileStructure = filesGenerator.generateDatabaseFileStructure(database, onAlert)
 

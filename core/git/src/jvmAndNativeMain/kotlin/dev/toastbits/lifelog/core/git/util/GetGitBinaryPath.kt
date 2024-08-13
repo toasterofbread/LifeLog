@@ -1,19 +1,16 @@
-package dev.toastbits.lifelog.core.git
+package dev.toastbits.lifelog.core.git.util
 
-import kotlinx.cinterop.ExperimentalForeignApi
-import kotlinx.cinterop.toKString
+import dev.toastbits.lifelog.core.git.GitWrapperCreationException
 import okio.FileSystem
 import okio.Path
 import okio.Path.Companion.toPath
-import platform.posix.getenv
+import okio.SYSTEM
 
-@OptIn(ExperimentalForeignApi::class)
 fun getGitBinaryPath(): String {
-    getenv(GIT_BINARY_PATH_OVERRIDE_ENV_VAR)?.toKString()?.also { return it }
+    getEnv(GIT_BINARY_PATH_OVERRIDE_ENV_VAR)?.also { return it }
 
     val path: String =
-        getenv("PATH")?.toKString()
-            ?: throw GitWrapperCreationException.EnvironmentPathNotFound()
+        getEnv("PATH") ?: throw GitWrapperCreationException.EnvironmentPathNotFound()
 
     for (location in path.split(':')) {
         for (fileName in getGitBinaryFileNames()) {

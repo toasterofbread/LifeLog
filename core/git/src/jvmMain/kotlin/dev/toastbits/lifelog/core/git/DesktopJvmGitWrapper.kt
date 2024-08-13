@@ -56,7 +56,7 @@ class DesktopJvmGitWrapper(
     }
 
     override suspend fun fetch(remote: String?): Unit = withGit { git ->
-        git.fetch().setRemote(remote).call()
+        git.fetch().setCredentialsProvider(credentials).setRemote(remote).call()
     }
 
     override suspend fun pull(remote: String?, branch: String?): Unit = withGit { git ->

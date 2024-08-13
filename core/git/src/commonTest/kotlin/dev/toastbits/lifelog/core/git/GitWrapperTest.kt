@@ -8,6 +8,7 @@ import assertk.assertions.isFalse
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isTrue
 import dev.toastbits.lifelog.core.test.FileSystemTest
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -18,16 +19,18 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertFails
 
-class GitWrapperTest: FileSystemTest {
+abstract class GitWrapperTest: FileSystemTest {
     private lateinit var git: GitWrapper
     private lateinit var directory: Path
 
     override val fileSystem: FileSystem = FileSystem.SYSTEM
 
+    abstract fun createGitWrapper(directory: Path, dispatcher: CoroutineDispatcher): GitWrapper
+
     @BeforeTest
     fun setUp() {
         directory = getEmptyTempDir("lifelogtest")
-        git = GitWrapper.create(directory, UnconfinedTestDispatcher())
+        git = createGitWrapper(directory, UnconfinedTestDispatcher())
     }
 
     private inline fun checkGitInitialisation(initialise: () -> Unit) {

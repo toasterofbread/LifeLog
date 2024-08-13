@@ -6,28 +6,34 @@ import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinHierarchyBuilder
+import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 
 fun KotlinMultiplatformExtension.configureAllKmpTargets() {
     configureKmpTargets(*KmpTarget.values())
 }
 
-fun KotlinMultiplatformExtension.configureKmpTargets(vararg targets: KmpTarget) {
+fun KotlinMultiplatformExtension.configureKmpTargets(
+    vararg targets: KmpTarget,
+    onConfigure: (KotlinTarget) -> Unit = {}
+) {
     for (target in targets) {
         when (target) {
-            KmpTarget.JVM -> jvm()
+            KmpTarget.JVM -> onConfigure(jvm())
             KmpTarget.ANDROID -> {
                 androidTarget {
                     publishLibraryVariants("release")
                     compilerOptions {
                         jvmTarget = JvmTarget.JVM_1_8
                     }
+
+                    onConfigure(this)
                 }
             }
             KmpTarget.NATIVE -> {
-                linuxX64()
-                linuxArm64()
-                mingwX64()
+                onConfigure(linuxX64())
+                onConfigure(linuxArm64())
+                onConfigure(mingwX64())
             }
             KmpTarget.WASMJS -> {
                 wasmJs {
@@ -38,6 +44,8 @@ fun KotlinMultiplatformExtension.configureKmpTargets(vararg targets: KmpTarget) 
                             }
                         }
                     }
+
+                    onConfigure(this)
                 }
             }
         }

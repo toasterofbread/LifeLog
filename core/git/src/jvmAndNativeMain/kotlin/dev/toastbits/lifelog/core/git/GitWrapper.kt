@@ -1,7 +1,13 @@
 package dev.toastbits.lifelog.core.git
 
+import dev.toastbits.lifelog.core.git.util.getGitBinaryPath
+import dev.toastbits.lifelog.core.git.util.runCommand
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import okio.FileSystem
 import okio.Path
+import okio.SYSTEM
 
 interface GitWrapper {
     val directory: Path
@@ -27,13 +33,38 @@ interface GitWrapper {
 
     companion object {
         @Throws(GitWrapperCreationException::class)
-        fun create(directory: Path, ioDispatcher: CoroutineDispatcher) =
-            createGitWrapper(directory, ioDispatcher)
+        fun createSystemDefault(
+            directory: Path,
+            ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+            fileSystem: FileSystem = FileSystem.SYSTEM
+        ): GitWrapper =
+            createSystemDefaultGitWrapper(directory, ioDispatcher, fileSystem)
+
+        @Throws(GitWrapperCreationException::class)
+        fun createCommandLine(
+            directory: Path,
+            ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+            fileSystem: FileSystem = FileSystem.SYSTEM
+        ): CommandLineGitWrapper =
+            CommandLineGitWrapper(getAndCheckGitBinaryPath(), directory, fileSystem, ioDispatcher)
     }
 }
 
-fun GitWrapper.resolve(path: Path): Path =
-    directory.resolve(path)
+@Throws(GitWrapperCreationException::class)
+internal fun getAndCheckGitBinaryPath(): String {
+    val binaryPath: String = getGitBinaryPath()
+    try {
+        checkNotNull(runCommand(binaryPath, "--version"))
+    }
+    catch (e: Throwable) {
+        throw GitWrapperCreationException.GitBinaryNotFunctional(binaryPath)
+    }
+    return binaryPath
+}
 
 @Throws(GitWrapperCreationException::class)
-internal expect fun createGitWrapper(directory: Path, ioDispatcher: CoroutineDispatcher): GitWrapper
+internal expect fun createSystemDefaultGitWrapper(
+    directory: Path,
+    ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    fileSystem: FileSystem = FileSystem.SYSTEM
+): GitWrapper

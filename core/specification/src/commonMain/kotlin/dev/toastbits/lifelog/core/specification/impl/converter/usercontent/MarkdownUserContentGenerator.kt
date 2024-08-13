@@ -2,6 +2,7 @@ package dev.toastbits.lifelog.core.specification.impl.converter.usercontent
 
 import dev.toastbits.lifelog.core.specification.converter.alert.LogGenerateAlert
 import dev.toastbits.lifelog.core.specification.model.UserContent
+import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReference
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferenceGenerator
 import dev.toastbits.lifelog.core.specification.model.sorted
 
@@ -66,14 +67,19 @@ class MarkdownUserContentGenerator: UserContentGenerator {
                 UserContent.Modifier.CodeBlock -> "```\n"
                 UserContent.Modifier.Italic -> "*"
                 UserContent.Modifier.Strikethrough -> "~~"
-                is UserContent.Modifier.Reference -> {
-                    referenceGenerator.generateReferencePath(reference, onAlert = { onAlert(it, currentLine) }).toString()
-                }
+                is UserContent.Modifier.Reference -> "["
             }
 
         private fun UserContent.Modifier.getEnd(): String =
             when (this) {
                 UserContent.Modifier.CodeBlock -> "\n```"
+                is UserContent.Modifier.Reference -> {
+                    val referenceLink: String =
+                        if (reference is LogEntityReference.URL) reference.url
+                        else referenceGenerator.generateReferencePath(reference, onAlert = { onAlert(it, currentLine) }).toString()
+
+                    "]($referenceLink)"
+                }
                 else -> getStart()
             }
     }

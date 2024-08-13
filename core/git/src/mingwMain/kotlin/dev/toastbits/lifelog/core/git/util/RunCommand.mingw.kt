@@ -1,4 +1,4 @@
-package dev.toastbits.lifelog.core.git
+package dev.toastbits.lifelog.core.git.util
 
 import kotlinx.cinterop.ByteVarOf
 import kotlinx.cinterop.CPointer
@@ -41,4 +41,12 @@ actual fun runCommand(program: String, vararg args: String?): String? {
     }
 
     return output
+}
+
+actual fun runCommandWithInput(
+    input: String,
+    program: String,
+    vararg args: String?
+): String? {
+    TODO("Not yet implemented")
 }

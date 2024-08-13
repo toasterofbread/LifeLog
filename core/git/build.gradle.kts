@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import util.KmpTarget
 import util.configureKmpTargets
 
@@ -12,7 +13,17 @@ kotlin {
     configureKmpTargets(
         KmpTarget.JVM,
         KmpTarget.NATIVE
-    )
+    ) { target ->
+        if (target !is KotlinNativeTarget) {
+            return@configureKmpTargets
+        }
+
+        target.compilations.getByName("main") {
+            cinterops {
+                val popen2 by creating
+            }
+        }
+    }
 
     sourceSets {
         val commonMain by getting {

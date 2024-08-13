@@ -8,6 +8,7 @@ import dev.toastbits.lifelog.core.specification.impl.converter.usercontent.UserC
 import dev.toastbits.lifelog.core.specification.model.UserContent
 import dev.toastbits.lifelog.core.specification.model.entity.LogEntity
 import dev.toastbits.lifelog.core.specification.model.entity.date.LogDate
+import dev.toastbits.lifelog.core.specification.model.entity.event.LogComment
 import dev.toastbits.lifelog.core.specification.model.entity.event.LogEvent
 import dev.toastbits.lifelog.core.specification.model.entity.event.LogEventType
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferenceGenerator
@@ -32,7 +33,7 @@ internal class LogFileGenerator(
     private fun UserContent.toText(): String =
         userContentGenerator.generateUserContent(this, referenceGeneratorProvider(currentDate!!.date), ::onAlert)
 
-    private fun line(content: String, entity: LogEntity? = null) {
+    private fun addLine(content: String, entity: LogEntity? = null) {
         check(!content.contains('\n'))
 
         entity?.aboveComment?.also { aboveComment ->
@@ -62,7 +63,12 @@ internal class LogFileGenerator(
 
             val events: List<LogEvent> = days[date]!!
             for (event in events) {
-                onEvent(event)
+                if (event is LogComment) {
+                    onComment(event)
+                }
+                else {
+                    onEvent(event)
+                }
             }
         }
 
@@ -89,8 +95,36 @@ internal class LogFileGenerator(
                 }
             }
 
-        line(dateLine, date)
-        line("")
+        addLine(dateLine, date)
+        addLine("")
+    }
+
+    private fun onComment(comment: LogComment) {
+        val referenceGenerator: LogEntityReferenceGenerator = referenceGeneratorProvider(currentDate!!.date)
+        val commentTextLines: List<String> = comment.content?.let { userContentGenerator.generateUserContent(it, referenceGenerator, ::onAlert) }.orEmpty().split('\n')
+
+        // Single line comment
+        if (commentTextLines.size <= 1) {
+            addLine(
+                buildString {
+                    append(strings.commentPrefix)
+                    if (commentTextLines.isNotEmpty()) {
+                        append(commentTextLines.single())
+                    }
+                },
+                comment
+            )
+        }
+        // Block comment
+        else {
+            addLine(strings.blockCommentStart + commentTextLines.first(), comment)
+            for (lineIndex in 1 until commentTextLines.size - 1) {
+                addLine(commentTextLines[lineIndex])
+            }
+            addLine(commentTextLines.last() + strings.blockCommentEnd)
+        }
+
+        addLine("")
     }
 
     private fun onEvent(event: LogEvent) {
@@ -100,7 +134,7 @@ internal class LogFileGenerator(
         val referenceGenerator: LogEntityReferenceGenerator = referenceGeneratorProvider(currentDate!!.date)
 
         val eventText: LogEventType.EventText = eventType.generateEvent(event, referenceGenerator, strings, ::onAlert)
-        line(
+        addLine(
             buildString {
                 append(eventText.prefix)
                 append(eventText.body)
@@ -118,12 +152,14 @@ internal class LogFileGenerator(
         )
 
         event.content?.also { content ->
-            line("")
-            val contentText: String = userContentGenerator.generateUserContent(content, referenceGenerator, ::onAlert)
-            line(contentText.prependIndent(strings.contentIndentation))
-            line("")
-            line("}")
+            addLine("")
+            val contentTextLines: List<String> = userContentGenerator.generateUserContent(content, referenceGenerator, ::onAlert).split('\n')
+            for (line in contentTextLines) {
+                addLine(strings.contentIndentation + line)
+            }
+            addLine("")
+            addLine("}")
         }
-        line("")
+        addLine("")
     }
 }

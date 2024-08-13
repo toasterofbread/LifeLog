@@ -1,9 +1,29 @@
 package dev.toastbits.lifelog.core.git
 
+import dev.toastbits.lifelog.core.git.util.runCommand
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.withContext
+import okio.FileSystem
 import okio.Path
 
-abstract class CommandLineGitWrapper: GitWrapper {
-    abstract suspend fun runGitCommand(vararg args: String?): String
+class CommandLineGitWrapper(
+    private val gitBinaryPath: String,
+    override val directory: Path,
+    private val fileSystem: FileSystem,
+    private val ioDispatcher: CoroutineDispatcher
+): GitWrapper {
+    private suspend fun runGitCommandInDirectory(vararg args: String?): String = withContext(ioDispatcher) {
+        if (!fileSystem.exists(directory)) {
+            fileSystem.createDirectories(directory, mustCreate = true)
+        }
+
+        val finalArgs: Array<String> = arrayOf("-C", directory.toString()) + args.filterNotNull()
+
+        val output: String? = runCommand(gitBinaryPath, *finalArgs)
+        checkNotNull(output) { "Running $gitBinaryPath with ${args.toList()} failed" }
+
+        return@withContext output
+    }
 
     private var credentials: GitWrapper.Credentials? = null
     private fun addCredentialsToUrl(url: String): String {
@@ -21,57 +41,57 @@ abstract class CommandLineGitWrapper: GitWrapper {
     }
 
     override suspend fun init(initialBranch: String) {
-        runGitCommand("init", "--initial-branch", initialBranch)
+        runGitCommandInDirectory("init", "--initial-branch", initialBranch)
     }
 
     override suspend fun clone(url: String) {
-        runGitCommand("clone", addCredentialsToUrl(url), ".")
+        runGitCommandInDirectory("clone", addCredentialsToUrl(url), ".")
     }
 
     override suspend fun add(vararg filePatterns: String) {
-        runGitCommand("add", *filePatterns)
+        runGitCommandInDirectory("add", *filePatterns)
     }
 
     override suspend fun commit(message: String) {
-        runGitCommand("commit", "-m", message)
+        runGitCommandInDirectory("commit", "-m", message)
     }
 
     override suspend fun checkout(branch: String, createNew: Boolean) {
         if (createNew) {
-            runGitCommand("checkout", "-b", branch)
+            runGitCommandInDirectory("checkout", "-b", branch)
         }
         else {
-            runGitCommand("checkout", branch)
+            runGitCommandInDirectory("checkout", branch)
         }
     }
 
     override suspend fun checkoutOrphan(branch: String) {
-        runGitCommand("checkout", "--orphan", branch)
+        runGitCommandInDirectory("checkout", "--orphan", branch)
     }
 
     override suspend fun fetch(remote: String?) {
         if (remote == null) {
-            runGitCommand("fetch", "--all")
+            runGitCommandInDirectory("fetch", "--all")
         }
         else {
-            runGitCommand("fetch")
+            runGitCommandInDirectory("fetch")
         }
     }
 
     override suspend fun pull(remote: String?, branch: String?) {
-        runGitCommand("pull", remote, branch)
+        runGitCommandInDirectory("pull", remote, branch)
     }
 
     override suspend fun push(remote: String?, branch: String?) {
-        runGitCommand("push", remote, branch)
+        runGitCommandInDirectory("push", remote, branch)
     }
 
     override suspend fun remoteAdd(name: String, url: String) {
-        runGitCommand("remote", "add", name, addCredentialsToUrl(url))
+        runGitCommandInDirectory("remote", "add", name, addCredentialsToUrl(url))
     }
 
     override suspend fun getUncommittedFiles(): List<Path> =
-        runGitCommand("status", "--porcelain", "--untracked-files", "--short")
+        runGitCommandInDirectory("status", "--porcelain", "--untracked-files", "--short")
             .split("\n")
             .filter { it.isNotBlank() }
             .mapNotNull { line ->
@@ -83,7 +103,7 @@ abstract class CommandLineGitWrapper: GitWrapper {
 
     override suspend fun doesBranchExist(branch: String): Boolean {
         val branches: List<String> =
-            runGitCommand("branch", "--all", "--format='%(refname:short)'")
+            runGitCommandInDirectory("branch", "--all", "--format='%(refname:short)'")
                 .split("\n")
                 .filter { it.isNotBlank() }
                 .map { it.trim('\'') }
