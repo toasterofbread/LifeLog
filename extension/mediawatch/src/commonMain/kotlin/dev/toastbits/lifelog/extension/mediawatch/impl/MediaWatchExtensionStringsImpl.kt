@@ -1,20 +1,20 @@
 package dev.toastbits.lifelog.extension.mediawatch.impl
 
 import dev.toastbits.lifelog.core.specification.converter.LogFileConverterStrings
+import dev.toastbits.lifelog.core.specification.converter.alert.LogParseAlert
 import dev.toastbits.lifelog.core.specification.converter.parseOrNull
 import dev.toastbits.lifelog.core.specification.extension.ExtensionId
 import dev.toastbits.lifelog.extension.mediawatch.MediaWatchExtensionStrings
+import dev.toastbits.lifelog.extension.mediawatch.alert.MediaWatchLogParseAlert
 import dev.toastbits.lifelog.extension.mediawatch.impl.model.MediaDurationFormat
 import dev.toastbits.lifelog.extension.mediawatch.impl.model.customMediaDurationFormat
 import dev.toastbits.lifelog.extension.mediawatch.impl.model.durationFormatOf
 import dev.toastbits.lifelog.extension.mediawatch.impl.model.entity.event.MediaRangeValue
 import dev.toastbits.lifelog.extension.mediawatch.impl.model.entity.event.mediaRangeValue
-import dev.toastbits.lifelog.extension.mediawatch.impl.model.entity.event.parseMediaRangeString
 import dev.toastbits.lifelog.extension.mediawatch.impl.model.parseOrNull
 import dev.toastbits.lifelog.extension.mediawatch.model.entity.event.BookMediaConsumeEvent
 import dev.toastbits.lifelog.extension.mediawatch.model.entity.event.GameMediaConsumeEvent
 import dev.toastbits.lifelog.extension.mediawatch.model.entity.event.MovieOrShowMediaConsumeEvent
-import dev.toastbits.lifelog.extension.mediawatch.model.reference.MediaReference
 import dev.toastbits.lifelog.extension.mediawatch.util.MediaEntityType
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
@@ -31,8 +31,15 @@ class MediaWatchExtensionStringsImpl(
     override val unsurePrefixes: List<String> = listOf("about ", "at least "),
 
     override val mediaRangeSplitters: List<String> = listOf("~", "-", "〰", "〜", "&", "and"),
-    override val mediaRangeFirstPrefixes: List<String> = listOf("up to ", "first "),
+    override val mediaRangeSplitterDefaultTwo: String = " and ",
+    override val mediaRangeSplitterDefaultMany: String = "~",
+    override val mediaRangeStart: List<String> = listOf("start"),
+    override val mediaRangeEnd: List<String> = listOf("end"),
+
+    override val mediaRangeFirstPrefixes: List<String> = listOf("first ", "up to "),
     override val mediaPreferredDurationFormat: MediaDurationFormat = durationFormatOf(LocalTime.Formats.ISO),
+    override val mediaDurationRangeFromPrefixes: List<String> = listOf("from ", "starting ", "starting at "),
+    override val mediaDurationRangeToPrefixes: List<String> = listOf("up to ", "to "),
     override val mediaDurationFormats: List<MediaDurationFormat> = listOf(
         durationFormatOf(LocalTime.Formats.ISO),
         durationFormatOf {
@@ -63,12 +70,12 @@ class MediaWatchExtensionStringsImpl(
     ),
 
     override val movieOrShowEpisodeRangePrefixes: List<String> = listOf("ep ", "eps ", "episode ", "episodes "),
-    override val movieOrShowDurationRangeFromPrefixes: List<String> = listOf("from ", "starting ", "starting at "),
+    override val movieOrShowLastEpisodesPrefixes: List<String> = listOf("last "),
+    override val movieOrShowEpisodeCountSuffixes: List<String> = listOf(" episodes"),
 
-    override val bookPageRangePrefixes: List<String> = listOf("pg ", "pgs ", "page ", "pages "),
-
-    override val bookReadVolumeSuffixes: List<String> = listOf("巻"),
-    override val bookReadVolumePrefixes: List<String> = listOf("volume ")
+    override val bookReadVolumePrefixes: List<String> = listOf("book ", "books ", "volume ", "volumes "),
+    override val bookReadChapterPrefixes: List<String> = listOf("chapter ", "chapters"),
+    override val bookReadPagePrefixes: List<String> = listOf("page ", "pages ", "pg ", "pgs ")
 ): MediaWatchExtensionStrings {
     override fun getMediaEntityTypeIterationSuffixes(mediaEntityType: MediaEntityType): List<String> =
         when (mediaEntityType) {
@@ -88,70 +95,177 @@ class MediaWatchExtensionStringsImpl(
 
     override fun parseLowercaseMovieOrShowWatchedRange(text: String, strings: LogFileConverterStrings): MovieOrShowMediaConsumeEvent.WatchedRange? {
         when (text) {
-            "start" -> return MovieOrShowMediaConsumeEvent.WatchedRange.Episodes(startEpisode = 1.mediaRangeValue, endEpisode = null)
-            "end" -> return MovieOrShowMediaConsumeEvent.WatchedRange.Episodes(startEpisode = null, endEpisode = (-1).mediaRangeValue)
-            "完" -> return MovieOrShowMediaConsumeEvent.WatchedRange.Episodes(startEpisode = null, endEpisode = (-1).mediaRangeValue)
+            "start" -> return MovieOrShowMediaConsumeEvent.WatchedRange.Start
+            "end",
+            "完" -> return MovieOrShowMediaConsumeEvent.WatchedRange.End
             "first half",
-            "half" -> return MovieOrShowMediaConsumeEvent.WatchedRange.Proportion(proportion = 0.5f, offset = 0f)
-            "second half" -> return MovieOrShowMediaConsumeEvent.WatchedRange.Proportion(proportion = 0.5f, offset = 0.5f)
-            "first episode" -> return MovieOrShowMediaConsumeEvent.WatchedRange.Episodes(startEpisode = 1.mediaRangeValue, endEpisode = 1.mediaRangeValue)
+            "half" -> return MovieOrShowMediaConsumeEvent.WatchedRange.Proportion.FIRST_HALF
+            "second half" -> return MovieOrShowMediaConsumeEvent.WatchedRange.Proportion.SECOND_HALF
+            "first episode" -> return MovieOrShowMediaConsumeEvent.WatchedRange.Episodes(startEpisode = 1U.mediaRangeValue, endEpisode = 1U.mediaRangeValue)
         }
 
-        if (text.endsWith(" episodes")) {
-            var text: String = text.dropLast(9).trimEnd()
-            var first: Boolean = true
-
-            if (text.startsWith("first ")) {
-                text = text.drop(6).trimStart()
-            }
-            else if (text.startsWith("last ")) {
-                text = text.drop(5).trimStart()
-                first = false
-            }
-
-            val singleValue: MediaRangeValue? = MediaRangeValue.fromString(text)
-            if (singleValue != null) {
-                if (first) {
-                    return MovieOrShowMediaConsumeEvent.WatchedRange.Episodes(startEpisode = 1.mediaRangeValue, endEpisode = singleValue)
+        var text: String =
+            movieOrShowEpisodeCountSuffixes.firstNotNullOfOrNull { prefix ->
+                if (text.endsWith(prefix)) {
+                    return@firstNotNullOfOrNull text.dropLast(prefix.length).trimEnd()
                 }
-                else {
-                    return MovieOrShowMediaConsumeEvent.WatchedRange.Episodes(startEpisode = -singleValue, endEpisode = (-1).mediaRangeValue)
+                return@firstNotNullOfOrNull null
+            } ?: return null
+
+        var first: Boolean = true
+
+        if (text.startsWith("first ")) {
+            text = text.drop(6).trimStart()
+        }
+        else {
+            for (prefix in movieOrShowLastEpisodesPrefixes) {
+                if (text.startsWith(prefix)) {
+                    text = text.drop(prefix.length).trimStart()
+                    first = false
                 }
+            }
+        }
+
+        val singleValue: MediaRangeValue? = MediaRangeValue.fromString(text)
+        if (singleValue != null) {
+            if (first) {
+                return MovieOrShowMediaConsumeEvent.WatchedRange.FirstEpisodes(singleValue)
+            }
+            else {
+                return MovieOrShowMediaConsumeEvent.WatchedRange.LastEpisodes(singleValue)
             }
         }
 
         return null
     }
 
-    override fun parseLowercaseBookReadRange(text: String, strings: LogFileConverterStrings): BookMediaConsumeEvent.ReadRange? {
-        when (text) {
-            "start" -> return BookMediaConsumeEvent.ReadRange.Start
-            "end" -> return BookMediaConsumeEvent.ReadRange.End
+    override fun parseLowercaseBookReadRange(text: String, strings: LogFileConverterStrings, onAlert: (LogParseAlert) -> Unit): BookMediaConsumeEvent.ReadRange? {
+        if (mediaRangeStart.contains(text)) {
+            return BookMediaConsumeEvent.ReadRange(start = BookMediaConsumeEvent.ReadPoint.Start, end = null, unsure = false)
+        }
+        if (mediaRangeEnd.contains(text)) {
+            return BookMediaConsumeEvent.ReadRange(start = null, end = BookMediaConsumeEvent.ReadPoint.End, unsure = false)
         }
 
-        if (text.startsWith("book ") || text.startsWith("books ")) {
-            val (lhs: MediaRangeValue?, rhs: MediaRangeValue?) = parseMediaRangeString(text.split(' ', limit = 2).first().trimStart(), this, {})
-            return BookMediaConsumeEvent.ReadRange.Volumes(startVolume = lhs, endVolume = rhs)
-        }
+        var upTo: Boolean = false
+        var unsure: Boolean = false
+        var text: String = text
 
-        if (text.startsWith("chapter ") || text.startsWith("chapters ")) {
-            val (lhs: MediaRangeValue?, rhs: MediaRangeValue?) = parseMediaRangeString(text.split(' ', limit = 2).first().trimStart(), this, {})
-            return BookMediaConsumeEvent.ReadRange.Volumes(
-                startVolume = null,
-                endVolume = null,
-                startChapter = lhs,
-                endChapter = rhs
-            )
-        }
-
-        if (text.startsWith("first ") && text.endsWith(" pages")) {
-            val rangeValue: MediaRangeValue? = MediaRangeValue.fromString(text.substring(6, text.length - 7).trim())
-            if (rangeValue != null) {
-                return BookMediaConsumeEvent.ReadRange.Pages(startPage = 1.mediaRangeValue, endPage = rangeValue)
+        for (prefix in unsurePrefixes) {
+            if (text.startsWith(prefix)) {
+                unsure = true
+                text = text.drop(prefix.length).trimStart()
             }
         }
 
-        return null
+        for (prefix in mediaRangeFirstPrefixes) {
+            if (text.startsWith(prefix)) {
+                upTo = true
+                text = text.drop(prefix.length).trimStart()
+            }
+        }
+
+        val (splitter: String?, splitterIndex: Int?) =
+            mediaRangeSplitters.firstNotNullOfOrNull { splitter ->
+                val index: Int = text.indexOf(splitter)
+                if (index == -1) {
+                    return@firstNotNullOfOrNull null
+                }
+                return@firstNotNullOfOrNull splitter to index
+            } ?: (null to null)
+
+        val lhs: String
+        val rhs: String?
+
+        if (splitter == null) {
+            lhs = text
+            rhs = null
+        }
+        else {
+            lhs = text.substring(0, splitterIndex!!)
+            rhs = text.substring(splitterIndex + splitter.length)
+        }
+
+        val start: BookMediaConsumeEvent.ReadPoint? = parseBookReadPointString(lhs, onAlert)
+        val end: BookMediaConsumeEvent.ReadPoint? = rhs?.let { parseBookReadPointString(it, onAlert) }
+
+        if (upTo) {
+            if (end != null) {
+                return null
+            }
+
+            return BookMediaConsumeEvent.ReadRange(start = null, end = start, unsure = unsure)
+        }
+
+        return BookMediaConsumeEvent.ReadRange(start = start, end = end, unsure = unsure)
+    }
+
+    private fun parseBookReadPointString(_text: String, onAlert: (LogParseAlert) -> Unit): BookMediaConsumeEvent.ReadPoint? {
+        var text: String = _text
+
+        var volume: UInt? = null
+        var subpoint: BookMediaConsumeEvent.ReadPoint.Position.Subpoint? = null
+
+        for (prefix in bookReadVolumePrefixes) {
+            if (text.startsWith(prefix)) {
+                val value: Pair<UInt?, String> = text.drop(prefix.length).trimStart().extractBookValue() ?: break
+                volume = value.first
+                text = value.second
+                break
+            }
+        }
+
+        for (prefix in bookReadChapterPrefixes) {
+            if (text.startsWith(prefix)) {
+                val value: Pair<UInt?, String> = text.drop(prefix.length).trimStart().extractBookValue() ?: break
+                subpoint = value.first?.let { BookMediaConsumeEvent.ReadPoint.Position.Subpoint.Chapter(it) }
+                text = value.second
+                break
+            }
+        }
+
+        if (subpoint == null) {
+            for (prefix in bookReadPagePrefixes) {
+                if (text.startsWith(prefix)) {
+                    val value: Pair<UInt?, String> = text.drop(prefix.length).trimStart().extractBookValue() ?: break
+                    subpoint = value.first?.let { BookMediaConsumeEvent.ReadPoint.Position.Subpoint.Page(it) }
+                    break
+                }
+            }
+
+            if (subpoint == null) {
+                subpoint = text.toUIntOrNull()?.let { BookMediaConsumeEvent.ReadPoint.Position.Subpoint.Page(it) }
+            }
+        }
+
+        if (volume == null && subpoint == null) {
+            if (bookReadPagePrefixes.any { it.trim() == text }) {
+                subpoint = BookMediaConsumeEvent.ReadPoint.Position.Subpoint.Page(1U)
+            }
+            else if (bookReadChapterPrefixes.any { it.trim() == text }) {
+                subpoint = BookMediaConsumeEvent.ReadPoint.Position.Subpoint.Chapter(1U)
+            }
+            else if (bookReadVolumePrefixes.any { it.trim() == text }) {
+                volume = 1U
+            }
+            else {
+                onAlert(MediaWatchLogParseAlert.UnknownBookReadPoint(extensionId, text, _text))
+            }
+        }
+
+        return BookMediaConsumeEvent.ReadPoint.Position(volume, subpoint)
+    }
+
+    private fun String.extractBookValue(): Pair<UInt?, String>? {
+        toUIntOrNull()?.also {
+            return it to ""
+        }
+
+        val valueEnd: Int = indexOf(' ')
+        if (valueEnd == -1) {
+            return null
+        }
+        return substring(0, valueEnd).toUIntOrNull() to substring(valueEnd).trimStart()
     }
 
     override fun parseLowercaseGamePlayedRange(text: String, strings: LogFileConverterStrings): GameMediaConsumeEvent.PlayedRange? {
@@ -165,9 +279,11 @@ class MediaWatchExtensionStringsImpl(
         var upTo: Boolean = false
         var unsure: Boolean = false
 
-        if (text.startsWith("up to ")) {
-            upTo = true
-            text = text.drop(6).trimStart()
+        for (prefix in mediaDurationRangeToPrefixes) {
+            if (text.startsWith(prefix)) {
+                upTo = true
+                text = text.drop(prefix.length).trimStart()
+            }
         }
 
         for (prefix in unsurePrefixes) {
@@ -206,4 +322,16 @@ class MediaWatchExtensionStringsImpl(
 
         return null
     }
+
+    override fun movieOrShowProportionWatchRangeToText(range: MovieOrShowMediaConsumeEvent.WatchedRange.Proportion): String =
+        when (range) {
+            MovieOrShowMediaConsumeEvent.WatchedRange.Proportion.FIRST_HALF -> "first half"
+            MovieOrShowMediaConsumeEvent.WatchedRange.Proportion.SECOND_HALF -> "second half"
+        }
+
+    override fun mediaRangeValueToText(rangeValue: MediaRangeValue): String =
+        when (rangeValue) {
+            is MediaRangeValue.Discrete -> rangeValue.value.toString()
+            is MediaRangeValue.Continuous -> rangeValue.value.toString()
+        }
 }

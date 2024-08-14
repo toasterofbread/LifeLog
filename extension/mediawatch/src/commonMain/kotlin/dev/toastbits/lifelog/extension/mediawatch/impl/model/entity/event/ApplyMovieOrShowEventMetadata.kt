@@ -83,7 +83,7 @@ private fun applyEventWatchedRangeString(
         return true
     }
 
-    for (prefix in strings.movieOrShowDurationRangeFromPrefixes) {
+    for (prefix in strings.mediaDurationRangeFromPrefixes) {
         if (text.startsWith(prefix)) {
             val durationRangeText: String = text.drop(prefix.length).trimStart()
             applyEventFromDurationRangeString(durationRangeText, event, strings, onAlert)

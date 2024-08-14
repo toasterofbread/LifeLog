@@ -7,5 +7,5 @@ import dev.toastbits.lifelog.extension.mediawatch.model.entity.event.BookMediaCo
 sealed interface MediaWatchLogParseAlert: LogParseAlert {
     data class UnknownIterationSpecifier(override val alertExtensionId: ExtensionId, val text: String): MediaWatchLogParseAlert, LogParseAlert.Warning
     data class UnknownDurationFormat(override val alertExtensionId: ExtensionId, val text: String): MediaWatchLogParseAlert, LogParseAlert.Warning
-    data class IncompatibleBookReadRanges(override val alertExtensionId: ExtensionId?, val initial: BookMediaConsumeEvent.ReadRange, val new: BookMediaConsumeEvent.ReadRange): MediaWatchLogParseAlert, LogParseAlert.Warning
+    data class UnknownBookReadPoint(override val alertExtensionId: ExtensionId?, val text: String, val originalText: String): MediaWatchLogParseAlert, LogParseAlert.Warning
 }

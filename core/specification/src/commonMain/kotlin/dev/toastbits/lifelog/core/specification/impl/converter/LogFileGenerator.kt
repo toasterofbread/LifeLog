@@ -43,7 +43,7 @@ internal class LogFileGenerator(
 
         val lineContent: String =
             entity?.inlineComment?.let { inlineComment ->
-                strings.commentPrefix + inlineComment.toText()
+                content + ' ' + strings.commentPrefix + inlineComment.toText()
             } ?: content
 
         lines.add(lineContent)

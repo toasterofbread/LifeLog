@@ -31,46 +31,9 @@ private fun applyEventReadRangeString(
     logStrings: LogFileConverterStrings,
     onAlert: (LogParseAlert) -> Unit
 ): Boolean {
-    for (prefix in strings.bookReadVolumePrefixes) {
-        if (text.startsWith(prefix)) {
-            val (lhs, rhs) = parseMediaRangeString(text.drop(prefix.length).trimStart(), strings, onAlert)
-            event.readRange = BookMediaConsumeEvent.ReadRange.Volumes(lhs, rhs)
-            return true
-        }
-    }
-
-    for (suffix in strings.bookReadVolumeSuffixes) {
-        if (text.endsWith(suffix)) {
-            val (lhs, rhs) = parseMediaRangeString(text.dropLast(suffix.length).trimEnd(), strings, onAlert)
-            event.readRange = BookMediaConsumeEvent.ReadRange.Volumes(lhs, rhs)
-            return true
-        }
-    }
-
-    for (prefix in strings.bookPageRangePrefixes) {
-        if (text.startsWith(prefix)) {
-            val (lhs, rhs) = parseMediaRangeString(text.drop(prefix.length).trimStart(), strings, onAlert)
-            event.readRange = BookMediaConsumeEvent.ReadRange.Pages(lhs, rhs)
-            return true
-        }
-    }
-
-    val range: BookMediaConsumeEvent.ReadRange? = strings.parseLowercaseBookReadRange(text, logStrings)
+    val range: BookMediaConsumeEvent.ReadRange? = strings.parseLowercaseBookReadRange(text, logStrings, onAlert)
     if (range != null) {
-        val eventReadRange = event.readRange
-        if (eventReadRange != null) {
-            val combined: BookMediaConsumeEvent.ReadRange? = eventReadRange.combineWith(range)
-            if (combined != null) {
-                event.readRange = combined
-            }
-            else {
-                onAlert(MediaWatchLogParseAlert.IncompatibleBookReadRanges(strings.extensionId, eventReadRange, range))
-            }
-        }
-        else {
-            event.readRange = range
-        }
-
+        event.readRange = range
         return true
     }
 

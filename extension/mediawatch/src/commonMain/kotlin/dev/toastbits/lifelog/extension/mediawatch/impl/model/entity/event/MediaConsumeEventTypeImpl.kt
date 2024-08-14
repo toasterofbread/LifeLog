@@ -39,13 +39,14 @@ class MediaConsumeEventTypeImpl(
         onAlert: (LogParseAlert) -> Unit
     ): MediaConsumeEvent {
         val entityType: MediaEntityType = getPrefixIndexMediaEntityType(prefixIndex)
-        val mediaReference: MediaReference = entityType.createReference(body.trim(), strings.extensionId, strings.mediaReferenceTypeId)
+        val mediaReference: MediaReference = entityType.createReference(body.trim(), this.strings.extensionId, this.strings.mediaReferenceTypeId)
 
         val event: MediaConsumeEvent = entityType.createConsumeEvent(mediaReference)
         event.content = content
 
         if (metadata != null) {
-            applyEventMetadata(metadata, event, strings, logStrings, onAlert)
+            applyEventMetadata(metadata, event,
+                this.strings, logStrings, onAlert)
         }
 
         return event
@@ -60,7 +61,7 @@ class MediaConsumeEventTypeImpl(
         check(event is MediaConsumeEvent)
 
         return LogEventType.EventText(
-            prefix = strings.getMediaEntityTypeConsumeEventPrefixes(event.mediaEntityType).first(),
+            prefix = this.strings.getMediaEntityTypeConsumeEventPrefixes(event.mediaEntityType).first(),
             body = getEventBodyText(event, referenceGenerator, onAlert),
             metadata = getEventMetadataText(event, referenceGenerator, logStrings, onAlert)
         )
@@ -76,18 +77,16 @@ class MediaConsumeEventTypeImpl(
     private fun getEventMetadataText(
         event: MediaConsumeEvent,
         referenceGenerator: LogEntityReferenceGenerator,
-        formats: LogFileConverterStrings,
+        logStrings: LogFileConverterStrings,
         onAlert: (LogGenerateAlert) -> Unit
-    ): String? = buildString {
-        event.iteration?.also { iteration ->
+    ): String? = listOfNotNull(
+        event.iteration?.let { iteration ->
             val iterationSuffix: String = strings.getMediaEntityTypeIterationSuffixes(event.mediaEntityType).first()
-            val iterationText: String = formats.numberToIteration(iteration)
-            append(iterationText)
-            append(iterationSuffix)
-        }
-
-        // TODO eps
-    }.takeIf { it.isNotBlank() }
+            val iterationText: String = logStrings.numberToIteration(iteration)
+            iterationText + iterationSuffix
+        },
+        event.generateMediaRangeMetadata(strings, logStrings)
+    ).filter { it.isNotBlank() }.ifEmpty { null }?.joinToString(", ")
 
     private fun getPrefixIndexMediaEntityType(index: Int): MediaEntityType {
         var currentIndex: Int = index
