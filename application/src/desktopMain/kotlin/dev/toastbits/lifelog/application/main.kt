@@ -21,7 +21,7 @@ fun main() = runBlocking {
     val remote: GitRemoteBranch = GitRemoteBranch("origin", "https://github.com/toasterofbread/CONSUME", "gdocs-import")
 
     val helper: DatabaseHelper =
-        DatabaseHelper(Dispatchers.IO, LogFileSplitStrategy.Month).apply {
+        DatabaseHelper(Dispatchers.IO, LogFileSplitStrategy.Year).apply {
             registerExtension(MediaWatchExtension())
             registerExtension(MediaExtension())
             registerExtension(GDocsExtension())

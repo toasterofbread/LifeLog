@@ -30,7 +30,15 @@ data class LogFileConverterStringsImpl(
     override val eventContentStart: String = "{",
     override val eventContentEnd: String = "}",
 
-    override val preferredDateFormat: LogDateFormat = logDateFormatOf(LocalDate.Formats.ISO),
+    override val preferredDateFormat: LogDateFormat =
+        // 2024/8/4
+        logDateFormatOf {
+            year()
+            char('/')
+            monthNumber(Padding.NONE)
+            char('/')
+            dayOfMonth(Padding.NONE)
+        },
     override val dateFormats: List<LogDateFormat> =
         buildList {
             add(
