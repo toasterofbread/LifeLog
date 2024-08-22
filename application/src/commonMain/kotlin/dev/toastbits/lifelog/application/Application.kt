@@ -3,7 +3,13 @@ package dev.toastbits.lifelog.application
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 
-@Composable
-fun App() {
-    Text("Hello World!")
+class Application {
+    @Composable
+    fun Main() {
+        Text("Hello World!")
+    }
+
+    fun onClose() {
+
+    }
 }

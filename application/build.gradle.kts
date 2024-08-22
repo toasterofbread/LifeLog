@@ -15,13 +15,23 @@ kotlin {
                 implementation(projects.extension.gdocs)
 
                 implementation(libs.okio)
-//                implementation(libs.ktor.core)
+
+                // TEST
+                implementation(libs.ktor.core)
+                implementation(projects.core.git)
             }
         }
 
         val desktopMain by getting {
             dependencies {
-                implementation(projects.core.git)
+                // TEST
+                implementation(libs.ktor.client.cio)
+            }
+        }
+
+        val wasmJsMain by getting {
+            dependencies {
+                implementation(npm("@es-git/memory-repo", "0.10.x"))
             }
         }
     }

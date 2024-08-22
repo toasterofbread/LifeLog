@@ -34,6 +34,6 @@ object TestLogEntityReferenceType: LogEntityReferenceType.InMetadata() {
         lines: Sequence<String>,
         onAlert: (ParseAlertData) -> Unit
     ): LogDataFile {
-        return LogDataFile("TODO")
+        return LogDataFile.Lines(listOf("TODO"))
     }
 }

@@ -9,8 +9,8 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinHierarchyBuilder
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 
-fun KotlinMultiplatformExtension.configureAllKmpTargets() {
-    configureKmpTargets(*KmpTarget.values())
+fun KotlinMultiplatformExtension.configureAllKmpTargets(onConfigure: (KotlinTarget) -> Unit = {}) {
+    configureKmpTargets(*KmpTarget.values(), onConfigure = onConfigure)
 }
 
 fun KotlinMultiplatformExtension.configureKmpTargets(
@@ -86,9 +86,11 @@ fun KotlinMultiplatformExtension.configureKmpTargets(
                 }
             }
 
-            group("androidAndWasmJs") {
-                ifPresent(KmpTarget.ANDROID)
-                ifPresent(KmpTarget.WASMJS)
+            if (targets.contains(KmpTarget.ANDROID) && targets.contains(KmpTarget.WASMJS)) {
+                group("androidAndWasmJs") {
+                    ifPresent(KmpTarget.ANDROID)
+                    ifPresent(KmpTarget.WASMJS)
+                }
             }
 
             ifPresent(KmpTarget.WASMJS)

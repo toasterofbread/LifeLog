@@ -30,6 +30,7 @@ compose-plugin = { module = "org.jetbrains.compose:org.jetbrains.compose.gradle.
 kotlin-compose-plugin = { module = "org.jetbrains.kotlin.plugin.compose:org.jetbrains.kotlin.plugin.compose.gradle.plugin", version.ref = "kotlin" }
 vanniktech-publish-plugin = { module = "com.vanniktech:gradle-maven-publish-plugin", version.ref = "vanniktech-publish" }
 ktor-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
 kgit = { module = "com.github.sya-ri:kgit", version.ref = "kgit" }
 okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
 

@@ -1,7 +1,5 @@
 @file:Suppress("UnstableApiUsage")
 
-include(":application:androidMain")
-
 pluginManagement {
     includeBuild("build-logic")
 
@@ -9,6 +7,7 @@ pluginManagement {
         gradlePluginPortal()
         google()
         mavenCentral()
+        maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
     }
 }
 
@@ -17,10 +16,12 @@ dependencyResolutionManagement {
         gradlePluginPortal()
         google()
         mavenCentral()
+        maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
     }
 }
 
 rootProject.name = "lifelog"
+include(":application:commonMain")
 include(":core:specification")
 include(":core:accessor")
 include(":core:git")
