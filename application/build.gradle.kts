@@ -18,7 +18,7 @@ kotlin {
 
                 // TEST
                 implementation(libs.ktor.core)
-                implementation(projects.core.git)
+                implementation(projects.core.git.memory)
             }
         }
 

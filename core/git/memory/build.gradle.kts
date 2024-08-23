@@ -10,17 +10,7 @@ plugins {
 }
 
 kotlin {
-    configureAllKmpTargets { target ->
-        if (target !is KotlinNativeTarget) {
-            return@configureAllKmpTargets
-        }
-
-        target.compilations.getByName("main") {
-            cinterops {
-                val popen2 by creating
-            }
-        }
-    }
+    configureAllKmpTargets()
 
     sourceSets {
         val commonMain by getting {
@@ -28,16 +18,6 @@ kotlin {
                 api(libs.okio)
                 implementation(libs.kotlinx.coroutines.core)
             }
-        }
-
-        val jvmMain by getting {
-            dependencies {
-                implementation(libs.kgit)
-            }
-        }
-
-        val wasmJsMain by getting {
-
         }
 
         val commonTest by getting {
@@ -50,7 +30,7 @@ kotlin {
 
 val projectName: String = libs.versions.project.name.get()
 val projectVersion: String = project.libs.versions.project.name.get()
-val artifactName: String = "core.git"
+val artifactName: String = "core.git.memoty"
 
 android {
     namespace = "dev.toastbits.$projectName.$artifactName"

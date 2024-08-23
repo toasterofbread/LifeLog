@@ -1,6 +1,11 @@
 package dev.toastbits.lifelog.application
 
-import dev.toastbits.lifelog.application.git.GitCloner
+import dev.toastbits.lifelog.core.git.handler.GitPackFileParser
+import dev.toastbits.lifelog.core.git.handler.GitTreeRenderer
+import dev.toastbits.lifelog.core.git.model.SimpleGitObjectRegistry
+import dev.toastbits.lifelog.core.git.provider.PlatformSha1Provider
+import dev.toastbits.lifelog.core.git.provider.PlatformZlibInflater
+import dev.toastbits.lifelog.core.git.provider.ZlibInflater
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -12,7 +17,9 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.isSuccess
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlin.io.encoding.ExperimentalEncodingApi
+import okio.FileSystem
+import okio.Path
+import okio.Path.Companion.toPath
 
 suspend fun getContentRemote(): Pair<ByteArray, Map<String, String>> = withContext(Dispatchers.IO) {
 //    val data: ByteArray = Base64.decode("""MDAxMWNvbW1hbmQ9ZmV0Y2gwMDE0YWdlbnQ9Z2l0LzIuNDUuMjAwMTZvYmplY3QtZm9ybWF0PXNoYTEwMDAxMDAwZHRoaW4tcGFjazAwMGZpbmNsdWRlLXRhZzAwMGRvZnMtZGVsdGEwMDBjZGVlcGVuIDEwMDMyd2FudCAwNmE0NDViMmU5YjYyOTI3ZGRlMDliN2UwNjU1OTUyZWI0ZWI2ZThkCjAwMzJ3YW50IDA2YTQ0NWIyZTliNjI5MjdkZGUwOWI3ZTA2NTU5NTJlYjRlYjZlOGQKMDAwOWRvbmUKMDAwMA==""")
@@ -58,8 +65,14 @@ suspend fun getContentRemote(): Pair<ByteArray, Map<String, String>> = withConte
 }
 
 suspend fun gitTest() {
-    val (content, refs) = getContentRemote()
+    val (content: ByteArray, refs: Map<String, String>) = getContentRemote()
 
-    val cloner = GitCloner()
-    cloner.parse(refs["HEAD"]!!, content)
+    val inflater: ZlibInflater = PlatformZlibInflater(ByteArray(1048576))
+    val cloner: GitPackFileParser = GitPackFileParser(PlatformSha1Provider(), inflater, SimpleGitObjectRegistry())
+    cloner.parsePackFile(content)
+
+    val commit = cloner.readObject(refs["HEAD"]!!)
+    val path: Path = "/home/toaster/Downloads/test/kt".toPath()
+    val treeRenderer: GitTreeRenderer = GitTreeRenderer(cloner, FileSystem.SYSTEM)
+    treeRenderer.renderCommit(commit, path)
 }

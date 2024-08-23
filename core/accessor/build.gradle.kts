@@ -23,7 +23,7 @@ kotlin {
 
         val jvmAndNativeMain by getting {
             dependencies {
-                implementation(projects.core.git)
+                implementation(projects.core.git.system)
             }
         }
 
