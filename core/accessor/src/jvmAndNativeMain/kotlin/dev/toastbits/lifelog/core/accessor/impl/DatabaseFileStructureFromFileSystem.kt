@@ -1,12 +1,12 @@
 package dev.toastbits.lifelog.core.accessor.impl
 
-import dev.toastbits.lifelog.core.accessor.DatabaseFileStructure
-import dev.toastbits.lifelog.core.accessor.MutableDatabaseFileStructure
+import dev.toastbits.lifelog.core.filestructure.FileStructure
+import dev.toastbits.lifelog.core.filestructure.MutableFileStructure
 import okio.FileSystem
 import okio.Path
 
-internal fun FileSystem.getDatabaseFileStructure(path: Path): DatabaseFileStructure {
-    val fileStructure: MutableDatabaseFileStructure = MutableDatabaseFileStructure()
+internal fun FileSystem.getDatabaseFileStructure(path: Path): FileStructure {
+    val fileStructure: MutableFileStructure = MutableFileStructure()
 
     for (file in listRecursively(path)) {
         if (metadataOrNull(file)?.isRegularFile != true) {
@@ -18,14 +18,14 @@ internal fun FileSystem.getDatabaseFileStructure(path: Path): DatabaseFileStruct
             continue
         }
 
-        fileStructure.createFile(relativeFile, OkioNodeFile(file))
+        fileStructure.createFile(relativeFile, OkioNodeFile(file, this))
     }
 
     return fileStructure
 }
 
-private data class OkioNodeFile(private val path: Path): DatabaseFileStructure.Node.File.FileLines {
-    override suspend fun readLines(fileSystem: FileSystem): Sequence<String> = sequence {
+private data class OkioNodeFile(private val path: Path, private val fileSystem: FileSystem): FileStructure.Node.File.FileLines {
+    override suspend fun readLines(): Sequence<String> = sequence {
         fileSystem.read(path) {
             while (true) {
                 val line: String = readUtf8Line() ?: break

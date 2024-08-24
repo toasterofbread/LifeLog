@@ -1,8 +1,7 @@
-package dev.toastbits.lifelog.core.git.handler
+package dev.toastbits.lifelog.core.git.util
 
 import dev.toastbits.lifelog.core.git.provider.Sha1Provider
 import dev.toastbits.lifelog.core.git.provider.ZlibInflater
-import dev.toastbits.lifelog.core.git.util.size
 
 class ByteArrayRegionWrapper(private val bytes: ByteArray, private val regions: List<IntRange> = listOf(bytes.indices)) {
     val size: Int = regions.sumOf { it.size }

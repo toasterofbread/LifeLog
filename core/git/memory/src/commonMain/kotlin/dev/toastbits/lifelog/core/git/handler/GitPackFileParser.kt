@@ -1,8 +1,10 @@
 package dev.toastbits.lifelog.core.git.handler
 
+import dev.toastbits.lifelog.core.git.generate.generateGitObject
 import dev.toastbits.lifelog.core.git.model.ByteReader
 import dev.toastbits.lifelog.core.git.model.GitObject
 import dev.toastbits.lifelog.core.git.model.GitObjectRegistry
+import dev.toastbits.lifelog.core.git.model.MutableGitObjectRegistry
 import dev.toastbits.lifelog.core.git.parse.PackFileHeader
 import dev.toastbits.lifelog.core.git.parse.parseContent
 import dev.toastbits.lifelog.core.git.parse.parsePackFileHeader
@@ -10,6 +12,7 @@ import dev.toastbits.lifelog.core.git.parse.parseRefDeltaObject
 import dev.toastbits.lifelog.core.git.parse.parseSizeAndTypeHeader
 import dev.toastbits.lifelog.core.git.provider.Sha1Provider
 import dev.toastbits.lifelog.core.git.provider.ZlibInflater
+import dev.toastbits.lifelog.core.git.util.ByteArrayRegionWrapper
 import dev.toastbits.lifelog.core.git.util.ParserByteArray
 import dev.toastbits.lifelog.core.git.util.indexOfOrNull
 import dev.toastbits.lifelog.core.git.util.size
@@ -17,8 +20,8 @@ import dev.toastbits.lifelog.core.git.util.size
 class GitPackFileParser(
     private val sha1Provider: Sha1Provider,
     private val zlibInflater: ZlibInflater,
-    private val objectRegistry: GitObjectRegistry
-): GitObjectRegistry by objectRegistry {
+    private val objectRegistry: MutableGitObjectRegistry
+): MutableGitObjectRegistry by objectRegistry {
     enum class Stage {
         PREPARE_PACK,
         READ_HEADER,
@@ -81,7 +84,7 @@ class GitPackFileParser(
 
     private fun ByteReader.parseRawContentObject(type: GitObject.Type, expectedContentSize: Int) {
         val actualSize: Int = parseContent(expectedContentSize)
-        val gitObject: GitObject = GitObject.create(type, zlibInflater.outputBytes, actualSize, sha1Provider)
+        val gitObject: GitObject = generateGitObject(type, zlibInflater.outputBytes, sha1Provider, contentSize = actualSize)
         writeObject(gitObject)
     }
 

@@ -1,11 +1,11 @@
 package dev.toastbits.lifelog.core.accessor.impl
 
-import dev.toastbits.lifelog.core.accessor.DatabaseFileStructure
 import dev.toastbits.lifelog.core.accessor.DatabaseFilesGenerator
 import dev.toastbits.lifelog.core.accessor.DatabaseFileStructureProvider
 import dev.toastbits.lifelog.core.accessor.LogFileSplitStrategy
-import dev.toastbits.lifelog.core.accessor.MutableDatabaseFileStructure
 import dev.toastbits.lifelog.core.accessor.splitDaysIntoGroups
+import dev.toastbits.lifelog.core.filestructure.FileStructure
+import dev.toastbits.lifelog.core.filestructure.MutableFileStructure
 import dev.toastbits.lifelog.core.specification.converter.GenerateAlertData
 import dev.toastbits.lifelog.core.specification.converter.LogFileConverter
 import dev.toastbits.lifelog.core.specification.database.LogDatabase
@@ -23,8 +23,8 @@ class DatabaseFilesGeneratorImpl(
     override fun generateDatabaseFileStructure(
         database: LogDatabase,
         onAlert: (GenerateAlertData) -> Unit
-    ): DatabaseFileStructure {
-        val structure: MutableDatabaseFileStructure = MutableDatabaseFileStructure()
+    ): FileStructure {
+        val structure: MutableFileStructure = MutableFileStructure()
 
         structure.writeDays(database.days, onAlert)
         structure.writeDataFiles(database.data, onAlert)
@@ -32,7 +32,7 @@ class DatabaseFilesGeneratorImpl(
         return structure
     }
 
-    private fun MutableDatabaseFileStructure.writeDays(
+    private fun MutableFileStructure.writeDays(
         days: Map<LogDate, List<LogEvent>>,
         onAlert: (GenerateAlertData) -> Unit
     ) {
@@ -50,7 +50,7 @@ class DatabaseFilesGeneratorImpl(
         }
     }
 
-    private fun MutableDatabaseFileStructure.writeDataFiles(
+    private fun MutableFileStructure.writeDataFiles(
         dataEntries: Map<LogEntityReference, LogDataFile>,
         onAlert: (GenerateAlertData) -> Unit
     ) {
@@ -59,8 +59,8 @@ class DatabaseFilesGeneratorImpl(
             createFile(
                 filePath,
                 when (data) {
-                    is LogDataFile.Lines -> DatabaseFileStructure.Node.FileLinesData(data.lines)
-                    is LogDataFile.Bytes -> DatabaseFileStructure.Node.FileBytesData(data.bytes)
+                    is LogDataFile.Lines -> FileStructure.Node.FileLinesData(data.lines)
+                    is LogDataFile.Bytes -> FileStructure.Node.FileBytesData(data.bytes)
                 }
             )
         }

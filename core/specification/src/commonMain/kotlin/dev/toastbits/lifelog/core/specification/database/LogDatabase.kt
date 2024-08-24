@@ -11,5 +11,5 @@ data class LogDatabase(
 
 sealed interface LogDataFile {
     class Lines(val lines: List<String>): LogDataFile
-    class Bytes(val bytes: ByteArray): LogDataFile
+    class Bytes(val bytes: ByteArray, val range: IntRange = bytes.indices): LogDataFile
 }

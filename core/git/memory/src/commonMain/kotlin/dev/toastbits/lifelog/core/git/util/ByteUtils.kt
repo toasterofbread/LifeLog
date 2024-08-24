@@ -1,7 +1,5 @@
 package dev.toastbits.lifelog.core.git.util
 
-import dev.toastbits.lifelog.core.git.handler.ByteArrayRegionWrapper
-
 typealias ParserByteArray = ByteArrayRegionWrapper
 
 infix fun Byte.band(other: Long): Long =

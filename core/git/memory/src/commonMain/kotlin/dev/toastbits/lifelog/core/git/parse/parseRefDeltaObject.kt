@@ -1,8 +1,10 @@
 package dev.toastbits.lifelog.core.git.parse
 
+import dev.toastbits.lifelog.core.git.generate.generateGitObject
 import dev.toastbits.lifelog.core.git.model.ByteReader
 import dev.toastbits.lifelog.core.git.model.GitObject
 import dev.toastbits.lifelog.core.git.model.GitObjectRegistry
+import dev.toastbits.lifelog.core.git.model.MutableGitObjectRegistry
 import dev.toastbits.lifelog.core.git.provider.PlatformZlibInflater
 import dev.toastbits.lifelog.core.git.provider.Sha1Provider
 import dev.toastbits.lifelog.core.git.provider.ZlibInflater
@@ -11,7 +13,7 @@ import dev.toastbits.lifelog.core.git.util.ParserByteArray
 
 internal fun ByteReader.parseRefDeltaObject(
     sha1Provider: Sha1Provider,
-    objectRegistry: GitObjectRegistry,
+    objectRegistry: MutableGitObjectRegistry,
     zlibInflater: ZlibInflater
 ) {
     val objRef: String = bytes.toHexString(head, head + 20)
@@ -59,6 +61,6 @@ internal fun ByteReader.parseRefDeltaObject(
         }
     }
 
-    val gitObject: GitObject = GitObject.create(obj.type, targetContent!!, targetContent.size, sha1Provider)
+    val gitObject: GitObject = generateGitObject(obj.type, targetContent!!, sha1Provider)
     objectRegistry.writeObject(gitObject)
 }

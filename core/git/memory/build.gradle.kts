@@ -15,7 +15,10 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                api(projects.core.filestructure)
+
                 api(libs.okio)
+                api(libs.kotlinx.datetime)
                 implementation(libs.ktor.core)
                 implementation(libs.kotlinx.coroutines.core)
             }
@@ -24,7 +27,7 @@ kotlin {
         val jvmMain by getting {
             dependencies {
                 implementation(libs.ktor.client.cio)
-                implementation("com.jcraft:jzlib:1.1.3")
+                implementation(libs.jzlib)
             }
         }
 

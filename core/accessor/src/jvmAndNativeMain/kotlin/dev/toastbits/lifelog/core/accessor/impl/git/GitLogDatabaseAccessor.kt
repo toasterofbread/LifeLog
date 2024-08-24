@@ -1,13 +1,13 @@
 package dev.toastbits.lifelog.core.accessor.impl.git
 
-import dev.toastbits.lifelog.core.accessor.DatabaseFileStructure
 import dev.toastbits.lifelog.core.accessor.DatabaseFilesGenerator
 import dev.toastbits.lifelog.core.accessor.DatabaseFilesParser
 import dev.toastbits.lifelog.core.accessor.LocalLogDatabaseAccessor
 import dev.toastbits.lifelog.core.accessor.RemoteLogDatabaseAccessor
 import dev.toastbits.lifelog.core.accessor.impl.getDatabaseFileStructure
 import dev.toastbits.lifelog.core.accessor.model.GitRemoteBranch
-import dev.toastbits.lifelog.core.accessor.walkFiles
+import dev.toastbits.lifelog.core.filestructure.FileStructure
+import dev.toastbits.lifelog.core.filestructure.walkFiles
 import dev.toastbits.lifelog.core.git.GitWrapper
 import dev.toastbits.lifelog.core.specification.converter.GenerateAlertData
 import dev.toastbits.lifelog.core.specification.converter.ParseAlertData
@@ -25,21 +25,22 @@ class GitLogDatabaseAccessor(
     private val fileSystem: FileSystem = FileSystem.SYSTEM
 ): LocalLogDatabaseAccessor, RemoteLogDatabaseAccessor, GitWrapper by repository {
     override suspend fun saveDatabaseLocally(database: LogDatabase, onAlert: (GenerateAlertData) -> Unit) {
-        val fileStructure: DatabaseFileStructure = filesGenerator.generateDatabaseFileStructure(database, onAlert)
+        val fileStructure: FileStructure = filesGenerator.generateDatabaseFileStructure(database, onAlert)
 
         fileStructure.walkFiles { file, path ->
             val relativePath: Path = repository.directory.resolve(path)
             fileSystem.createDirectories(relativePath.parent!!)
             fileSystem.write(relativePath) {
                 when (file) {
-                    is DatabaseFileStructure.Node.File.FileLines -> {
-                        for (line in file.readLines(fileSystem)) {
+                    is FileStructure.Node.File.FileLines -> {
+                        for (line in file.readLines()) {
                             writeUtf8(line)
                             writeUtf8("\n")
                         }
                     }
-                    is DatabaseFileStructure.Node.File.FileBytes -> {
-                        write(file.readBytes(fileSystem))
+                    is FileStructure.Node.File.FileBytes -> {
+                        val (bytes: ByteArray, range: IntRange) = file.readBytes()
+                        write(bytes, range.first, range.size)
                     }
                 }
             }
@@ -47,8 +48,8 @@ class GitLogDatabaseAccessor(
     }
 
     override suspend fun loadDatabaseLocally(onAlert: (ParseAlertData) -> Unit): LogDatabase {
-        val fileStructure: DatabaseFileStructure = fileSystem.getDatabaseFileStructure(repository.directory)
-        return filesParser.parseDatabaseFileStructure(fileStructure, fileSystem, onAlert)
+        val fileStructure: FileStructure = fileSystem.getDatabaseFileStructure(repository.directory)
+        return filesParser.parseDatabaseFileStructure(fileStructure, onAlert)
     }
 
     override fun canSaveDatabaseRemotely(database: LogDatabase): Boolean =
@@ -117,3 +118,6 @@ class GitLogDatabaseAccessor(
         return loadDatabaseLocally(onAlert)
     }
 }
+
+val IntRange.size: Int
+    get() = last - first + 1

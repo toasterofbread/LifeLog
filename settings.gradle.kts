@@ -22,6 +22,7 @@ dependencyResolutionManagement {
 
 rootProject.name = "lifelog"
 include(":application:commonMain")
+include(":core:filestructure")
 include(":core:specification")
 include(":core:accessor")
 include(":core:git:system")

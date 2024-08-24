@@ -15,6 +15,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(projects.core.specification)
+                api(projects.core.filestructure)
 
                 api(libs.kotlinx.coroutines.core)
                 api(libs.okio)

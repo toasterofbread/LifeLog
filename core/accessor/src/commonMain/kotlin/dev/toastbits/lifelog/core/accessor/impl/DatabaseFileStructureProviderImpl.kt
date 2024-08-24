@@ -2,6 +2,7 @@ package dev.toastbits.lifelog.core.accessor.impl
 
 import dev.toastbits.lifelog.core.accessor.DatabaseFileStructureProvider
 import dev.toastbits.lifelog.core.accessor.LogFileSplitStrategy
+import dev.toastbits.lifelog.core.filestructure.toPath
 import dev.toastbits.lifelog.core.specification.converter.LogFileConverterStrings
 import dev.toastbits.lifelog.core.specification.converter.alert.LogParseAlert
 import dev.toastbits.lifelog.core.specification.converter.alert.SpecificationLogParseAlert
@@ -184,6 +185,3 @@ class DatabaseFileStructureProviderImpl(
         private val URL_REGEX: Regex = "\\b[a-zA-Z][a-zA-Z0-9+.-]*://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%?=~_|]".toRegex()
     }
 }
-
-fun List<String>.toPath(): Path =
-    joinToString(Path.DIRECTORY_SEPARATOR).toPath()

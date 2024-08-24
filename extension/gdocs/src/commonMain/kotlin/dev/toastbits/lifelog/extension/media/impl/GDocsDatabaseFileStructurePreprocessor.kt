@@ -1,10 +1,10 @@
 package dev.toastbits.lifelog.extension.media.impl
 
-import dev.toastbits.lifelog.core.accessor.DatabaseFileStructure
 import dev.toastbits.lifelog.core.accessor.DatabaseFileStructureProvider
-import dev.toastbits.lifelog.core.accessor.MutableDatabaseFileStructure
 import dev.toastbits.lifelog.core.accessor.extension.DatabaseFileStructurePreprocessor
-import dev.toastbits.lifelog.core.accessor.walkFiles
+import dev.toastbits.lifelog.core.filestructure.FileStructure
+import dev.toastbits.lifelog.core.filestructure.MutableFileStructure
+import dev.toastbits.lifelog.core.filestructure.walkFiles
 import dev.toastbits.lifelog.core.specification.converter.LogFileConverterStrings
 import dev.toastbits.lifelog.core.specification.converter.ParseAlertData
 import dev.toastbits.lifelog.core.specification.converter.alert.LogParseAlert
@@ -26,13 +26,12 @@ class GDocsDatabaseFileStructurePreprocessor(
     private val gdocsStrings: GDocsExtensionStrings
 ): DatabaseFileStructurePreprocessor {
     override suspend fun processDatabaseFileStructure(
-        fileStructure: DatabaseFileStructure,
+        fileStructure: FileStructure,
         fileStructureProvider: DatabaseFileStructureProvider,
-        fileSystem: FileSystem,
         strings: LogFileConverterStrings,
         extensions: List<SpecificationExtension>,
         onAlert: (ParseAlertData) -> Unit
-    ): DatabaseFileStructure {
+    ): FileStructure {
         val mediaExtension: MediaExtension? = extensions.firstOrNull { it is MediaExtension } as MediaExtension?
         if (mediaExtension == null) {
             onAlert(ParseAlertData(GDocsLogParseAlert.MediaExtensionNotPresent(gdocsStrings.extensionId), null, null))
@@ -43,23 +42,23 @@ class GDocsDatabaseFileStructurePreprocessor(
             onAlert(ParseAlertData(GDocsLogParseAlert.MediaReferenceTypeNotPresent(gdocsStrings.extensionId), null, null))
         }
 
-        val newStructure: MutableDatabaseFileStructure = MutableDatabaseFileStructure()
+        val newStructure: MutableFileStructure = MutableFileStructure()
 
         fileStructure.walkFiles { file, path ->
-            check(file is DatabaseFileStructure.Node.File.FileLines)
+            check(file is FileStructure.Node.File.FileLines)
 
-            var newFile: DatabaseFileStructure.Node.File = file
+            var newFile: FileStructure.Node.File = file
 
             if (path.segments.size == fileStructureProvider.getLogFilePathSize() && path.name == strings.logFileName && path.segments.firstOrNull() == strings.logsDirectoryName) {
                 val newFileLength: Int =
-                    preprocessLogFile(file.readLines(fileSystem), newStructure, fileStructureProvider, mediaReferenceType, strings) { alert, line ->
+                    preprocessLogFile(file.readLines(), newStructure, fileStructureProvider, mediaReferenceType, strings) { alert, line ->
                         onAlert(ParseAlertData(alert, line?.toUInt(), path.toString()))
                     }
 
-                newFile = object : DatabaseFileStructure.Node.File.FileLines {
-                    override suspend fun readLines(fileSystem: FileSystem): Sequence<String> =
+                newFile = object : FileStructure.Node.File.FileLines {
+                    override suspend fun readLines(): Sequence<String> =
                         processLogFile(
-                            file.readLines(fileSystem).take(newFileLength),
+                            file.readLines().take(newFileLength),
                             fileStructureProvider,
                             mediaReferenceType,
                             strings
@@ -77,7 +76,7 @@ class GDocsDatabaseFileStructurePreprocessor(
 
     private fun preprocessLogFile(
         lines: Sequence<String>,
-        newStructure: MutableDatabaseFileStructure,
+        newStructure: MutableFileStructure,
         fileStructureProvider: DatabaseFileStructureProvider,
         mediaReferenceType: MediaReferenceType?,
         strings: LogFileConverterStrings,
@@ -147,7 +146,7 @@ class GDocsDatabaseFileStructurePreprocessor(
         return lastNonImageLineIndex + 1
     }
 
-    private fun MutableDatabaseFileStructure.createImageFile(
+    private fun MutableFileStructure.createImageFile(
         index: UInt,
         image: ImageData,
         date: LocalDate,
@@ -163,9 +162,9 @@ class GDocsDatabaseFileStructurePreprocessor(
             )
         val imagePath: Path = fileStructureProvider.getEntityReferenceFilePath(mediaReference)
 
-        val file: DatabaseFileStructure.Node.File =
-            object : DatabaseFileStructure.Node.File.FileBytes {
-                override suspend fun readBytes(fileSystem: FileSystem): ByteArray = image.data
+        val file: FileStructure.Node.File =
+            object : FileStructure.Node.File.FileBytes {
+                override suspend fun readBytes(): Pair<ByteArray, IntRange> = image.data to image.data.indices
             }
 
         createFile(imagePath, file)

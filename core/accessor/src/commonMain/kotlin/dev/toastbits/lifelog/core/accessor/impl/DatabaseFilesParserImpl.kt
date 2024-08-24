@@ -1,10 +1,10 @@
 package dev.toastbits.lifelog.core.accessor.impl
 
-import dev.toastbits.lifelog.core.accessor.DatabaseFileStructure
 import dev.toastbits.lifelog.core.accessor.DatabaseFileStructureProvider
 import dev.toastbits.lifelog.core.accessor.DatabaseFilesParser
 import dev.toastbits.lifelog.core.accessor.extension.DatabaseFileStructureExtension
-import dev.toastbits.lifelog.core.accessor.walkFiles
+import dev.toastbits.lifelog.core.filestructure.FileStructure
+import dev.toastbits.lifelog.core.filestructure.walkFiles
 import dev.toastbits.lifelog.core.specification.converter.LogFileConverter
 import dev.toastbits.lifelog.core.specification.converter.LogFileConverterStrings
 import dev.toastbits.lifelog.core.specification.converter.ParseAlertData
@@ -29,16 +29,15 @@ class DatabaseFilesParserImpl(
     private val ioDispatcher: CoroutineDispatcher
 ): ExtendableImpl(), DatabaseFilesParser {
     override suspend fun parseDatabaseFileStructure(
-        structure: DatabaseFileStructure,
-        fileSystem: FileSystem,
+        structure: FileStructure,
         onAlert: (ParseAlertData) -> Unit
     ): LogDatabase = withContext(ioDispatcher) {
         val days: MutableMap<LogDate, List<LogEvent>> = mutableMapOf()
         val data: MutableMap<LogEntityReference, LogDataFile> = mutableMapOf()
 
-        val scope: Scope = Scope(days, data, fileSystem, onAlert)
+        val scope: Scope = Scope(days, data, onAlert)
 
-        structure.preprocess(fileSystem, onAlert).walkFiles { file, path ->
+        structure.preprocess(onAlert).walkFiles { file, path ->
             val reference: LogEntityReference =
                 fileStructureProvider.parseReference(path.toString()) {
                     if (it is SpecificationLogParseAlert.UnknownReferenceType && it.firstUnknownSegment == 0) {
@@ -52,7 +51,7 @@ class DatabaseFilesParserImpl(
                     scope.onInLogEntityReference(reference, file)
                 }
                 is LogEntityReference.InMetadata -> {
-                    check(file is DatabaseFileStructure.Node.File.FileLines)
+                    check(file is FileStructure.Node.File.FileLines)
                     scope.onInMetadataEntityReference(reference, file, path)
                 }
                 is LogEntityReference.URL -> throw IllegalStateException(reference.toString())
@@ -62,26 +61,26 @@ class DatabaseFilesParserImpl(
         return@withContext LogDatabase(days = scope.days, data = scope.data)
     }
 
-    private suspend fun DatabaseFileStructure.preprocess(fileSystem: FileSystem, onAlert: (ParseAlertData) -> Unit): DatabaseFileStructure {
-        var structure: DatabaseFileStructure = this
+    private suspend fun FileStructure.preprocess(onAlert: (ParseAlertData) -> Unit): FileStructure {
+        var structure: FileStructure = this
         for (extension in extensions) {
             if (extension !is DatabaseFileStructureExtension) {
                 continue
             }
 
             for (preprocessor in extension.extraPreprocessors) {
-                structure = preprocessor.processDatabaseFileStructure(structure, fileStructureProvider, fileSystem, strings, extensions, onAlert)
+                structure = preprocessor.processDatabaseFileStructure(structure, fileStructureProvider, strings, extensions, onAlert)
             }
         }
         return structure
     }
 
-    private suspend fun Scope.onInLogEntityReference(reference: LogEntityReference.InLog, file: DatabaseFileStructure.Node.File) {
+    private suspend fun Scope.onInLogEntityReference(reference: LogEntityReference.InLog, file: FileStructure.Node.File) {
         if (reference.extensionId != null) {
             val dataFile: LogDataFile =
                 when (file) {
-                    is DatabaseFileStructure.Node.File.FileLines -> LogDataFile.Lines(file.readLines(fileSystem).toList())
-                    is DatabaseFileStructure.Node.File.FileBytes -> LogDataFile.Bytes(file.readBytes(fileSystem))
+                    is FileStructure.Node.File.FileLines -> LogDataFile.Lines(file.readLines().toList())
+                    is FileStructure.Node.File.FileBytes -> file.readBytes().let { (bytes, range) -> LogDataFile.Bytes(bytes, range) }
                 }
 
             data[reference] = dataFile
@@ -90,9 +89,9 @@ class DatabaseFilesParserImpl(
 
         when (reference.path.segments.lastOrNull()) {
             strings.logFileName -> {
-                check(file is DatabaseFileStructure.Node.File.FileLines)
+                check(file is FileStructure.Node.File.FileLines)
 
-                val log: LogFileConverter.ParseResult = converter.parseLogFile(file.readLines(fileSystem).asIterable())
+                val log: LogFileConverter.ParseResult = converter.parseLogFile(file.readLines().asIterable())
                 log.alerts.forEach(onAlert)
 
                 for ((day, events) in log.days) {
@@ -104,7 +103,7 @@ class DatabaseFilesParserImpl(
         }
     }
 
-    private suspend fun Scope.onInMetadataEntityReference(reference: LogEntityReference.InMetadata, file: DatabaseFileStructure.Node.File.FileLines, path: Path) {
+    private suspend fun Scope.onInMetadataEntityReference(reference: LogEntityReference.InMetadata, file: FileStructure.Node.File.FileLines, path: Path) {
         if (data.containsKey(reference)) {
             onAlert(ParseAlertData(SpecificationLogParseAlert.RedefinedMetadataValue(reference), null, path.toString()))
         }
@@ -125,7 +124,7 @@ class DatabaseFilesParserImpl(
             return
         }
 
-        val lines: Sequence<String> = file.readLines(fileSystem)
+        val lines: Sequence<String> = file.readLines()
         val parsedMetadata: LogDataFile =
             referenceType.parseReferenceMetadata(reference.path.segments, lines) { onAlert(it.copy(filePath = path.toString())) }
             ?: return
@@ -136,7 +135,6 @@ class DatabaseFilesParserImpl(
     private class Scope(
         val days: MutableMap<LogDate, List<LogEvent>>,
         val data: MutableMap<LogEntityReference, LogDataFile>,
-        val fileSystem: FileSystem,
         val onAlert: (ParseAlertData) -> Unit
     )
 }
