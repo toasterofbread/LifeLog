@@ -1,5 +1,9 @@
 package dev.toastbits.lifelog.core.git.util
 
+import dev.toastbits.lifelog.core.git.handler.GitPackFileParser
+
+typealias ParserByteArray = GitPackFileParser.ByteArrayRegionWrapper
+
 infix fun Byte.band(other: Long): Long =
     toLong() and other
 
@@ -23,7 +27,7 @@ fun ByteArray.indexOfOrNull(byte: Byte, startIndex: Int = 0, endIndex: Int = siz
     return null
 }
 
-fun ByteArray.indexOfOrNull(subArray: ByteArray, size: Int? = null): Int? {
+fun ParserByteArray.indexOfOrNull(subArray: ByteArray, size: Int? = null): Int? {
     var found: Int = 0
     for (index in 0 until (size ?: this.size)) {
         val byte: Byte = this[index]
@@ -45,3 +49,9 @@ fun ByteArray.indexOfOrNull(subArray: ByteArray, size: Int? = null): Int? {
 
 val IntRange.size: Int
     get() = last - first + 1
+
+//fun ParserByteArray.toHexString(start: Int, end: Int): String = buildString {
+//    for (index in start until end) {
+//        append(this@toHexString[index].toHexString())
+//    }
+//}

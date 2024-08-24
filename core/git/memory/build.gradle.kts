@@ -16,7 +16,15 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api(libs.okio)
+                implementation(libs.ktor.core)
                 implementation(libs.kotlinx.coroutines.core)
+            }
+        }
+
+        val jvmMain by getting {
+            dependencies {
+                implementation(libs.ktor.client.cio)
+                implementation("com.jcraft:jzlib:1.1.3")
             }
         }
 

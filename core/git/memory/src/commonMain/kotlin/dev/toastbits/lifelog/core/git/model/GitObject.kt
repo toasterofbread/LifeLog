@@ -18,6 +18,10 @@ data class GitObject(val bytes: ByteArray, val type: Type, val hash: String) {
         OFS_DELTA,
         REF_DELTA;
 
+        init {
+//            check(ordinal != 0 && ordinal != 5) { ordinal }
+        }
+
         val identifier: String
             get() = when (this) {
                 COMMIT -> "commit"

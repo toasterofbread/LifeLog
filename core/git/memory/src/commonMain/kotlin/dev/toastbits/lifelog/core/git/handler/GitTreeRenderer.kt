@@ -6,7 +6,6 @@ import dev.toastbits.lifelog.core.git.util.indexOfOrNull
 import okio.FileSystem
 import okio.Path
 
-@OptIn(ExperimentalStdlibApi::class)
 class GitTreeRenderer(
     private val objectRegistry: GitObjectRegistry,
     private val fileSystem: FileSystem

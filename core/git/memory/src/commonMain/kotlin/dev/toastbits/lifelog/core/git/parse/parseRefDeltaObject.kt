@@ -7,8 +7,8 @@ import dev.toastbits.lifelog.core.git.provider.PlatformZlibInflater
 import dev.toastbits.lifelog.core.git.provider.Sha1Provider
 import dev.toastbits.lifelog.core.git.provider.ZlibInflater
 import dev.toastbits.lifelog.core.git.provider.createEmpty
+import dev.toastbits.lifelog.core.git.util.ParserByteArray
 
-@OptIn(ExperimentalStdlibApi::class)
 internal fun ByteReader.parseRefDeltaObject(
     sha1Provider: Sha1Provider,
     objectRegistry: GitObjectRegistry,
@@ -19,7 +19,7 @@ internal fun ByteReader.parseRefDeltaObject(
 
     val obj: GitObject = objectRegistry.readObject(objRef)
     val contentSize: Int = parseContent(null)
-    val content: ByteArray = zlibInflater.outputBytes
+    val content: ParserByteArray = ParserByteArray(zlibInflater.outputBytes)
 
     val contentReader: ByteReader = ByteReader(content, 0, PlatformZlibInflater.createEmpty())
 
