@@ -53,3 +53,16 @@ fun ParserByteArray.indexOfOrNull(subArray: ByteArray, size: Int? = null): Int? 
 
     return null
 }
+
+fun ByteArray.adler32sum(range: IntRange = indices): Int {
+    val mod: Int = 65521
+    var a = 1
+    var b = 0
+
+    for (i in range) {
+        a = ((this[i].toInt() and 0xFF) + a) % mod
+        b = (b + a) % mod
+    }
+
+    return (b shl 16) or a
+}

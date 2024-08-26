@@ -13,6 +13,7 @@ import dev.toastbits.lifelog.core.git.provider.PlatformZlibInflater
 import dev.toastbits.lifelog.core.git.provider.Sha1Provider
 import dev.toastbits.lifelog.core.git.provider.ZlibDeflater
 import dev.toastbits.lifelog.core.git.provider.ZlibInflater
+import kotlinx.coroutines.test.runTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -29,12 +30,12 @@ class GitPackFileGeneratorTest {
     }
 
     @Test
-    fun testPackFileGenerator() {
+    fun testPackFileGenerator() = runTest {
         val objects: MutableGitObjectRegistry = SimpleGitObjectRegistry()
         val testObjects: List<GitObject> =
             listOf(
-                generateGitObject(GitObject.Type.BLOB, byteArrayOf(1, 2, 3, 4, 5), sha1Provider),
-                generateGitObject(GitObject.Type.BLOB, byteArrayOf(6, 7, 8, 9, 10), sha1Provider)
+                generateGitObject(GitObject.Type.BLOB, "Hello".encodeToByteArray(), sha1Provider),
+                generateGitObject(GitObject.Type.BLOB, "World!".encodeToByteArray(), sha1Provider)
             )
 
         for (obj in testObjects) {

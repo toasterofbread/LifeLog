@@ -12,7 +12,7 @@ class ByteArrayRegionWrapper(private val bytes: ByteArray, private val regions: 
         return regions.joinToString("") { bytes.toHexString(it.first, it.last + 1) }
     }
 
-    fun inflate(zlibInflater: ZlibInflater, offset: Int): ZlibInflater.InflationResult {
+    suspend fun inflate(zlibInflater: ZlibInflater, offset: Int): ZlibInflater.InflationResult {
         return zlibInflater.inflate(bytes, regions.getRegionsStartingAt(offset, null))
     }
 

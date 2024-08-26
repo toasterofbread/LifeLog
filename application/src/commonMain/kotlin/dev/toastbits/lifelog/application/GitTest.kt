@@ -50,32 +50,42 @@ suspend fun gitTest(ioDispatcher: CoroutineDispatcher) {
         println("Parsing pack ($stage): $r / $l")
     }
 
-    println(objects.getAll().map { it.hash })
+    println("Got ${objects.getAll().size} objects")
 
     val headCommit: GitObject = objects.readObject(ref)
     val db: MutableFileStructure = MutableFileStructure()
 
-    val treeRenderer: GitTreeRenderer = GitTreeRenderer(objects)
-    treeRenderer.renderCommit(headCommit, db)
+    println("Rendering tree...")
 
-    db.createFile("wasm.kt".toPath(), listOf("Hello", "From", "JVM again again"), overwrite = true)
+    val treeRenderer: GitTreeRenderer = GitTreeRenderer(objects)
+    treeRenderer.renderCommitTree(headCommit, db)
+
+    db.createFile("wasm.kt".toPath(), listOf("Hello", "From", "Kotlin/WASM!"), overwrite = true)
 
     val user: GitCommitGenerator.UserInfo = GitCommitGenerator.UserInfo.ofNow("Talo Halton", "talohalton@gmail.com")
     val message: String =
         """
-           H
+           wasm
         """.trimIndent()
+
+    println("Generating new commit...")
 
     val treeGenerator: GitTreeGenerator = GitTreeGenerator(sha1Provider, objects)
     val commitGenerator: GitCommitGenerator = GitCommitGenerator(treeGenerator, sha1Provider)
     val commit: GitObject = commitGenerator.generateCommitObject(headCommit, db, message, user, user)
     objects.writeObject(commit)
 
-    val packFileGenerator = GitPackFileGenerator(sha1Provider, deflater)
-    val packFile: GitPackFileGenerator.PackFile = packFileGenerator.generatePackFile(objects.getAll())
+    println("Generating pack file...")
 
-    return
+    val packFileGenerator = GitPackFileGenerator(sha1Provider, deflater)
+    val packFile: GitPackFileGenerator.PackFile = packFileGenerator.generatePackFile(objects.getAll()) { i, t ->
+        println("Writing pack file object ${i + 1} of $t...")
+    }
+
+    println("Pushing pack file...")
 
     val pusher: GitPusher = GitPusher(ioDispatcher, client)
     pusher.pushPackFile(packFile, repositoryUrl, headCommit, commit, credentials)
+
+    println("Done")
 }

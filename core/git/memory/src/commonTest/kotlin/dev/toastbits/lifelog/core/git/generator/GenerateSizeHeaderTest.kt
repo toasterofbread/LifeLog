@@ -8,18 +8,19 @@ import dev.toastbits.lifelog.core.git.generate.generateSizeAndTypeHeader
 import dev.toastbits.lifelog.core.git.generate.getSizeAndTypeHeaderSize
 import dev.toastbits.lifelog.core.git.model.GitObject
 import dev.toastbits.lifelog.core.git.util.GitConstants
+import kotlinx.coroutines.test.runTest
 import kotlin.math.pow
 import kotlin.test.Test
 
 @OptIn(ExperimentalUnsignedTypes::class)
 class GenerateSizeHeaderTest {
     @Test
-    fun testGenerateSizeAndTypeHeader() {
+    fun testGenerateSizeAndTypeHeader() = runTest {
         val values: Map<Int, ByteArray> =
             mapOf(
                 0 to byteArrayOf(0b0),
                 1 to byteArrayOf(0b00000001),
-                0b111100101010101 to ubyteArrayOf(0b10000001u, 0b11110010u, 0b01010101u).toByteArray()
+                0b111100101010101 to ubyteArrayOf(0b10000101u, 0b10010101u, 0b00001111u).toByteArray()
             )
 
         check(GitConstants.OBJECT_HEADER_TYPE_BIT_COUNT == 3)

@@ -12,7 +12,7 @@ import okio.Path.Companion.toPath
 class GitTreeRenderer(
     private val objectRegistry: GitObjectRegistry
 ): GitObjectRegistry by objectRegistry {
-    fun renderCommit(commit: GitObject, writeFile: (Path, ByteArray, IntRange) -> Unit) {
+    fun renderCommitTree(commit: GitObject, writeFile: (Path, ByteArray, IntRange) -> Unit) {
         check(commit.type == GitObject.Type.COMMIT)
 
         val commitContentStart: Int = commit.findContentStart()
@@ -21,8 +21,8 @@ class GitTreeRenderer(
         renderTree(readObject(treeRef), writeFile)
     }
 
-    fun renderCommit(commit: GitObject, fileStructure: MutableFileStructure) {
-        renderCommit(commit) { path, bytes, range ->
+    fun renderCommitTree(commit: GitObject, fileStructure: MutableFileStructure) {
+        renderCommitTree(commit) { path, bytes, range ->
             fileStructure.createFile(path, bytes, range)
         }
     }

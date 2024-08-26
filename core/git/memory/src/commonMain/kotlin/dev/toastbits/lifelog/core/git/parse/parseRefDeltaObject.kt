@@ -3,15 +3,13 @@ package dev.toastbits.lifelog.core.git.parse
 import dev.toastbits.lifelog.core.git.generate.generateGitObject
 import dev.toastbits.lifelog.core.git.model.ByteReader
 import dev.toastbits.lifelog.core.git.model.GitObject
-import dev.toastbits.lifelog.core.git.model.GitObjectRegistry
 import dev.toastbits.lifelog.core.git.model.MutableGitObjectRegistry
 import dev.toastbits.lifelog.core.git.provider.PlatformZlibInflater
 import dev.toastbits.lifelog.core.git.provider.Sha1Provider
 import dev.toastbits.lifelog.core.git.provider.ZlibInflater
-import dev.toastbits.lifelog.core.git.provider.createEmpty
 import dev.toastbits.lifelog.core.git.util.ParserByteArray
 
-internal fun ByteReader.parseRefDeltaObject(
+internal suspend fun ByteReader.parseRefDeltaObject(
     sha1Provider: Sha1Provider,
     objectRegistry: MutableGitObjectRegistry,
     zlibInflater: ZlibInflater

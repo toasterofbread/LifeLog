@@ -10,7 +10,6 @@ kotlin {
         all {
             languageSettings.apply {
                 enableLanguageFeature("ExpectActualClasses")
-                enableLanguageFeature("WasmUseNewExceptionProposal")
                 optIn("kotlin.ExperimentalStdlibApi")
                 optIn("kotlinx.cinterop.ExperimentalForeignApi")
             }

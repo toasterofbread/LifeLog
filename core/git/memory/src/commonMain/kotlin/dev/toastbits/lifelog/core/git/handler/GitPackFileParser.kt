@@ -34,7 +34,7 @@ class GitPackFileParser(
         fun onProgress(stage: Stage, itemIndex: Int?, totalItems: Int?)
     }
 
-    fun parsePackFile(bytes: ByteArray, bytesSize: Int = bytes.size, progressListener: ProgressListener? = null) {
+    suspend fun parsePackFile(bytes: ByteArray, bytesSize: Int = bytes.size, progressListener: ProgressListener? = null) {
         progressListener?.onProgress(Stage.PREPARE_PACK, null, null)
 
         val packFile: ByteArrayRegionWrapper = preparePackFileBytes(bytes, bytesSize)
@@ -87,14 +87,15 @@ class GitPackFileParser(
         return ByteArrayRegionWrapper(bytes, packLines.drop(1))
     }
 
-    private fun ByteReader.parseRawContentObject(type: GitObject.Type, expectedContentSize: Int) {
+    private suspend fun ByteReader.parseRawContentObject(type: GitObject.Type, expectedContentSize: Int) {
         val actualSize: Int = parseContent(expectedContentSize)
         val gitObject: GitObject = generateGitObject(type, zlibInflater.outputBytes, sha1Provider, contentRange = 0 until actualSize)
         writeObject(gitObject)
     }
 
-    private fun ByteReader.parseAnyObject() {
+    private suspend fun ByteReader.parseAnyObject() {
         val (objectContentSize: Int, objectType: GitObject.Type) = parseSizeAndTypeHeader()
+        println("obj $objectContentSize $objectType")
 
         when (objectType) {
             GitObject.Type.COMMIT,

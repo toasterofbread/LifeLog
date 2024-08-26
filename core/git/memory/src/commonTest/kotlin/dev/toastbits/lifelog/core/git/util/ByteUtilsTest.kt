@@ -3,6 +3,7 @@ package dev.toastbits.lifelog.core.git.util
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isTrue
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
 class ByteUtilsTest {
@@ -15,14 +16,14 @@ class ByteUtilsTest {
         )
 
     @Test
-    fun byteArrayToInt() {
+    fun byteArrayToInt() = runTest {
         for ((int, bytes) in intByteArrays) {
             assertThat(bytes.toIntBigEndian()).isEqualTo(int)
         }
     }
 
     @Test
-    fun intToByteArray() {
+    fun intToByteArray() = runTest {
         for ((int, bytes) in intByteArrays) {
             assertThat(int.to4ByteArrayBigEndian().contentEquals(bytes)).isTrue()
         }

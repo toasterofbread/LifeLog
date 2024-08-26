@@ -14,7 +14,14 @@ class GitPackFileGenerator(
 ) {
     data class PackFile(val bytes: ByteArray, val size: Int)
 
-    fun generatePackFile(objects: Collection<GitObject>): PackFile {
+    fun interface ProgressListener {
+        fun onProgress(objectIndex: Int, totalObjects: Int)
+    }
+
+    suspend fun generatePackFile(
+        objects: Collection<GitObject>,
+        progressListener: ProgressListener? = null
+    ): PackFile {
         val maximumTotalSize: Int = (
             HEADER_SIZE
             + objects.sumOf {
@@ -29,7 +36,8 @@ class GitPackFileGenerator(
         writeHeader(objects, bytes)
 
         var head: Int = HEADER_SIZE
-        for (obj in objects) {
+        for ((index, obj) in objects.withIndex()) {
+            progressListener?.onProgress(index, objects.size)
             head += obj.writePackFileRepresentation(bytes, head)
         }
 
@@ -45,9 +53,12 @@ class GitPackFileGenerator(
         objects.size.to4ByteArrayBigEndian(output, writeOffset + 8)
     }
 
-    private fun GitObject.writePackFileRepresentation(output: ByteArray, writeOffset: Int): Int {
+    private suspend fun GitObject.writePackFileRepresentation(output: ByteArray, writeOffset: Int): Int {
+        println(1)
         val contentStart: Int = findContentStart()
+        println(2)
         val headerSize: Int = generateSizeAndTypeHeader(bytes.size - contentStart, type, output, writeOffset)
+        println("BEGIN COMPRESSING ${bytes.size - contentStart} BYTES")
         val deflatedSize: Int =
             deflater.deflate(
                 bytes,
@@ -55,6 +66,7 @@ class GitPackFileGenerator(
                 writeOffset = writeOffset + headerSize,
                 inputStart = contentStart
             )
+        println("WRITE COMPRESSED ${output.toHexString(writeOffset + headerSize, writeOffset + headerSize + deflatedSize)}")
         return headerSize + deflatedSize
     }
 

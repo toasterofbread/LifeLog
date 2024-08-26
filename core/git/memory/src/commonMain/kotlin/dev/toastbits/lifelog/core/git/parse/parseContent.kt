@@ -2,7 +2,7 @@ package dev.toastbits.lifelog.core.git.parse
 
 import dev.toastbits.lifelog.core.git.model.ByteReader
 
-internal fun ByteReader.parseContent(expectedSize: Int?): Int {
+internal suspend fun ByteReader.parseContent(expectedSize: Int?): Int {
     val (bytesRead: Int, bytesWritten: Int) = bytes.inflate(zlibInflater, head)
 
     if (expectedSize != null) {
