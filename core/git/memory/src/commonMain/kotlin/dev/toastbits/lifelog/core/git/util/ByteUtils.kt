@@ -53,6 +53,3 @@ fun ParserByteArray.indexOfOrNull(subArray: ByteArray, size: Int? = null): Int? 
 
     return null
 }
-
-val IntRange.size: Int
-    get() = last - first + 1

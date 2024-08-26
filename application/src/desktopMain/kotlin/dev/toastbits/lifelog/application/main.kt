@@ -18,7 +18,7 @@ import okio.Path.Companion.toPath
 
 fun main() {
     runBlocking {
-        gitTest()
+        gitTest(Dispatchers.IO)
     }
     return
 

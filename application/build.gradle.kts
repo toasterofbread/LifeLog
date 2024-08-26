@@ -22,18 +22,18 @@ kotlin {
             }
         }
 
-        val desktopMain by getting {
-            dependencies {
-                // TEST
-                implementation(libs.ktor.client.cio)
-            }
-        }
+//        val desktopMain by getting {
+//            dependencies {
+//                // TEST
+//                implementation(libs.ktor.client.cio)
+//            }
+//        }
 
-        val wasmJsMain by getting {
-            dependencies {
-                implementation(npm("@es-git/memory-repo", "0.10.x"))
-            }
-        }
+//        val wasmJsMain by getting {
+//            dependencies {
+//                implementation(npm("@es-git/memory-repo", "0.10.x"))
+//            }
+//        }
     }
 }
 

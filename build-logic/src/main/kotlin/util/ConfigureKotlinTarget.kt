@@ -37,7 +37,13 @@ fun KotlinMultiplatformExtension.configureKmpTargets(
             }
             KmpTarget.WASMJS -> {
                 wasmJs {
+                    useCommonJs()
+
                     browser {
+                        webpackTask {
+                            output.libraryTarget = "commonjs2"
+                        }
+
                         testTask {
                             useKarma {
                                 useFirefox()

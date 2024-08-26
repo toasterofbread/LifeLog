@@ -19,11 +19,10 @@ import dev.toastbits.lifelog.core.git.provider.ZlibDeflater
 import dev.toastbits.lifelog.core.git.provider.ZlibInflater
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpTimeout
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import okio.Path.Companion.toPath
-import kotlin.io.encoding.ExperimentalEncodingApi
 
-suspend fun gitTest() {
+suspend fun gitTest(ioDispatcher: CoroutineDispatcher) {
     val repositoryUrl: String = "https://github.com/toasterofbread/test"
     val branch: String = "main"
     val credentials: GitCredentials? = null
@@ -35,11 +34,10 @@ suspend fun gitTest() {
             }
         }
 
-    val cloner: GitCloner = GitCloner(Dispatchers.IO, client)
-    val (content: ByteArray, ref: String) =
-        cloner.shallowClone(repositoryUrl, branch, credentials) { stage, r, l ->
-//            println("Cloning ($stage): $r / ${l ?: "?"}")
-        }
+    val cloner: GitCloner = GitCloner(ioDispatcher, client)
+    val (content, ref) = cloner.shallowClone(repositoryUrl, branch, credentials) { stage, r, l ->
+        println("Cloning ($stage): $r / ${l ?: "?"}")
+    }
 
     val objects: MutableGitObjectRegistry = SimpleGitObjectRegistry()
 
@@ -49,8 +47,10 @@ suspend fun gitTest() {
     val sha1Provider = PlatformSha1Provider()
     val parser: GitPackFileParser = GitPackFileParser(sha1Provider, inflater, objects)
     parser.parsePackFile(content) { stage, r, l ->
-//        println("Parsing pack ($stage): $r / $l")
+        println("Parsing pack ($stage): $r / $l")
     }
+
+    println(objects.getAll().map { it.hash })
 
     val headCommit: GitObject = objects.readObject(ref)
     val db: MutableFileStructure = MutableFileStructure()
@@ -58,12 +58,12 @@ suspend fun gitTest() {
     val treeRenderer: GitTreeRenderer = GitTreeRenderer(objects)
     treeRenderer.renderCommit(headCommit, db)
 
-    db.createFile("uitest.kt".toPath(), listOf("Hello", "World!", "4"), overwrite = true)
+    db.createFile("wasm.kt".toPath(), listOf("Hello", "From", "JVM again again"), overwrite = true)
 
     val user: GitCommitGenerator.UserInfo = GitCommitGenerator.UserInfo.ofNow("Talo Halton", "talohalton@gmail.com")
     val message: String =
         """
-           E
+           H
         """.trimIndent()
 
     val treeGenerator: GitTreeGenerator = GitTreeGenerator(sha1Provider, objects)
@@ -74,6 +74,8 @@ suspend fun gitTest() {
     val packFileGenerator = GitPackFileGenerator(sha1Provider, deflater)
     val packFile: GitPackFileGenerator.PackFile = packFileGenerator.generatePackFile(objects.getAll())
 
-    val pusher: GitPusher = GitPusher(Dispatchers.IO, client)
+    return
+
+    val pusher: GitPusher = GitPusher(ioDispatcher, client)
     pusher.pushPackFile(packFile, repositoryUrl, headCommit, commit, credentials)
 }

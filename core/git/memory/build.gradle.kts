@@ -21,6 +21,8 @@ kotlin {
                 api(libs.kotlinx.datetime)
                 implementation(libs.ktor.core)
                 implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.hash.sha1)
+                api(libs.korlibs.compression)
             }
         }
 
