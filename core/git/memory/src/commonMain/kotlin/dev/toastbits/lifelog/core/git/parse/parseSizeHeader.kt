@@ -6,6 +6,8 @@ import dev.toastbits.lifelog.core.git.util.band
 
 internal data class SizeAndTypeHeader(val size: Int, val type: GitObject.Type)
 
+// Write the inverse function of parseSizeHeader, which should output a ByteArray based on the input size
+
 private fun ByteReader.parseNextFullSize(part: Int): Pair<Boolean, Long> {
     val byte: Byte = bytes[head++]
     val readMore: Boolean = (byte band 0b10000000) != 0L

@@ -2,6 +2,7 @@ package dev.toastbits.lifelog.core.git.model
 
 class SimpleGitObjectRegistry: MutableGitObjectRegistry {
     private val objects: MutableMap<String, GitObject> = mutableMapOf()
+    override fun getObjectsHashCode(): Int = objects.hashCode()
 
     override fun getAll(): Collection<GitObject> = objects.values
 

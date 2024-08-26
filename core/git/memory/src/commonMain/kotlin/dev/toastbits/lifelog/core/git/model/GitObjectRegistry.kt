@@ -4,6 +4,7 @@ interface GitObjectRegistry {
     fun getAll(): Collection<GitObject>
     fun readObject(ref: String): GitObject
     fun readObjectOrNull(ref: String): GitObject?
+    fun getObjectsHashCode(): Int
 }
 
 interface MutableGitObjectRegistry: GitObjectRegistry {

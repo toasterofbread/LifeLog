@@ -64,7 +64,7 @@ class ByteArrayRegionWrapper(private val bytes: ByteArray, private val regions: 
     }
 
     fun calculateSha1Hash(sha1Provider: Sha1Provider, offset: Int = 0, length: Int = bytes.size): String {
-        return sha1Provider.calculateSha1Hash(bytes, getRegionsStartingAt(offset, length))
+        return sha1Provider.calculateSha1Hash(bytes, getRegionsStartingAt(offset, length)).toHexString()
     }
 
     operator fun get(index: Int): Byte {

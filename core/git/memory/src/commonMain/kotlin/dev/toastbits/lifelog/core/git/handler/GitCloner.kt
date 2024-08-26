@@ -1,9 +1,10 @@
 package dev.toastbits.lifelog.core.git.handler
 
+import dev.toastbits.lifelog.core.git.model.GitCredentials
+import dev.toastbits.lifelog.core.git.util.GitConstants
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.onDownload
-import io.ktor.client.plugins.timeout
 import io.ktor.client.request.headers
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -21,7 +22,6 @@ class GitCloner(
     private val ioDispatcher: CoroutineDispatcher,
     private val httpClient: HttpClient
 ) {
-    data class Credentials(val username: String, val password: String)
 
     enum class Stage {
         RETRIEVE_REF,
@@ -35,16 +35,10 @@ class GitCloner(
     suspend fun shallowClone(
         repositoryUrl: String,
         branch: String,
-        credentials: Credentials? = null,
+        credentials: GitCredentials? = null,
         progressListener: ProgressListener? = null
     ): Pair<ByteArray, String> = withContext(ioDispatcher) {
-        val headers: Headers =
-            HeadersBuilder().apply {
-                append("Git-Protocol", "version=2")
-                if (credentials != null) {
-                    append("Authorization", credentials.toAuthorizationHeader())
-                }
-            }.build()
+        val headers: Headers = GitConstants.getDefaultGitRequestHeaders(credentials)
 
         val headRef: String = getRef(repositoryUrl, branch, headers, progressListener)
 
@@ -126,8 +120,4 @@ class GitCloner(
             throw RuntimeException(content)
         }
     }
-
-    @OptIn(ExperimentalEncodingApi::class)
-    private fun Credentials.toAuthorizationHeader(): String =
-        "Basic " + Base64.encode("$username:$password".encodeToByteArray())
 }

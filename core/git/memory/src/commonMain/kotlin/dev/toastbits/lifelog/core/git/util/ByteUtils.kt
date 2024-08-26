@@ -5,15 +5,24 @@ typealias ParserByteArray = ByteArrayRegionWrapper
 infix fun Byte.band(other: Long): Long =
     toLong() and other
 
-fun ByteArray.toInt(): Int {
+fun ByteArray.toIntBigEndian(): Int {
+    check(size <= Int.SIZE_BYTES)
+
     var sum: Int = 0
 
     for (index in size - 1 downTo 0) {
         val byte: Byte = this[index]
-        sum += (byte.toUByte().toLong() shl ((size - 1 - index) * Byte.SIZE_BITS)).toInt()
+        sum += byte.toUByte().toInt() shl ((size - 1 - index) * Byte.SIZE_BITS)
     }
 
     return sum
+}
+
+fun Int.to4ByteArrayBigEndian(output: ByteArray = ByteArray(4), writeOffset: Int = 0): ByteArray {
+    for (i in 0 until 4) {
+        output[i + writeOffset] = (this shr ((3 - i) * Byte.SIZE_BITS)).toByte()
+    }
+    return output
 }
 
 fun ByteArray.indexOfOrNull(byte: Byte, startIndex: Int = 0, endIndex: Int = size): Int? {

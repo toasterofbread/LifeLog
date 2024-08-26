@@ -10,15 +10,15 @@ actual class PlatformSha1Provider: Sha1Provider {
         bytes: ByteArray,
         offset: Int,
         length: Int
-    ): String {
+    ): ByteArray {
         sha1.update(bytes, offset, length)
-        return sha1.digest().toHexString()
+        return sha1.digest()
     }
 
-    actual override fun calculateSha1Hash(bytes: ByteArray, regions: List<IntRange>): String {
+    actual override fun calculateSha1Hash(bytes: ByteArray, regions: List<IntRange>): ByteArray {
         for (region in regions) {
             sha1.update(bytes, region.first, region.size)
         }
-        return sha1.digest().toHexString()
+        return sha1.digest()
     }
 }

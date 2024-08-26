@@ -3,6 +3,7 @@ package dev.toastbits.lifelog.core.git.handler
 import dev.toastbits.lifelog.core.filestructure.MutableFileStructure
 import dev.toastbits.lifelog.core.git.model.GitObject
 import dev.toastbits.lifelog.core.git.model.GitObjectRegistry
+import dev.toastbits.lifelog.core.git.provider.Sha1Provider
 import dev.toastbits.lifelog.core.git.util.GitConstants
 import dev.toastbits.lifelog.core.git.util.indexOfOrNull
 import okio.Path
@@ -40,9 +41,9 @@ class GitTreeRenderer(
 
             head = split2 + 1
 
-            val objRef: String = tree.bytes.toHexString(head, head + 20)
+            val objRef: String = tree.bytes.toHexString(head, head + Sha1Provider.SHA1_BYTES)
             val obj: GitObject = readObject(objRef)
-            head += 20
+            head += Sha1Provider.SHA1_BYTES
 
             when (mode.toIntOrNull()) {
                 GitConstants.TreeMode.TREE -> {

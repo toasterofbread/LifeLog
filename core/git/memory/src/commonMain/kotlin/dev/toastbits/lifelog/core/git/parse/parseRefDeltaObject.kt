@@ -16,8 +16,8 @@ internal fun ByteReader.parseRefDeltaObject(
     objectRegistry: MutableGitObjectRegistry,
     zlibInflater: ZlibInflater
 ) {
-    val objRef: String = bytes.toHexString(head, head + 20)
-    head += 20
+    val objRef: String = bytes.toHexString(head, head + Sha1Provider.SHA1_BYTES)
+    head += Sha1Provider.SHA1_BYTES
 
     val obj: GitObject = objectRegistry.readObject(objRef)
     val contentSize: Int = parseContent(null)

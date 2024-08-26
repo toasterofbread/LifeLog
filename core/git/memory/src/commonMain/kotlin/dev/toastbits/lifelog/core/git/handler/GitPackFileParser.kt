@@ -13,6 +13,7 @@ import dev.toastbits.lifelog.core.git.parse.parseSizeAndTypeHeader
 import dev.toastbits.lifelog.core.git.provider.Sha1Provider
 import dev.toastbits.lifelog.core.git.provider.ZlibInflater
 import dev.toastbits.lifelog.core.git.util.ByteArrayRegionWrapper
+import dev.toastbits.lifelog.core.git.util.GitConstants
 import dev.toastbits.lifelog.core.git.util.ParserByteArray
 import dev.toastbits.lifelog.core.git.util.indexOfOrNull
 import dev.toastbits.lifelog.core.git.util.size
@@ -33,10 +34,10 @@ class GitPackFileParser(
         fun onProgress(stage: Stage, itemIndex: Int?, totalItems: Int?)
     }
 
-    fun parsePackFile(bytes: ByteArray, progressListener: ProgressListener? = null) {
+    fun parsePackFile(bytes: ByteArray, bytesSize: Int = bytes.size, progressListener: ProgressListener? = null) {
         progressListener?.onProgress(Stage.PREPARE_PACK, null, null)
 
-        val packFile: ByteArrayRegionWrapper = preparePackFileBytes(bytes)
+        val packFile: ByteArrayRegionWrapper = preparePackFileBytes(bytes, bytesSize)
         val fileStart: Int = packFile.indexOfOrNull("PACK".encodeToByteArray())!!
         val reader: ByteReader = ByteReader(packFile, fileStart + 4, zlibInflater)
 
@@ -44,8 +45,8 @@ class GitPackFileParser(
 
         val header: PackFileHeader = reader.parsePackFileHeader()
 
-        check(header.version == 2) { header }
-        check(header.objectCount > 0) { header }
+        check(header.version == GitConstants.GIT_VERSION) { header }
+        check(header.objectCount >= 0) { header }
 
         for (objectIndex in 0 until header.objectCount) {
             progressListener?.onProgress(Stage.PARSE_OBJECTS, objectIndex, header.objectCount)
@@ -59,12 +60,16 @@ class GitPackFileParser(
 
     private fun performPackFileChecksum(bytes: ParserByteArray, dataStart: Int, dataEnd: Int) {
         val hash: String = bytes.calculateSha1Hash(sha1Provider, dataStart, dataEnd - dataStart)
-        val checksum: String = bytes.toHexString(dataEnd, dataEnd + 20)
+        val checksum: String = bytes.toHexString(dataEnd, dataEnd + Sha1Provider.SHA1_BYTES)
 
         check(hash == checksum) { "SHA1 hash of pack file content ($hash) does not match received checksum ($checksum)" }
     }
 
-    private fun preparePackFileBytes(bytes: ByteArray): ParserByteArray {
+    private fun preparePackFileBytes(bytes: ByteArray, bytesSize: Int): ParserByteArray {
+        if (bytes.decodeToString(0, 4) == "PACK") {
+            return ByteArrayRegionWrapper(bytes, listOf(0 until bytesSize))
+        }
+
         val packLines: MutableList<IntRange> = mutableListOf()
         var currentRegion: IntRange = bytes.indices
 
@@ -84,7 +89,7 @@ class GitPackFileParser(
 
     private fun ByteReader.parseRawContentObject(type: GitObject.Type, expectedContentSize: Int) {
         val actualSize: Int = parseContent(expectedContentSize)
-        val gitObject: GitObject = generateGitObject(type, zlibInflater.outputBytes, sha1Provider, contentSize = actualSize)
+        val gitObject: GitObject = generateGitObject(type, zlibInflater.outputBytes, sha1Provider, contentRange = 0 until actualSize)
         writeObject(gitObject)
     }
 

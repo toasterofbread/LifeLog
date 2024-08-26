@@ -3,30 +3,31 @@ package dev.toastbits.lifelog.core.git.generate
 import dev.toastbits.lifelog.core.git.model.GitObject
 import dev.toastbits.lifelog.core.git.provider.Sha1Provider
 import dev.toastbits.lifelog.core.git.util.GitConstants
+import dev.toastbits.lifelog.core.git.util.size
 
 internal fun generateGitObject(
     type: GitObject.Type,
     content: ByteArray,
     sha1Provider: Sha1Provider,
-    contentSize: Int = content.size
+    contentRange: IntRange = content.indices
 ): GitObject {
-    val fullContent: ByteArray = generateGitObjectContent(type, content, contentSize)
-    val hash: String = sha1Provider.calculateSha1Hash(fullContent)
+    val fullContent: ByteArray = generateGitObjectContent(type, content, contentRange)
+    val hash: String = sha1Provider.calculateSha1Hash(fullContent).toHexString()
     return GitObject(fullContent, type, hash)
 }
 
-private fun generateGitObjectContent(type: GitObject.Type, content: ByteArray, contentSize: Int = content.size): ByteArray {
+private fun generateGitObjectContent(type: GitObject.Type, content: ByteArray, contentRange: IntRange): ByteArray {
     val header: ByteArray =
         buildString {
             append(GitConstants.getObjectTypeIdentifier(type))
             append(' ')
-            append(contentSize)
+            append(contentRange.size)
         }.encodeToByteArray()
 
-    val output: ByteArray = ByteArray(header.size + contentSize + 1)
+    val output: ByteArray = ByteArray(header.size + contentRange.size + 1)
     header.copyInto(output)
     // 0b0
-    content.copyInto(output, header.size + 1, endIndex = contentSize)
+    content.copyInto(output, header.size + 1, startIndex = contentRange.first, endIndex = contentRange.last + 1)
 
     return output
 }
