@@ -1,12 +1,13 @@
 package dev.toastbits.lifelog.core.git.util
 
+import korlibs.io.stream.AsyncGetLengthStream
 import korlibs.io.stream.AsyncInputStream
 
 internal class ByteArrayAsyncInputStream(
     private val input: ByteArray,
     private val regions: List<IntRange> = listOf(input.indices),
     skipBytes: Int = 0
-): AsyncInputStream {
+): AsyncInputStream, AsyncGetLengthStream {
     private var closed: Boolean = false
     private var bytesRead: Int = skipBytes
 
@@ -34,6 +35,10 @@ internal class ByteArrayAsyncInputStream(
     override suspend fun close() {
         closed = true
     }
+
+    override suspend fun getLength(): Long = regions.sumOf { it.size }.toLong()
+
+    override suspend fun hasLength(): Boolean = true
 
     companion object {
         const val ZLIB_HEADER_SIZE: Int = 2

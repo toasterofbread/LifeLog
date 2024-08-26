@@ -1,4 +1,6 @@
-@file:OptIn(ExperimentalWasmDsl::class, ExperimentalKotlinGradlePluginApi::class)
+@file:OptIn(
+    org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class, ExperimentalKotlinGradlePluginApi::class
+)
 package util
 
 import org.gradle.kotlin.dsl.assign

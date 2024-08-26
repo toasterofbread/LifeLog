@@ -54,11 +54,8 @@ class GitPackFileGenerator(
     }
 
     private suspend fun GitObject.writePackFileRepresentation(output: ByteArray, writeOffset: Int): Int {
-        println(1)
         val contentStart: Int = findContentStart()
-        println(2)
         val headerSize: Int = generateSizeAndTypeHeader(bytes.size - contentStart, type, output, writeOffset)
-        println("BEGIN COMPRESSING ${bytes.size - contentStart} BYTES")
         val deflatedSize: Int =
             deflater.deflate(
                 bytes,
@@ -66,7 +63,6 @@ class GitPackFileGenerator(
                 writeOffset = writeOffset + headerSize,
                 inputStart = contentStart
             )
-        println("WRITE COMPRESSED ${output.toHexString(writeOffset + headerSize, writeOffset + headerSize + deflatedSize)}")
         return headerSize + deflatedSize
     }
 

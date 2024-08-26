@@ -32,7 +32,7 @@ internal fun ByteReader.parseSizeHeader(partOffset: Int = 0): Int {
 }
 
 internal fun ByteReader.parseSizeAndTypeHeader(): SizeAndTypeHeader {
-    println(bytes.sliceArray(head until head + 5).toHexString())
+    println("Obj header: " + bytes.sliceArray(head until head + 5).map { it.toUByte().toString(2).padStart(8, '0') }.toString())
     val byte: Byte = bytes[head++]
 
     val objTypeIndex: Long = (byte band 0b01110000) shr 4

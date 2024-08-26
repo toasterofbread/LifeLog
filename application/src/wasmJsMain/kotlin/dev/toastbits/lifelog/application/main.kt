@@ -8,9 +8,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.window.CanvasBasedWindow
 import io.ktor.util.decodeBase64String
 import io.ktor.util.encodeBase64
+import korlibs.io.async.runBlockingNoSuspensions
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.asPromise
+import kotlinx.coroutines.async
 import kotlinx.coroutines.await
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.promise
@@ -29,7 +32,12 @@ fun log(content: Any?) {
 fun main() {
     @OptIn(DelicateCoroutinesApi::class)
     GlobalScope.launch(Dispatchers.Main) {
-        gitTest(Dispatchers.Main)
+        GlobalScope.async {
+            gitTest(Dispatchers.Main)
+        }.asPromise().catch {
+            println("FAIL $it")
+            TODO()
+        }
     }
 
     val application: Application = Application()

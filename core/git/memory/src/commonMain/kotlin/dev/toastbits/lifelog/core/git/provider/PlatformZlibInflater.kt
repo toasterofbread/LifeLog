@@ -8,10 +8,11 @@ import dev.toastbits.lifelog.core.git.util.getRegionsStartingAt
 import dev.toastbits.lifelog.core.git.util.to4ByteArrayBigEndian
 import korlibs.io.compression.CompressionMethod
 import korlibs.io.compression.deflate.Deflate
+import korlibs.io.compression.deflate.DeflatePortable
 
 class PlatformZlibInflater(
     override val outputBytes: ByteArray,
-    private val inflater: CompressionMethod = Deflate
+    private val inflater: CompressionMethod = DeflatePortable
 ): ZlibInflater {
     private val outputStream: ByteArrayAsyncOutputStream = ByteArrayAsyncOutputStream(outputBytes)
 

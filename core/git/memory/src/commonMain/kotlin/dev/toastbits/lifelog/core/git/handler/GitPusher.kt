@@ -4,6 +4,7 @@ import dev.toastbits.lifelog.core.git.model.GitCredentials
 import dev.toastbits.lifelog.core.git.model.GitObject
 import dev.toastbits.lifelog.core.git.util.GitConstants
 import io.ktor.client.HttpClient
+import io.ktor.client.plugins.onUpload
 import io.ktor.client.request.headers
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -18,12 +19,17 @@ class GitPusher(
     private val ioDispatcher: CoroutineDispatcher,
     private val httpClient: HttpClient
 ) {
+    fun interface ProgressListener {
+        fun onProgress(sentBytes: Long, contentLength: Long)
+    }
+
     suspend fun pushPackFile(
         packFile: GitPackFileGenerator.PackFile,
         repositoryUrl: String,
         headCommit: GitObject,
         latestCommit: GitObject,
-        credentials: GitCredentials? = null
+        credentials: GitCredentials? = null,
+        progressListener: ProgressListener? = null
     ) = withContext(ioDispatcher) {
         require(headCommit.type == GitObject.Type.COMMIT)
         require(latestCommit.type == GitObject.Type.COMMIT)
@@ -35,7 +41,7 @@ class GitPusher(
             "00a9${headCommit.hash} ${latestCommit.hash} refs/heads/main\u0000 report-status-v2 side-band-64k object-format=sha1 agent=git/2.45.20000"
         ).encodeToByteArray()
 
-        val requestBody = ByteArray(requestBodyHeader.size + packFile.size)
+        val requestBody: ByteArray = ByteArray(requestBodyHeader.size + packFile.size)
         requestBodyHeader.copyInto(requestBody)
         packFile.bytes.copyInto(requestBody, requestBodyHeader.size, endIndex = packFile.size)
 
@@ -44,6 +50,10 @@ class GitPusher(
                 setBody(requestBody)
                 headers {
                     appendAll(headers)
+                }
+
+                onUpload { sent, _ ->
+                    progressListener?.onProgress(sent, requestBody.size.toLong())
                 }
             }
 

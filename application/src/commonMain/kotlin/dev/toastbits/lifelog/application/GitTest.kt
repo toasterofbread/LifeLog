@@ -23,7 +23,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import okio.Path.Companion.toPath
 
 suspend fun gitTest(ioDispatcher: CoroutineDispatcher) {
-    val repositoryUrl: String = "https://github.com/toasterofbread/test"
+    val repositoryUrl: String = "http://localhost:3000/https://github.com/toasterofbread/test.git"
     val branch: String = "main"
     val credentials: GitCredentials? = null
 
@@ -65,7 +65,7 @@ suspend fun gitTest(ioDispatcher: CoroutineDispatcher) {
     val user: GitCommitGenerator.UserInfo = GitCommitGenerator.UserInfo.ofNow("Talo Halton", "talohalton@gmail.com")
     val message: String =
         """
-           wasm
+           definitely wasm
         """.trimIndent()
 
     println("Generating new commit...")
