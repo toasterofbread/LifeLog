@@ -40,11 +40,3 @@ kotlin {
         }
     }
 }
-
-val projectName: String = libs.versions.project.name.get()
-val projectVersion: String = project.libs.versions.project.name.get()
-val artifactName: String = "core.git.memoty"
-
-android {
-    namespace = "dev.toastbits.$projectName.$artifactName"
-}

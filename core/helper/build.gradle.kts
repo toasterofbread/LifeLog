@@ -31,12 +31,7 @@ kotlin {
 
 val projectName: String = libs.versions.project.name.get()
 val projectVersion: String = project.libs.versions.project.name.get()
-val artifactName: String = "core.helper"
-
-android {
-    namespace = "dev.toastbits.$projectName.$artifactName"
-}
 
 mavenPublishing {
-    coordinates("dev.toastbits.$projectName", artifactName, projectVersion)
+    coordinates("dev.toastbits.$projectName", "core.helper", projectVersion)
 }

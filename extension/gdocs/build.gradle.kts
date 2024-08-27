@@ -33,12 +33,7 @@ kotlin {
 
 val projectName: String = libs.versions.project.name.get()
 val projectVersion: String = project.libs.versions.project.name.get()
-val artifactName: String = "gdocs"
-
-android {
-    namespace = "dev.toastbits.$projectName.extension.$artifactName"
-}
 
 mavenPublishing {
-    coordinates("dev.toastbits.$projectName.extension", artifactName, projectVersion)
+    coordinates("dev.toastbits.$projectName.extension", "gdocs", projectVersion)
 }
