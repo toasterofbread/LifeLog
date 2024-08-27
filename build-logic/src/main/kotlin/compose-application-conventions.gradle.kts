@@ -90,7 +90,11 @@ kotlin {
 compose {
     desktop {
         application {
-            mainClass = "dev.toastbits.$projectName.application.MainKt"
+            mainClass = "dev.toastbits.$projectName.application.core.MainKt"
         }
+    }
+
+    resources {
+        publicResClass = true
     }
 }

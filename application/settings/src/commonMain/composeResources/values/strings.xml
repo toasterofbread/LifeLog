@@ -1,0 +1,4 @@
+<resources>
+    <string name="pref_database_source_database_sources_title">Database sources</string>
+    <string name="pref_database_source_database_sources_description">TODO</string>
+</resources>
