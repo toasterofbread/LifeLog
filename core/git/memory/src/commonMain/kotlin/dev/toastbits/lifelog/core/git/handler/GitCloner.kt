@@ -1,5 +1,6 @@
 package dev.toastbits.lifelog.core.git.handler
 
+import dev.toastbits.lifelog.core.git.handler.stage.GitHandlerStage
 import dev.toastbits.lifelog.core.git.model.GitCredentials
 import dev.toastbits.lifelog.core.git.util.GitConstants
 import io.ktor.client.HttpClient
@@ -22,14 +23,8 @@ class GitCloner(
     private val ioDispatcher: CoroutineDispatcher,
     private val httpClient: HttpClient
 ) {
-
-    enum class Stage {
-        RETRIEVE_REF,
-        PULL
-    }
-
     fun interface ProgressListener {
-        fun onProgress(stage: Stage, receivedBytes: Long, contentLength: Long?)
+        fun onProgress(stage: GitHandlerStage.Clone, receivedBytes: Long, contentLength: Long?)
     }
 
     suspend fun shallowClone(
@@ -56,7 +51,7 @@ class GitCloner(
                 }
 
                 onDownload { received, length ->
-                    progressListener?.onProgress(Stage.PULL, received, length)
+                    progressListener?.onProgress(GitHandlerStage.Clone.PULL, received, length)
                 }
             }
 
@@ -92,7 +87,7 @@ class GitCloner(
                 appendAll(headers)
             }
             onDownload { received, length ->
-                progressListener?.onProgress(Stage.RETRIEVE_REF, received, length)
+                progressListener?.onProgress(GitHandlerStage.Clone.RETRIEVE_REF, received, length)
             }
         }
         check(response.status.isSuccess()) { response.status }

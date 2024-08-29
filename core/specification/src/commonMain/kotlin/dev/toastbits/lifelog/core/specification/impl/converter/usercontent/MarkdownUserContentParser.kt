@@ -60,25 +60,25 @@ class MarkdownUserContentParser: UserContentParser {
                 "EMPH", "STRONG", "CODE_SPAN" -> {
                     var children: List<ASTNode> = node.children
 
-                    val modifier: UserContent.Modifier =
+                    val mod: UserContent.Mod =
                         when (node.type.name) {
-                            "EMPH" -> UserContent.Modifier.Italic
-                            "STRONG" -> UserContent.Modifier.Bold
+                            "EMPH" -> UserContent.Mod.Italic
+                            "STRONG" -> UserContent.Mod.Bold
                             "CODE_SPAN" -> {
                                 children = children.removeSides("BACKTICK", "BACKTICK")
-                                UserContent.Modifier.Code
+                                UserContent.Mod.Code
                             }
                             else -> throw IllegalStateException(node.type.name)
                         }
-                    return listOf(UserContent.Part.Composite(children.getParts(), setOf(modifier)))
+                    return listOf(UserContent.Part.Composite(children.getParts(), setOf(mod)))
                 }
                 "STRIKETHROUGH" -> {
                     val children: List<ASTNode> = node.children.removeSides("~", "~").removeSides("~", "~")
-                    return listOf(UserContent.Part.Composite(children.flatMap { getNodeParts(it) }, setOf(UserContent.Modifier.Strikethrough)))
+                    return listOf(UserContent.Part.Composite(children.flatMap { getNodeParts(it) }, setOf(UserContent.Mod.Strikethrough)))
                 }
                 "CODE_FENCE" -> {
                     val children: List<ASTNode> = node.children.removeSides("CODE_FENCE_START", "CODE_FENCE_END").removeSides("EOL", "EOL")
-                    return listOf(UserContent.Part.Composite(children.getParts(), setOf(UserContent.Modifier.CodeBlock)))
+                    return listOf(UserContent.Part.Composite(children.getParts(), setOf(UserContent.Mod.CodeBlock)))
                 }
                 "IMAGE" -> {
                     val children: List<ASTNode>? = node.children.getOrNull(1)?.children
@@ -92,7 +92,7 @@ class MarkdownUserContentParser: UserContentParser {
                 }
                 "GFM_AUTOLINK" -> {
                     val link: String = node.getTextInNode(text).toString()
-                    return listOf(UserContent.Part.Single(link, setOf(UserContent.Modifier.Reference(LogEntityReference.URL(link)))))
+                    return listOf(UserContent.Part.Single(link, setOf(UserContent.Mod.Reference(LogEntityReference.URL(link)))))
                 }
                 "INLINE_LINK" -> {
                     var linkTextParts: List<UserContent.Part>? = null
@@ -112,8 +112,8 @@ class MarkdownUserContentParser: UserContentParser {
                         }
                     }
 
-                    val referenceModifier: UserContent.Modifier? = linkReference?.let { UserContent.Modifier.Reference(it) }
-                    return listOf(UserContent.Part.Composite(linkTextParts.orEmpty(), setOfNotNull(referenceModifier)))
+                    val referenceMod: UserContent.Mod? = linkReference?.let { UserContent.Mod.Reference(it) }
+                    return listOf(UserContent.Part.Composite(linkTextParts.orEmpty(), setOfNotNull(referenceMod)))
                 }
                 else -> {
                     if (node.type.name.length == 1) {

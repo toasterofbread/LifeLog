@@ -12,27 +12,45 @@ import okio.Path.Companion.toPath
 class GitTreeRenderer(
     private val objectRegistry: GitObjectRegistry
 ): GitObjectRegistry by objectRegistry {
-    fun renderCommitTree(commit: GitObject, writeFile: (Path, ByteArray, IntRange) -> Unit) {
+    fun interface ProgressListener {
+        fun onProgress(bytesRead: Int, totalBytes: Int)
+    }
+
+    fun renderCommitTree(
+        commit: GitObject,
+        progressListener: ProgressListener? = null,
+        writeFile: (Path, ByteArray, IntRange) -> Unit
+    ) {
         check(commit.type == GitObject.Type.COMMIT)
 
         val commitContentStart: Int = commit.findContentStart()
         val treeRef: String = commit.bytes.decodeToString(commitContentStart + 5, commitContentStart + 45)
 
-        renderTree(readObject(treeRef), writeFile)
+        renderTree(readObject(treeRef), progressListener, writeFile)
     }
 
-    fun renderCommitTree(commit: GitObject, fileStructure: MutableFileStructure) {
-        renderCommitTree(commit) { path, bytes, range ->
+    fun renderCommitTree(
+        commit: GitObject,
+        fileStructure: MutableFileStructure,
+        progressListener: ProgressListener? = null
+    ) {
+        renderCommitTree(commit, progressListener) { path, bytes, range ->
             fileStructure.createFile(path, bytes, range)
         }
     }
 
-    fun renderTree(tree: GitObject, writeFile: (Path, ByteArray, IntRange) -> Unit) {
+    fun renderTree(
+        tree: GitObject,
+        progressListener: ProgressListener? = null,
+        writeFile: (Path, ByteArray, IntRange) -> Unit
+    ) {
         check(tree.type == GitObject.Type.TREE)
 
         var head: Int = tree.findContentStart()
 
         while (head < tree.bytes.size) {
+            progressListener?.onProgress(head, tree.bytes.size)
+
             val split1: Int = tree.bytes.indexOfOrNull(' '.code.toByte(), head) ?: break
             val split2: Int = tree.bytes.indexOfOrNull(0b0, split1)!!
 

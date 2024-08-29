@@ -1,0 +1,10 @@
+<resources>
+    <string name="database_source_list_add_source">Add source</string>
+    <string name="database_source_list_no_sources_added">No sources created</string>
+    <string name="database_source_is_set_to_auto_open">Set to auto-open</string>
+
+    <string name="database_loader_title">Loading database</string>
+    <string name="database_loader_checking_if_up_to_date">Checking if offline database is up to date...</string>
+    <string name="database_loader_loading_offline_database_at_$location">Loading offline database at $location...</string>
+    <string name="database_loader_loading_online_database_at_$location">Loading database from $location...</string>
+</resources>

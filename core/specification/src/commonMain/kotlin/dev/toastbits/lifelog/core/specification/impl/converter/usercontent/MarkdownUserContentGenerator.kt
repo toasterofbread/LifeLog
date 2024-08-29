@@ -31,7 +31,7 @@ class MarkdownUserContentGenerator: UserContentGenerator {
         }
 
         fun addPart(part: UserContent.Part) {
-            inModifiers(part.modifiers) {
+            inModifiers(part.mods) {
                 when (part) {
                     is UserContent.Part.Single -> append(part.text)
                     is UserContent.Part.Composite -> {
@@ -45,10 +45,10 @@ class MarkdownUserContentGenerator: UserContentGenerator {
         }
 
         private fun inModifiers(
-            modifiers: Iterable<UserContent.Modifier>,
+            modifiers: Iterable<UserContent.Mod>,
             block: () -> Unit
         ) {
-            val sorted: List<UserContent.Modifier> = modifiers.sorted()
+            val sorted: List<UserContent.Mod> = modifiers.sorted()
             for (modifier in sorted) {
                 append(modifier.getStart())
             }
@@ -60,20 +60,20 @@ class MarkdownUserContentGenerator: UserContentGenerator {
             }
         }
 
-        private fun UserContent.Modifier.getStart(): String =
+        private fun UserContent.Mod.getStart(): String =
             when (this) {
-                UserContent.Modifier.Bold -> "**"
-                UserContent.Modifier.Code -> "`"
-                UserContent.Modifier.CodeBlock -> "```\n"
-                UserContent.Modifier.Italic -> "*"
-                UserContent.Modifier.Strikethrough -> "~~"
-                is UserContent.Modifier.Reference -> "["
+                UserContent.Mod.Bold -> "**"
+                UserContent.Mod.Code -> "`"
+                UserContent.Mod.CodeBlock -> "```\n"
+                UserContent.Mod.Italic -> "*"
+                UserContent.Mod.Strikethrough -> "~~"
+                is UserContent.Mod.Reference -> "["
             }
 
-        private fun UserContent.Modifier.getEnd(): String =
+        private fun UserContent.Mod.getEnd(): String =
             when (this) {
-                UserContent.Modifier.CodeBlock -> "\n```"
-                is UserContent.Modifier.Reference -> {
+                UserContent.Mod.CodeBlock -> "\n```"
+                is UserContent.Mod.Reference -> {
                     val referenceLink: String =
                         if (reference is LogEntityReference.URL) reference.url
                         else referenceGenerator.generateReferencePath(reference, onAlert = { onAlert(it, currentLine) }).toString()

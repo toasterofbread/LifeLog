@@ -18,11 +18,11 @@ class MarkdownUserContentParserTest: ParserTest() {
 
         assertThat(parsed.parts).hasSize(3)
 
-        assertThat(parsed.parts[0].modifiers).isEmpty()
-        assertThat(parsed.parts[2].modifiers).isEmpty()
+        assertThat(parsed.parts[0].mods).isEmpty()
+        assertThat(parsed.parts[2].mods).isEmpty()
 
-        assertThat(parsed.parts[1].modifiers).hasSize(1)
-        assertThat(parsed.parts[1].modifiers.single()).isEqualTo(UserContent.Modifier.Reference(mockResultReference))
+        assertThat(parsed.parts[1].mods).hasSize(1)
+        assertThat(parsed.parts[1].mods.single()).isEqualTo(UserContent.Mod.Reference(mockResultReference))
     }
 
     @Test
@@ -33,23 +33,23 @@ class MarkdownUserContentParserTest: ParserTest() {
         val expectedParts: List<UserContent.Part> =
             listOf(
                 UserContent.Part.Single("Normal "),
-                UserContent.Part.Single("Italic", setOf(UserContent.Modifier.Italic)),
+                UserContent.Part.Single("Italic", setOf(UserContent.Mod.Italic)),
                 UserContent.Part.Single(" "),
-                UserContent.Part.Single("Bold", setOf(UserContent.Modifier.Bold)),
+                UserContent.Part.Single("Bold", setOf(UserContent.Mod.Bold)),
                 UserContent.Part.Single(" "),
-                UserContent.Part.Single("Both", setOf(UserContent.Modifier.Bold, UserContent.Modifier.Italic)),
+                UserContent.Part.Single("Both", setOf(UserContent.Mod.Bold, UserContent.Mod.Italic)),
                 UserContent.Part.Single(" "),
                 UserContent.Part.Composite(
                     listOf(
                         UserContent.Part.Single("Bold "),
-                        UserContent.Part.Single("Both", setOf(UserContent.Modifier.Italic))
+                        UserContent.Part.Single("Both", setOf(UserContent.Mod.Italic))
                     ),
-                    setOf(UserContent.Modifier.Bold)
+                    setOf(UserContent.Mod.Bold)
                 ),
                 UserContent.Part.Single(" "),
-                UserContent.Part.Single("Strikethrough", setOf(UserContent.Modifier.Strikethrough)),
+                UserContent.Part.Single("Strikethrough", setOf(UserContent.Mod.Strikethrough)),
                 UserContent.Part.Single(" "),
-                UserContent.Part.Single("Code", setOf(UserContent.Modifier.Code)),
+                UserContent.Part.Single("Code", setOf(UserContent.Mod.Code)),
             )
 
         val parsed: UserContent = parseAndTest(text, renderedText)
@@ -63,7 +63,7 @@ class MarkdownUserContentParserTest: ParserTest() {
 
         val expectedParts: List<UserContent.Part.Single> =
             listOf(
-                UserContent.Part.Single("This is a code block", setOf(UserContent.Modifier.CodeBlock))
+                UserContent.Part.Single("This is a code block", setOf(UserContent.Mod.CodeBlock))
             )
 
         val parsed: UserContent = parseAndTest(text, renderedText)

@@ -28,16 +28,18 @@ dependencyResolutionManagement {
 
 rootProject.name = "lifelog"
 
-include(":application:core")
-include(":application:settings")
-include(":application:dbsource")
+include(":application:app")
+include(":application:settings:domain")
+include(":application:settings:data")
+include(":application:dbsource:domain")
+include(":application:dbsource:data")
+include(":application:dbsource:inmemorygit")
 
 include(":core:filestructure")
 include(":core:specification")
 include(":core:accessor")
 include(":core:git:system")
 include(":core:git:memory")
-include(":core:helper")
 include(":core:test")
 
 include(":extension:media")

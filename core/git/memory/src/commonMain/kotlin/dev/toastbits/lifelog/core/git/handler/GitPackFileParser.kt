@@ -1,6 +1,7 @@
 package dev.toastbits.lifelog.core.git.handler
 
 import dev.toastbits.lifelog.core.git.generate.generateGitObject
+import dev.toastbits.lifelog.core.git.handler.stage.GitHandlerStage
 import dev.toastbits.lifelog.core.git.model.ByteReader
 import dev.toastbits.lifelog.core.git.model.GitObject
 import dev.toastbits.lifelog.core.git.model.GitObjectRegistry
@@ -23,25 +24,18 @@ class GitPackFileParser(
     private val zlibInflater: ZlibInflater,
     private val objectRegistry: MutableGitObjectRegistry
 ): MutableGitObjectRegistry by objectRegistry {
-    enum class Stage {
-        PREPARE_PACK,
-        READ_HEADER,
-        PARSE_OBJECTS,
-        CHECKSUM
-    }
-
     fun interface ProgressListener {
-        fun onProgress(stage: Stage, itemIndex: Int?, totalItems: Int?)
+        fun onProgress(stage: GitHandlerStage.PackFileParse, itemIndex: Int?, totalItems: Int?)
     }
 
     suspend fun parsePackFile(bytes: ByteArray, bytesSize: Int = bytes.size, progressListener: ProgressListener? = null) {
-        progressListener?.onProgress(Stage.PREPARE_PACK, null, null)
+        progressListener?.onProgress(GitHandlerStage.PackFileParse.PREPARE_PACK, null, null)
 
         val packFile: ByteArrayRegionWrapper = preparePackFileBytes(bytes, bytesSize)
         val fileStart: Int = packFile.indexOfOrNull("PACK".encodeToByteArray())!!
         val reader: ByteReader = ByteReader(packFile, fileStart + 4, zlibInflater)
 
-        progressListener?.onProgress(Stage.READ_HEADER, null, null)
+        progressListener?.onProgress(GitHandlerStage.PackFileParse.READ_HEADER, null, null)
 
         val header: PackFileHeader = reader.parsePackFileHeader()
 
@@ -49,11 +43,11 @@ class GitPackFileParser(
         check(header.objectCount >= 0) { header }
 
         for (objectIndex in 0 until header.objectCount) {
-            progressListener?.onProgress(Stage.PARSE_OBJECTS, objectIndex, header.objectCount)
+            progressListener?.onProgress(GitHandlerStage.PackFileParse.PARSE_OBJECTS, objectIndex, header.objectCount)
             reader.parseAnyObject()
         }
 
-        progressListener?.onProgress(Stage.CHECKSUM, null, null)
+        progressListener?.onProgress(GitHandlerStage.PackFileParse.CHECKSUM, null, null)
 
         performPackFileChecksum(reader.bytes, fileStart, reader.head)
     }

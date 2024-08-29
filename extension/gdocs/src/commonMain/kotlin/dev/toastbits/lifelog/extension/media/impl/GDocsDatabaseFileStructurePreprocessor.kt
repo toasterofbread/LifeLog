@@ -9,6 +9,7 @@ import dev.toastbits.lifelog.core.specification.converter.LogFileConverterString
 import dev.toastbits.lifelog.core.specification.converter.ParseAlertData
 import dev.toastbits.lifelog.core.specification.converter.alert.LogParseAlert
 import dev.toastbits.lifelog.core.specification.converter.alert.SpecificationLogParseAlert
+import dev.toastbits.lifelog.core.specification.extension.ExtensionRegistry
 import dev.toastbits.lifelog.core.specification.extension.SpecificationExtension
 import dev.toastbits.lifelog.core.specification.impl.converter.DateLineParser
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReference
@@ -29,10 +30,10 @@ class GDocsDatabaseFileStructurePreprocessor(
         fileStructure: FileStructure,
         fileStructureProvider: DatabaseFileStructureProvider,
         strings: LogFileConverterStrings,
-        extensions: List<SpecificationExtension>,
+        extensionRegistry: ExtensionRegistry,
         onAlert: (ParseAlertData) -> Unit
     ): FileStructure {
-        val mediaExtension: MediaExtension? = extensions.firstOrNull { it is MediaExtension } as MediaExtension?
+        val mediaExtension: MediaExtension? = extensionRegistry.getAllExtensions().filterIsInstance<MediaExtension>().firstOrNull()
         if (mediaExtension == null) {
             onAlert(ParseAlertData(GDocsLogParseAlert.MediaExtensionNotPresent(gdocsStrings.extensionId), null, null))
         }

@@ -4,5 +4,9 @@ enum class KmpTarget {
     JVM,
     ANDROID,
     NATIVE,
-    WASMJS
+    WASMJS;
+
+    companion object {
+        val ALL_COMPOSE: Array<KmpTarget> = arrayOf(JVM, ANDROID, WASMJS)
+    }
 }

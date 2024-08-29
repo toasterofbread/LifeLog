@@ -2,6 +2,7 @@ package dev.toastbits.lifelog.core.accessor.impl
 
 import dev.toastbits.lifelog.core.accessor.DatabaseFileStructureProvider
 import dev.toastbits.lifelog.core.accessor.DatabaseFilesParser
+import dev.toastbits.lifelog.core.accessor.LogDatabaseConfiguration
 import dev.toastbits.lifelog.core.accessor.extension.DatabaseFileStructureExtension
 import dev.toastbits.lifelog.core.filestructure.FileStructure
 import dev.toastbits.lifelog.core.filestructure.walkFiles
@@ -9,25 +10,24 @@ import dev.toastbits.lifelog.core.specification.converter.LogFileConverter
 import dev.toastbits.lifelog.core.specification.converter.LogFileConverterStrings
 import dev.toastbits.lifelog.core.specification.converter.ParseAlertData
 import dev.toastbits.lifelog.core.specification.converter.alert.SpecificationLogParseAlert
-import dev.toastbits.lifelog.core.specification.database.LogDatabase
 import dev.toastbits.lifelog.core.specification.database.LogDataFile
+import dev.toastbits.lifelog.core.specification.database.LogDatabase
+import dev.toastbits.lifelog.core.specification.extension.ExtensionRegistry
 import dev.toastbits.lifelog.core.specification.extension.SpecificationExtension
-import dev.toastbits.lifelog.core.specification.impl.extension.ExtendableImpl
 import dev.toastbits.lifelog.core.specification.model.entity.date.LogDate
 import dev.toastbits.lifelog.core.specification.model.entity.event.LogEvent
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReference
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferenceType
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
-import okio.FileSystem
 import okio.Path
 
 class DatabaseFilesParserImpl(
     private val converter: LogFileConverter,
-    private val strings: LogFileConverterStrings,
+    private val configuration: LogDatabaseConfiguration,
     private val fileStructureProvider: DatabaseFileStructureProvider,
     private val ioDispatcher: CoroutineDispatcher
-): ExtendableImpl(), DatabaseFilesParser {
+): DatabaseFilesParser {
     override suspend fun parseDatabaseFileStructure(
         structure: FileStructure,
         onAlert: (ParseAlertData) -> Unit
@@ -63,13 +63,13 @@ class DatabaseFilesParserImpl(
 
     private suspend fun FileStructure.preprocess(onAlert: (ParseAlertData) -> Unit): FileStructure {
         var structure: FileStructure = this
-        for (extension in extensions) {
+        for (extension in configuration.extensionRegistry.getAllExtensions()) {
             if (extension !is DatabaseFileStructureExtension) {
                 continue
             }
 
             for (preprocessor in extension.extraPreprocessors) {
-                structure = preprocessor.processDatabaseFileStructure(structure, fileStructureProvider, strings, extensions, onAlert)
+                structure = preprocessor.processDatabaseFileStructure(structure, fileStructureProvider, configuration.strings, configuration.extensionRegistry, onAlert)
             }
         }
         return structure
@@ -88,10 +88,15 @@ class DatabaseFilesParserImpl(
         }
 
         when (reference.path.segments.lastOrNull()) {
-            strings.logFileName -> {
-                check(file is FileStructure.Node.File.FileLines)
+            configuration.strings.logFileName -> {
+                val lines: Iterable<String> =
+                    when (file) {
+                        // TODO Don't use split()
+                        is FileStructure.Node.File.FileBytes -> file.readBytes().let { (bytes, size) -> bytes.decodeToString(size.first, size.last + 1) }.split('\n')
+                        is FileStructure.Node.File.FileLines -> file.readLines().asIterable()
+                    }
 
-                val log: LogFileConverter.ParseResult = converter.parseLogFile(file.readLines().asIterable())
+                val log: LogFileConverter.ParseResult = converter.parseLogFile(lines)
                 log.alerts.forEach(onAlert)
 
                 for ((day, events) in log.days) {
@@ -108,7 +113,7 @@ class DatabaseFilesParserImpl(
             onAlert(ParseAlertData(SpecificationLogParseAlert.RedefinedMetadataValue(reference), null, path.toString()))
         }
 
-        val extension: SpecificationExtension? = fileStructureProvider.findRegisteredExtension(reference.extensionId!!)
+        val extension: SpecificationExtension? = configuration.extensionRegistry.findRegisteredExtension(reference.extensionId!!)
         if (extension == null) {
             onAlert(ParseAlertData(SpecificationLogParseAlert.UnregisteredExtension(reference.extensionId!!), null, path.toString()))
             return

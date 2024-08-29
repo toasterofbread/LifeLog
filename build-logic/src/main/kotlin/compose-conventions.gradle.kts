@@ -17,7 +17,7 @@ val projectName: String = libs.version("project.name")
 
 kotlin {
     configureKmpTargets(
-        KmpTarget.JVM, KmpTarget.ANDROID, KmpTarget.WASMJS,
+        *KmpTarget.ALL_COMPOSE,
         beforeConfigure = {
             when (this) {
                 is KotlinWasmJsTargetDsl -> {

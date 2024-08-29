@@ -1,0 +1,7 @@
+<resources>
+    <string name="pref_database_source_database_sources_title">Database sources</string>
+    <string name="pref_database_source_database_sources_description">TODO</string>
+
+    <string name="pref_database_split_strategy_title">Split strategy</string>
+    <string name="pref_database_split_strategy_description">TODO</string>
+</resources>

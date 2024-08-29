@@ -83,7 +83,7 @@ class GitLogDatabaseSaverTest: FileSystemTest {
 
     @Test
     fun testGitLogDatabaseSaver() = runTest {
-        val content: UserContent = UserContent.single("Hello World!", setOf(UserContent.Modifier.Italic, UserContent.Modifier.Bold))
+        val content: UserContent = UserContent.single("Hello World!", setOf(UserContent.Mod.Italic, UserContent.Mod.Bold))
         val renderedContent: String = "***Hello World!***"
 
         val date: LocalDate = LocalDate.parse("2024-08-15")

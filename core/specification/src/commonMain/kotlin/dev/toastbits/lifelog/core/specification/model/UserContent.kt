@@ -1,6 +1,6 @@
 package dev.toastbits.lifelog.core.specification.model
 
-import dev.toastbits.lifelog.core.specification.model.UserContent.Modifier
+import dev.toastbits.lifelog.core.specification.model.UserContent.Mod
 import dev.toastbits.lifelog.core.specification.model.UserContent.Part
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReference
 
@@ -9,49 +9,49 @@ data class UserContent(
 ) {
     sealed interface Part {
         val parts: List<Part>
-        val modifiers: Set<Modifier>
+        val mods: Set<Mod>
 
         fun asText(): String
-        fun withModifiers(modifiers: Set<Modifier>): Part
+        fun withModifiers(mods: Set<Mod>): Part
         fun isNotEmpty(): Boolean
 
         data class Single(
             val text: String,
-            override val modifiers: Set<Modifier> = emptySet()
+            override val mods: Set<Mod> = emptySet()
         ): Part {
             override val parts: List<Part> get() = listOf(this)
             override fun asText(): String = text
-            override fun withModifiers(modifiers: Set<Modifier>): Part = copy(modifiers = modifiers)
+            override fun withModifiers(mods: Set<Mod>): Part = copy(mods = mods)
             override fun isNotEmpty(): Boolean = text.isNotEmpty()
         }
 
         data class Composite(
             override val parts: List<Part>,
-            override val modifiers: Set<Modifier> = emptySet()
+            override val mods: Set<Mod> = emptySet()
         ): Part {
             override fun asText(): String = parts.joinToString("") { it.asText() }
-            override fun withModifiers(modifiers: Set<Modifier>): Part = copy(modifiers = modifiers)
+            override fun withModifiers(mods: Set<Mod>): Part = copy(mods = mods)
             override fun isNotEmpty(): Boolean = parts.any { it.isNotEmpty() }
         }
 
         data class Image(
             val location: String,
-            override val modifiers: Set<Modifier> = emptySet()
+            override val mods: Set<Mod> = emptySet()
         ): Part {
             override val parts: List<Part> get() = listOf(this)
             override fun asText(): String = "<image at $location>"
-            override fun withModifiers(modifiers: Set<Modifier>): Part = copy(modifiers = modifiers)
+            override fun withModifiers(mods: Set<Mod>): Part = copy(mods = mods)
             override fun isNotEmpty(): Boolean = location.isNotEmpty()
         }
     }
 
-    sealed interface Modifier {
-        data object Italic: Modifier
-        data object Bold: Modifier
-        data object Strikethrough: Modifier
-        data object Code: Modifier
-        data object CodeBlock: Modifier
-        data class Reference(val reference: LogEntityReference): Modifier
+    sealed interface Mod {
+        data object Italic: Mod
+        data object Bold: Mod
+        data object Strikethrough: Mod
+        data object Code: Mod
+        data object CodeBlock: Mod
+        data class Reference(val reference: LogEntityReference): Mod
     }
 
     fun asText(): String = parts.joinToString("") { it.asText() }
@@ -62,20 +62,20 @@ data class UserContent(
         parts.any { it.isNotEmpty() }
 
     companion object {
-        fun single(text: String, modifiers: Set<Modifier> = emptySet()): UserContent =
-            UserContent(listOf(Part.Single(text, modifiers)))
+        fun single(text: String, mods: Set<Mod> = emptySet()): UserContent =
+            UserContent(listOf(Part.Single(text, mods)))
     }
 }
 
-fun Iterable<Modifier>.sorted(): List<Modifier> =
+fun Iterable<Mod>.sorted(): List<Mod> =
     sortedBy {
         when (it) {
-            Modifier.Bold -> 0
-            Modifier.Italic -> 1
-            Modifier.Strikethrough -> 2
-            Modifier.Code -> 3
-            Modifier.CodeBlock -> 4
-            is Modifier.Reference -> 5
+            Mod.Bold -> 0
+            Mod.Italic -> 1
+            Mod.Strikethrough -> 2
+            Mod.Code -> 3
+            Mod.CodeBlock -> 4
+            is Mod.Reference -> 5
         }
     }
 
@@ -83,8 +83,8 @@ private fun List<Part>.normalised(): List<Part> {
     val newParts: MutableList<Part> = mutableListOf()
     for (part in this) {
         val previous: Part? = newParts.lastOrNull()
-        if (previous != null && part.modifiers.matches(previous.modifiers) && part !is Part.Image && previous !is Part.Image) {
-            newParts[newParts.size - 1] = part.appendTo(previous, part.modifiers)
+        if (previous != null && part.mods.matches(previous.mods) && part !is Part.Image && previous !is Part.Image) {
+            newParts[newParts.size - 1] = part.appendTo(previous, part.mods)
         }
         else {
             newParts.add(part)
@@ -105,7 +105,7 @@ private fun List<Part>.normalised(): List<Part> {
         }
         else if (normalisedParts.size == 1) {
             val singlePart: Part = normalisedParts.single()
-            i.set(singlePart.withModifiers(singlePart.modifiers + part.modifiers))
+            i.set(singlePart.withModifiers(singlePart.mods + part.mods))
         }
         else {
             i.set(part.copy(parts = normalisedParts))
@@ -115,13 +115,13 @@ private fun List<Part>.normalised(): List<Part> {
     return newParts
 }
 
-private fun Part.appendTo(other: Part, newModifiers: Set<Modifier>): Part {
+private fun Part.appendTo(other: Part, newMods: Set<Mod>): Part {
     if (this is Part.Single && other is Part.Single) {
-        return Part.Single(other.text + text, newModifiers)
+        return Part.Single(other.text + text, newMods)
     }
 
-    return Part.Composite(other.parts + parts, newModifiers)
+    return Part.Composite(other.parts + parts, newMods)
 }
 
-private fun Set<Modifier>.matches(other: Set<Modifier>): Boolean =
+private fun Set<Mod>.matches(other: Set<Mod>): Boolean =
     size == other.size && sorted() == other.sorted()

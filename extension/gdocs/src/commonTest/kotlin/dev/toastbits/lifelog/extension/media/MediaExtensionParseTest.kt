@@ -56,7 +56,7 @@ class MediaExtensionParseTest {
                 LogCommentImpl(
                     UserContent.single(
                         referenceText,
-                        setOf(UserContent.Modifier.Reference(reference.copy(logDate = groupDate)))
+                        setOf(UserContent.Mod.Reference(reference.copy(logDate = groupDate)))
                     )
                 )
             )
