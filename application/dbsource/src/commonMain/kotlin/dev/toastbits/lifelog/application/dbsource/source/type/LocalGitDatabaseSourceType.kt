@@ -1,5 +1,7 @@
 package dev.toastbits.lifelog.application.dbsource.source.type
 
-expect object LocalGitDatabaseSourceType: DatabaseSourceType {
-    override fun isAvailableOnPlatform(): Boolean
-}
+import dev.toastbits.lifelog.application.dbsource.source.configuration.DatabaseSourceConfiguration
+
+//expect object LocalGitDatabaseSourceType: DatabaseSourceType<DatabaseSourceConfiguration.LocalGitDatabaseSourceConfiguration> {
+//    override fun isAvailableOnPlatform(): Boolean
+//}

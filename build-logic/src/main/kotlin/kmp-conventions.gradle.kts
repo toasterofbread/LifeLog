@@ -19,4 +19,6 @@ kotlin {
             addTestDependencies(project)
         }
     }
+
+    jvmToolchain(17)
 }

@@ -1,44 +1,60 @@
-@file:OptIn(
-    org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class, ExperimentalKotlinGradlePluginApi::class
-)
+@file:OptIn(ExperimentalWasmDsl::class, ExperimentalKotlinGradlePluginApi::class)
 package util
 
 import org.gradle.kotlin.dsl.assign
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinHierarchyBuilder
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
-import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
-fun KotlinMultiplatformExtension.configureAllKmpTargets(onConfigure: (KotlinTarget) -> Unit = {}) {
-    configureKmpTargets(*KmpTarget.values(), onConfigure = onConfigure)
+fun KotlinMultiplatformExtension.configureAllKmpTargets(beforeConfigure: KotlinTarget.() -> Unit = {}, afterConfigure: KotlinTarget.() -> Unit = {}) {
+    configureKmpTargets(*KmpTarget.values(), beforeConfigure = beforeConfigure, afterConfigure = afterConfigure)
 }
 
 fun KotlinMultiplatformExtension.configureKmpTargets(
     vararg targets: KmpTarget,
-    onConfigure: (KotlinTarget) -> Unit = {}
+    beforeConfigure: KotlinTarget.() -> Unit = {},
+    afterConfigure: KotlinTarget.() -> Unit = {}
 ) {
     for (target in targets) {
         when (target) {
-            KmpTarget.JVM -> onConfigure(jvm())
+            KmpTarget.JVM -> {
+                jvm {
+                    beforeConfigure()
+                    afterConfigure()
+                }
+            }
             KmpTarget.ANDROID -> {
                 androidTarget {
-                    publishLibraryVariants("release")
+                    beforeConfigure()
+
+//                    publishLibraryVariants("release")
                     compilerOptions {
-                        jvmTarget = JvmTarget.JVM_1_8
+                        jvmTarget = JvmTarget.JVM_17
                     }
 
-                    onConfigure(this)
+                    afterConfigure()
                 }
             }
             KmpTarget.NATIVE -> {
-                onConfigure(linuxX64())
-                onConfigure(linuxArm64())
-                onConfigure(mingwX64())
+                val nativeTargets: List<KotlinNativeTarget> =
+                    listOf(
+                        linuxX64(),
+                        linuxArm64(),
+                        mingwX64()
+                    )
+                for (nativeTarget in nativeTargets) {
+                    beforeConfigure(nativeTarget)
+                    afterConfigure(nativeTarget)
+                }
             }
             KmpTarget.WASMJS -> {
                 wasmJs {
+                    beforeConfigure()
+
                     useCommonJs()
 
                     browser {
@@ -53,7 +69,7 @@ fun KotlinMultiplatformExtension.configureKmpTargets(
                         }
                     }
 
-                    onConfigure(this)
+                    afterConfigure()
                 }
             }
         }

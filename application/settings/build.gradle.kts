@@ -1,5 +1,6 @@
 plugins {
-    id("compose-application-conventions")
+    id("android-library-conventions")
+    id("compose-conventions")
 }
 
 kotlin {

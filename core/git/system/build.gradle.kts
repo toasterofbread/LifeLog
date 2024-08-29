@@ -14,12 +14,12 @@ kotlin {
     configureKmpTargets(
         KmpTarget.JVM,
         KmpTarget.NATIVE
-    ) { target ->
-        if (target !is KotlinNativeTarget) {
+    ) {
+        if (this !is KotlinNativeTarget) {
             return@configureKmpTargets
         }
 
-        target.compilations.getByName("main") {
+        compilations.getByName("main") {
             cinterops {
                 val popen2 by creating
             }

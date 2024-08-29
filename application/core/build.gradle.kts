@@ -1,5 +1,6 @@
 plugins {
-    id("compose-application-conventions")
+    id("android-application-conventions")
+    id("compose-conventions")
 
     alias(libs.plugins.kotlin)
 }
@@ -8,6 +9,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                implementation(projects.application.dbsource)
                 implementation(projects.core.helper)
 
                 implementation(projects.extension.media)

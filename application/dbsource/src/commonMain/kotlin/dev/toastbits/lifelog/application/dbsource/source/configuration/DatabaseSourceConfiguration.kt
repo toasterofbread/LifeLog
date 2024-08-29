@@ -1,21 +1,32 @@
 package dev.toastbits.lifelog.application.dbsource.source.configuration
 
+import androidx.compose.runtime.Composable
 import dev.toastbits.lifelog.application.dbsource.source.type.DatabaseSourceType
 import dev.toastbits.lifelog.application.dbsource.source.type.InMemoryGitDatabaseSourceType
-import dev.toastbits.lifelog.application.dbsource.source.type.LocalGitDatabaseSourceType
 import kotlinx.serialization.Serializable
 
+interface DatabaseSourceConfiguration {
+    fun getType(): DatabaseSourceType<*>
+
+    @Composable
+    fun getPreviewTitle(): String
+
+    @Composable
+    fun getPreviewContent(): String
+}
+
 @Serializable
-sealed interface DatabaseSourceConfiguration {
-    fun getType(): DatabaseSourceType
+data class InMemoryGitDatabaseSourceConfiguration(
+    val name: String,
+    val repositoryUrl: String
+): DatabaseSourceConfiguration {
+    override fun getType(): DatabaseSourceType<InMemoryGitDatabaseSourceConfiguration> = InMemoryGitDatabaseSourceType
 
-    @Serializable
-    data class InMemoryGitDatabaseSourceConfiguration(val repositoryUrl: String): DatabaseSourceConfiguration {
-        override fun getType(): DatabaseSourceType = InMemoryGitDatabaseSourceType
-    }
+    @Composable
+    override fun getPreviewTitle(): String =
+        "$name (${getType().getName()})"
 
-    @Serializable
-    data class LocalGitDatabaseSourceConfiguration(val repositoryPath: List<String>): DatabaseSourceConfiguration {
-        override fun getType(): DatabaseSourceType = LocalGitDatabaseSourceType
-    }
+    @Composable
+    override fun getPreviewContent(): String =
+        "$repositoryUrl"
 }

@@ -68,7 +68,7 @@ class GitLogDatabaseSaverTest: FileSystemTest {
         directory = getEmptyTempDir("lifelog-repo")
 
         val ioDispatcher: CoroutineDispatcher = UnconfinedTestDispatcher()
-        repository = GitWrapper.create(directory, ioDispatcher)
+        repository = GitWrapper.createSystemDefault(directory, ioDispatcher)
         repository.setCredentials(SecretKeys.credentials)
 
         val remote: GitRemoteBranch = GitRemoteBranch("testRemote", "https://github.com/toasterofbread/test", "lifelog-test")
@@ -98,12 +98,12 @@ class GitLogDatabaseSaverTest: FileSystemTest {
         val database: LogDatabase =
             LogDatabase(
                 days = mapOf(
-                    LogDateImpl(date) to listOf(
+                    LogDateImpl(date, false) to listOf(
                         event
                     )
                 ),
                 data = mapOf(
-                    reference to LogDataFile("test")
+                    reference to LogDataFile.Lines(listOf("test"))
                 )
             )
 

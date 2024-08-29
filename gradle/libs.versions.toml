@@ -4,9 +4,9 @@ project-version = "0.0.1"
 project-version-inc = "1"
 android-sdk-compile = "34"
 android-sdk-target = "34"
-android-sdk-min = "21"
+android-sdk-min = "24"
 
-composekit = "01f06034d1"
+composekit = "c25ef72c52"
 
 kotlin = "2.0.20"
 compose = "1.7.0-alpha03"

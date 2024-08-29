@@ -1,51 +1,45 @@
-@file:OptIn(ExperimentalKotlinGradlePluginApi::class)
-
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinWasmJsTargetDsl
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
+import util.KmpTarget
+import util.configureKmpTargets
 import util.library
 import util.libs
 import util.version
 
 plugins {
-    id("android-application-conventions")
     kotlin("multiplatform")
     kotlin("plugin.compose")
+    id("kmp-conventions")
     id("org.jetbrains.compose")
 }
 
 val projectName: String = libs.version("project.name")
 
 kotlin {
-    jvm("desktop")
-
-    androidTarget {
-        compilerOptions {
-            jvmTarget = JvmTarget.JVM_1_8
-        }
-    }
-
-    wasmJs {
-        moduleName = projectName
-        browser {
-            commonWebpackConfig {
-                outputFileName = "composeApp.js"
-                devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
-                    static = (static ?: mutableListOf()).apply {
-                        // Serve sources to debug inside browser
-                        add(project.projectDir.path)
-                        add(project.projectDir.path + "/commonMain/")
-                        add(project.projectDir.path + "/wasmJsMain/")
+    configureKmpTargets(
+        KmpTarget.JVM, KmpTarget.ANDROID, KmpTarget.WASMJS,
+        beforeConfigure = {
+            when (this) {
+                is KotlinWasmJsTargetDsl -> {
+                    moduleName = projectName
+                    browser {
+                        commonWebpackConfig {
+                            outputFileName = "composeApp.js"
+                            devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
+                                static = (static ?: mutableListOf()).apply {
+                                    // Serve sources to debug inside browser
+                                    add(project.projectDir.path)
+                                    add(project.projectDir.path + "/commonMain/")
+                                    add(project.projectDir.path + "/wasmJsMain/")
+                                }
+                            }
+                        }
                     }
+                    binaries.executable()
                 }
             }
         }
-        binaries.executable()
-    }
-
-    applyDefaultHierarchyTemplate()
-
+    )
     sourceSets {
         all {
             languageSettings.apply {
@@ -65,10 +59,12 @@ kotlin {
                 implementation(compose.material3)
                 implementation(compose.ui)
                 implementation(compose.components.resources)
+                implementation(compose.components.uiToolingPreview)
+                implementation(compose.materialIconsExtended)
             }
         }
 
-        val desktopMain by getting {
+        val jvmMain by getting {
             dependencies {
                 implementation(compose.desktop.currentOs)
             }
