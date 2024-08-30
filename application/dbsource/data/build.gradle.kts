@@ -11,12 +11,12 @@ kotlin {
                 api(projects.application.dbsource.domain)
                 implementation(projects.application.settings.domain)
                 implementation(projects.application.settings.data)
+                implementation(projects.application.navigation)
 
                 implementation(projects.core.specification)
                 implementation(libs.composekit)
                 implementation(libs.ktor.core)
                 implementation(libs.kotlinx.serialization.json)
-                implementation(libs.voyager.navigator)
             }
         }
     }

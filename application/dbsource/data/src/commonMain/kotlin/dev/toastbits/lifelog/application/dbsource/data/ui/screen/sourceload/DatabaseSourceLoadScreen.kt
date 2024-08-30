@@ -14,7 +14,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import cafe.adriel.voyager.core.screen.Screen
 import dev.toastbits.composekit.platform.composable.theme.LocalApplicationTheme
 import dev.toastbits.composekit.platform.composable.theme.ThemedLinearProgressIndicator
 import dev.toastbits.composekit.settings.ui.ThemeValues
@@ -28,6 +27,8 @@ import dev.toastbits.lifelog.application.dbsource.domain.accessor.OfflineDatabas
 import dev.toastbits.lifelog.application.dbsource.domain.configuration.DatabaseSourceConfiguration
 import dev.toastbits.lifelog.application.dbsource.domain.configuration.castType
 import dev.toastbits.lifelog.application.dbsource.domain.model.LogDatabaseParseResult
+import dev.toastbits.lifelog.application.navigation.navigator.Navigator
+import dev.toastbits.lifelog.application.navigation.Screen
 import dev.toastbits.lifelog.application.settings.data.compositionlocal.LocalSettings
 import dev.toastbits.lifelog.application.settings.domain.appsettings.AppSettings
 import dev.toastbits.lifelog.application.settings.domain.group.toCurrentLogDatabaseConfiguration
@@ -42,7 +43,7 @@ class DatabaseSourceLoadScreen(
     private val sourceConfiguration: DatabaseSourceConfiguration
 ): Screen {
     @Composable
-    override fun Content() {
+    override fun Content(navigator: Navigator, modifier: Modifier) {
         val settings: AppSettings = LocalSettings.current
         var logDatabaseConfiguration: LogDatabaseConfiguration? by remember { mutableStateOf(null) }
 
@@ -68,7 +69,7 @@ class DatabaseSourceLoadScreen(
             DatabaseSourceLoader(
                 sourceConfiguration,
                 databaseAccessor,
-                Modifier.fillMaxSize(),
+                modifier,
                 onLoaded = {
                     println("DATABASE LOADED $it")
                 }

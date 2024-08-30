@@ -17,7 +17,9 @@ fun main() = runBlocking {
     val prefs: PlatformPreferences = PlatformPreferencesJson(context.getFilesDir()!!.resolve("settings.json"))
 
     val application: Application = Application(context, prefs)
-    singleWindowApplication {
+    singleWindowApplication(
+        onKeyEvent = application::onKeyEvent
+    ) {
         application.Main()
     }
 

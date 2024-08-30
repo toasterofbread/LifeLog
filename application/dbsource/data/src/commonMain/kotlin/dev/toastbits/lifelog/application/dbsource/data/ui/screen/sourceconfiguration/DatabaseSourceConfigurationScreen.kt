@@ -4,10 +4,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import cafe.adriel.voyager.core.screen.Screen
+import androidx.compose.ui.Modifier
 import dev.toastbits.composekit.platform.composable.ScrollBarLazyColumn
 import dev.toastbits.lifelog.application.dbsource.domain.configuration.DatabaseSourceConfiguration
 import dev.toastbits.lifelog.application.dbsource.domain.type.lazyListConfigurationItems
+import dev.toastbits.lifelog.application.navigation.navigator.Navigator
+import dev.toastbits.lifelog.application.navigation.Screen
 import dev.toastbits.lifelog.application.settings.data.compositionlocal.LocalSettings
 import dev.toastbits.lifelog.application.settings.domain.appsettings.AppSettings
 import dev.toastbits.lifelog.application.settings.domain.model.SerialisedDatabaseSourceConfiguration
@@ -18,7 +20,7 @@ internal class DatabaseSourceConfigurationScreen(
     private val sourceIndex: Int
 ): Screen {
     @Composable
-    override fun Content() {
+    override fun Content(navigator: Navigator, modifier: Modifier) {
         val settings: AppSettings = LocalSettings.current
         var sources: List<SerialisedDatabaseSourceConfiguration> by settings.DatabaseSource.DATABASE_SOURCES.observe()
 
@@ -29,7 +31,7 @@ internal class DatabaseSourceConfigurationScreen(
 
         println("SOURCE $source $sourceIndex $sources")
 
-        ScrollBarLazyColumn {
+        ScrollBarLazyColumn(modifier) {
             source?.lazyListConfigurationItems(this) { newConfiguration ->
                 val serialised: SerialisedDatabaseSourceConfiguration = settings.DatabaseSource.sourceTypeRegistry.serialiseConfiguration(newConfiguration)
                 sources = sources.toMutableList().apply { set(sourceIndex, serialised) }

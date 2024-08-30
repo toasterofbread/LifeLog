@@ -11,6 +11,7 @@ kotlin {
             dependencies {
                 implementation(projects.application.dbsource.data)
                 implementation(projects.application.settings.data)
+                implementation(projects.application.navigation)
 
                 implementation(projects.extension.media)
                 implementation(projects.extension.mediawatch)
@@ -18,7 +19,6 @@ kotlin {
 
                 implementation(libs.composekit)
                 implementation(libs.okio)
-                implementation(libs.voyager.navigator)
 
                 // TEST
                 implementation(libs.ktor.core)

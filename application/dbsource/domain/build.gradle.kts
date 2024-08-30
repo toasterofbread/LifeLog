@@ -12,7 +12,6 @@ kotlin {
 
                 implementation(libs.composekit)
                 implementation(libs.ktor.core)
-                implementation(libs.voyager.navigator)
             }
         }
     }
