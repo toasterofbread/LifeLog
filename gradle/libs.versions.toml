@@ -6,7 +6,7 @@ android-sdk-compile = "34"
 android-sdk-target = "34"
 android-sdk-min = "24"
 
-composekit = "20ed35e466"
+composekit = "eb5ce60d63"
 
 kotlin = "2.0.20"
 compose = "1.7.0-alpha03"
@@ -17,7 +17,7 @@ kgit = "1.0.6"
 okio = "3.9.0"
 jzlib = "1.1.3"
 kotlincrypto-hash = "0.5.1"
-korlibs-compression = "34a5011f30"
+korlibs-compression = "ab3e85467c"
 koin = "4.0.0-RC1"
 
 mokkery = "2.3.0"

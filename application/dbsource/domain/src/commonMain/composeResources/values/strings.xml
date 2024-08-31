@@ -2,6 +2,9 @@
     <string name="database_source_type_in_memory_git_name">Remote Git repository</string>
     <string name="database_source_type_in_memory_git_description">Stored in-memory</string>
 
+    <string name="database_accessor_load_progress_generic_$part">$part</string>
+    <string name="database_accessor_load_progress_generic_$part_of_$total">$part of $total</string>
+
     <string name="database_accessor_load_progress_network_$bytes">$bytes bytes</string>
     <string name="database_accessor_load_progress_network_$bytes_of_$total_$percent">$bytes bytes out of $bytes ($percent%)</string>
 </resources>

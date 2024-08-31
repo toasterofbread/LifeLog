@@ -8,6 +8,7 @@ import dev.toastbits.lifelog.application.dbsource.domain.accessor.DatabaseAccess
 import dev.toastbits.lifelog.application.dbsource.domain.configuration.DatabaseSourceConfiguration
 import dev.toastbits.lifelog.application.dbsource.domain.configuration.castType
 import dev.toastbits.lifelog.core.accessor.LogDatabaseConfiguration
+import dev.toastbits.lifelog.core.git.model.GitCredentials
 import io.ktor.client.HttpClient
 import kotlinx.coroutines.CoroutineDispatcher
 
@@ -19,8 +20,10 @@ interface DatabaseSourceType<C: DatabaseSourceConfiguration> {
     fun createAccessor(
         configuration: C,
         databaseConfiguration: LogDatabaseConfiguration,
+        gitCredentials: GitCredentials?,
         httpClient: HttpClient,
-        ioDispatcher: CoroutineDispatcher
+        ioDispatcher: CoroutineDispatcher,
+        workDispatcher: CoroutineDispatcher
     ): DatabaseAccessor
 
     fun serialiseConfiguration(configuration: C): String

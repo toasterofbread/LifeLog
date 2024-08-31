@@ -1,7 +1,19 @@
 <resources>
-    <string name="pref_database_source_database_sources_title">Database sources</string>
-    <string name="pref_database_source_database_sources_description">TODO</string>
+    <string name="screen_app_settings">Settings</string>
+
+    <!--  Settings  -->
+
+    <string name="group_database_title">Database</string>
+    <string name="group_database_description">TODO</string>
 
     <string name="pref_database_split_strategy_title">Split strategy</string>
     <string name="pref_database_split_strategy_description">TODO</string>
+
+    <string name="group_database_source_title">Database sources</string>
+    <string name="group_database_source_description">TODO</string>
+
+    <string name="pref_database_source_git_username_title">Git username</string>
+    <string name="pref_database_source_git_username_description">Username used to authenticate to Git database sources</string>
+    <string name="pref_database_source_git_password_title">Git password/token</string>
+    <string name="pref_database_source_git_password_description">Password used to authenticate to Git database sources</string>
 </resources>

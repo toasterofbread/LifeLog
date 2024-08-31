@@ -11,7 +11,6 @@ kotlin {
             dependencies {
                 implementation(projects.application.dbsource.data)
                 implementation(projects.application.settings.data)
-                implementation(projects.application.navigation)
 
                 implementation(projects.extension.media)
                 implementation(projects.extension.mediawatch)

@@ -3,8 +3,9 @@ package dev.toastbits.lifelog.application.dbsource.data.ui.screen.sourceload
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -27,12 +28,13 @@ import dev.toastbits.lifelog.application.dbsource.domain.accessor.OfflineDatabas
 import dev.toastbits.lifelog.application.dbsource.domain.configuration.DatabaseSourceConfiguration
 import dev.toastbits.lifelog.application.dbsource.domain.configuration.castType
 import dev.toastbits.lifelog.application.dbsource.domain.model.LogDatabaseParseResult
-import dev.toastbits.lifelog.application.navigation.navigator.Navigator
-import dev.toastbits.lifelog.application.navigation.Screen
+import dev.toastbits.composekit.navigation.navigator.Navigator
+import dev.toastbits.composekit.navigation.Screen
 import dev.toastbits.lifelog.application.settings.data.compositionlocal.LocalSettings
 import dev.toastbits.lifelog.application.settings.domain.appsettings.AppSettings
 import dev.toastbits.lifelog.application.settings.domain.group.toCurrentLogDatabaseConfiguration
 import dev.toastbits.lifelog.core.accessor.LogDatabaseConfiguration
+import dev.toastbits.lifelog.core.git.model.GitCredentials
 import io.ktor.client.HttpClient
 import kotlinx.coroutines.Dispatchers
 import lifelog.application.dbsource.data.generated.resources.Res
@@ -43,13 +45,22 @@ class DatabaseSourceLoadScreen(
     private val sourceConfiguration: DatabaseSourceConfiguration
 ): Screen {
     @Composable
-    override fun Content(navigator: Navigator, modifier: Modifier) {
+    override fun Content(navigator: Navigator, modifier: Modifier, contentPadding: PaddingValues) {
         val settings: AppSettings = LocalSettings.current
         var logDatabaseConfiguration: LogDatabaseConfiguration? by remember { mutableStateOf(null) }
+
+        val gitUsername: String by settings.DatabaseSource.GIT_USERNAME.observe()
+        val gitPassword: String by settings.DatabaseSource.GIT_PASSWORD.observe()
+        val gitCredentials: GitCredentials? =
+            remember(gitUsername, gitPassword) {
+                if (gitUsername.isNotBlank() || gitPassword.isNotBlank()) GitCredentials(gitUsername, gitPassword)
+                else null
+            }
 
         // TEMP
         val client = remember { HttpClient() }
         val ioDispatcher = Dispatchers.Default
+        val workDispatcher = Dispatchers.Default
 
         LaunchedEffect(Unit) {
             logDatabaseConfiguration = settings.Database.toCurrentLogDatabaseConfiguration()
@@ -57,19 +68,21 @@ class DatabaseSourceLoadScreen(
 
         logDatabaseConfiguration?.also { databaseConfiguration ->
             val databaseAccessor: DatabaseAccessor =
-                remember(databaseConfiguration) {
+                remember(databaseConfiguration, gitCredentials) {
                     sourceConfiguration.castType().createAccessor(
                         sourceConfiguration,
                         databaseConfiguration,
+                        gitCredentials,
                         client,
-                        ioDispatcher
+                        ioDispatcher,
+                        workDispatcher
                     )
                 }
 
             DatabaseSourceLoader(
                 sourceConfiguration,
                 databaseAccessor,
-                modifier,
+                modifier.padding(contentPadding),
                 onLoaded = {
                     println("DATABASE LOADED $it")
                 }

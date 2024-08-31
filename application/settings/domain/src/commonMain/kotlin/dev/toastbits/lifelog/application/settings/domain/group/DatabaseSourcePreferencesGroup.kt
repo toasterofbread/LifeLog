@@ -11,4 +11,7 @@ interface DatabaseSourcePreferencesGroup: PreferencesGroup {
 
     val AUTO_OPEN_SOURCE_INDEX: PreferencesProperty<Int>
     val DATABASE_SOURCES: PreferencesProperty<List<SerialisedDatabaseSourceConfiguration>>
+
+    val GIT_USERNAME: PreferencesProperty<String>
+    val GIT_PASSWORD: PreferencesProperty<String>
 }

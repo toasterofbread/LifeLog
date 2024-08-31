@@ -9,6 +9,7 @@ kotlin {
             dependencies {
                 implementation(projects.core.specification)
                 implementation(projects.core.accessor)
+                implementation(projects.core.git.core)
 
                 implementation(libs.composekit)
                 implementation(libs.ktor.core)

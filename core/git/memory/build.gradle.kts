@@ -16,6 +16,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api(projects.core.filestructure)
+                api(projects.core.git.core)
 
                 api(libs.okio)
                 api(libs.kotlinx.datetime)

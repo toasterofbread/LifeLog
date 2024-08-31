@@ -29,7 +29,6 @@ dependencyResolutionManagement {
 rootProject.name = "lifelog"
 
 include(":application:app")
-include(":application:navigation")
 include(":application:settings:domain")
 include(":application:settings:data")
 include(":application:dbsource:domain")
@@ -39,6 +38,7 @@ include(":application:dbsource:inmemorygit")
 include(":core:filestructure")
 include(":core:specification")
 include(":core:accessor")
+include(":core:git:core")
 include(":core:git:system")
 include(":core:git:memory")
 include(":core:test")

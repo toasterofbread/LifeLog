@@ -1,25 +1,26 @@
 package dev.toastbits.lifelog.application.core
 
 import dev.toastbits.lifelog.core.filestructure.MutableFileStructure
-import dev.toastbits.lifelog.core.git.handler.GitCloner
-import dev.toastbits.lifelog.core.git.handler.GitCommitGenerator
-import dev.toastbits.lifelog.core.git.handler.GitPackFileGenerator
-import dev.toastbits.lifelog.core.git.handler.GitPackFileParser
-import dev.toastbits.lifelog.core.git.handler.GitPusher
-import dev.toastbits.lifelog.core.git.handler.GitTreeGenerator
-import dev.toastbits.lifelog.core.git.handler.GitTreeRenderer
+import dev.toastbits.lifelog.core.git.memory.handler.GitCloner
+import dev.toastbits.lifelog.core.git.memory.handler.GitCommitGenerator
+import dev.toastbits.lifelog.core.git.memory.handler.GitPackFileGenerator
+import dev.toastbits.lifelog.core.git.memory.handler.GitPackFileParser
+import dev.toastbits.lifelog.core.git.memory.handler.GitPusher
+import dev.toastbits.lifelog.core.git.memory.handler.GitTreeGenerator
+import dev.toastbits.lifelog.core.git.memory.handler.GitTreeRenderer
+import dev.toastbits.lifelog.core.git.memory.model.GitObject
+import dev.toastbits.lifelog.core.git.memory.model.MutableGitObjectRegistry
+import dev.toastbits.lifelog.core.git.memory.model.SimpleGitObjectRegistry
+import dev.toastbits.lifelog.core.git.memory.provider.PlatformSha1Provider
+import dev.toastbits.lifelog.core.git.memory.provider.PlatformZlibDeflater
+import dev.toastbits.lifelog.core.git.memory.provider.PlatformZlibInflater
+import dev.toastbits.lifelog.core.git.memory.provider.ZlibDeflater
+import dev.toastbits.lifelog.core.git.memory.provider.ZlibInflater
 import dev.toastbits.lifelog.core.git.model.GitCredentials
-import dev.toastbits.lifelog.core.git.model.GitObject
-import dev.toastbits.lifelog.core.git.model.MutableGitObjectRegistry
-import dev.toastbits.lifelog.core.git.model.SimpleGitObjectRegistry
-import dev.toastbits.lifelog.core.git.provider.PlatformSha1Provider
-import dev.toastbits.lifelog.core.git.provider.PlatformZlibDeflater
-import dev.toastbits.lifelog.core.git.provider.PlatformZlibInflater
-import dev.toastbits.lifelog.core.git.provider.ZlibDeflater
-import dev.toastbits.lifelog.core.git.provider.ZlibInflater
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpTimeout
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import okio.Path.Companion.toPath
 
 suspend fun gitTest(ioDispatcher: CoroutineDispatcher) {
@@ -45,7 +46,7 @@ suspend fun gitTest(ioDispatcher: CoroutineDispatcher) {
     val deflater: ZlibDeflater = PlatformZlibDeflater()
 
     val sha1Provider = PlatformSha1Provider()
-    val parser: GitPackFileParser = GitPackFileParser(sha1Provider, inflater, objects)
+    val parser: GitPackFileParser = GitPackFileParser(sha1Provider, inflater, objects, Dispatchers.Default)
     parser.parsePackFile(content) { stage, r, l ->
         println("Parsing pack ($stage): $r / $l")
     }

@@ -8,8 +8,8 @@ import dev.toastbits.lifelog.application.settings.data.group.DatabaseSourcePrefe
 import dev.toastbits.lifelog.application.settings.domain.group.DatabasePreferencesGroup
 
 class AppSettingsImpl(
-    preferences: PlatformPreferences
+    override val prefs: PlatformPreferences
 ): AppSettings {
-    override val Database: DatabasePreferencesGroup = DatabasePreferencesGroupImpl(preferences)
-    override val DatabaseSource: DatabaseSourcePreferencesGroup = DatabaseSourcePreferencesGroupImpl(preferences)
+    override val Database: DatabasePreferencesGroup = DatabasePreferencesGroupImpl(prefs)
+    override val DatabaseSource: DatabaseSourcePreferencesGroup = DatabaseSourcePreferencesGroupImpl(prefs)
 }

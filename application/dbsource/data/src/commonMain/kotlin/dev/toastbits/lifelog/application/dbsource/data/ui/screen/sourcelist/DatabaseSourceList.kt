@@ -1,6 +1,7 @@
 package dev.toastbits.lifelog.application.dbsource.data.ui.screen.sourcelist
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -8,6 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import dev.toastbits.composekit.platform.composable.ScrollBarLazyColumn
 import dev.toastbits.lifelog.application.dbsource.domain.configuration.DatabaseSourceConfiguration
 import dev.toastbits.lifelog.application.dbsource.domain.type.DatabaseSourceType
 import dev.toastbits.lifelog.application.dbsource.data.ui.component.DatabaseSourceConfigurationPreview
@@ -20,13 +22,15 @@ internal fun DatabaseSourceList(
     configurations: List<DatabaseSourceConfiguration>,
     types: List<DatabaseSourceType<*>>,
     modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
     autoOpenConfigurationIndex: Int? = null,
     onSelected: ((Int) -> Unit)? = null,
     onTypeAddRequested: ((Int) -> Unit)? = null
 ) {
-    LazyColumn(
+    ScrollBarLazyColumn(
         verticalArrangement = Arrangement.spacedBy(10.dp),
-        modifier = modifier
+        modifier = modifier,
+        contentPadding = contentPadding
     ) {
         if (types.isNotEmpty()) {
             item {

@@ -1,5 +1,6 @@
 package dev.toastbits.lifelog.application.dbsource.data.ui.screen.sourcelist
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -9,8 +10,8 @@ import dev.toastbits.lifelog.application.dbsource.data.ui.screen.sourceconfigura
 import dev.toastbits.lifelog.application.dbsource.data.ui.screen.sourceload.DatabaseSourceLoadScreen
 import dev.toastbits.lifelog.application.dbsource.domain.configuration.DatabaseSourceConfiguration
 import dev.toastbits.lifelog.application.dbsource.domain.type.DatabaseSourceType
-import dev.toastbits.lifelog.application.navigation.navigator.Navigator
-import dev.toastbits.lifelog.application.navigation.Screen
+import dev.toastbits.composekit.navigation.navigator.Navigator
+import dev.toastbits.composekit.navigation.Screen
 import dev.toastbits.lifelog.application.settings.data.compositionlocal.LocalSettings
 import dev.toastbits.lifelog.application.settings.domain.appsettings.AppSettings
 import dev.toastbits.lifelog.application.settings.domain.model.SerialisedDatabaseSourceConfiguration
@@ -19,7 +20,7 @@ import dev.toastbits.lifelog.application.settings.domain.model.serialiseConfigur
 
 class DatabaseSourceListScreen: Screen {
     @Composable
-    override fun Content(navigator: Navigator, modifier: Modifier) {
+    override fun Content(navigator: Navigator, modifier: Modifier, contentPadding: PaddingValues) {
         val settings: AppSettings = LocalSettings.current
         val autoOpenIndex: Int? by settings.DatabaseSource.AUTO_OPEN_SOURCE_INDEX.observe()
 
@@ -36,6 +37,7 @@ class DatabaseSourceListScreen: Screen {
             sourceConfigurations,
             sourceTypes,
             modifier,
+            contentPadding = contentPadding,
             autoOpenConfigurationIndex = autoOpenIndex,
             onSelected = { index ->
                 val source: DatabaseSourceConfiguration = sourceConfigurations[index]

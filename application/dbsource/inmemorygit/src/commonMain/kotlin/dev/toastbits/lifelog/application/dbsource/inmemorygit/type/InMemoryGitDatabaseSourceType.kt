@@ -12,6 +12,7 @@ import dev.toastbits.lifelog.application.dbsource.domain.type.DatabaseSourceType
 import dev.toastbits.lifelog.application.dbsource.inmemorygit.accessor.InMemoryGitDatabaseAccessor
 import dev.toastbits.lifelog.application.dbsource.inmemorygit.configuration.InMemoryGitDatabaseSourceConfiguration
 import dev.toastbits.lifelog.core.accessor.LogDatabaseConfiguration
+import dev.toastbits.lifelog.core.git.model.GitCredentials
 import io.ktor.client.HttpClient
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.serialization.encodeToString
@@ -30,10 +31,12 @@ object InMemoryGitDatabaseSourceType: DatabaseSourceType<InMemoryGitDatabaseSour
     override fun createAccessor(
         configuration: InMemoryGitDatabaseSourceConfiguration,
         databaseConfiguration: LogDatabaseConfiguration,
+        gitCredentials: GitCredentials?,
         httpClient: HttpClient,
-        ioDispatcher: CoroutineDispatcher
+        ioDispatcher: CoroutineDispatcher,
+        workDispatcher: CoroutineDispatcher
     ): DatabaseAccessor =
-        InMemoryGitDatabaseAccessor(configuration, databaseConfiguration, httpClient, ioDispatcher)
+        InMemoryGitDatabaseAccessor(configuration, databaseConfiguration, gitCredentials, httpClient, ioDispatcher, workDispatcher)
 
     override fun serialiseConfiguration(configuration: InMemoryGitDatabaseSourceConfiguration): String =
         Json.encodeToString(configuration)

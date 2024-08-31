@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -14,6 +15,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import dev.toastbits.composekit.platform.composable.ScrollBarLazyRow
 import dev.toastbits.composekit.platform.composable.theme.LocalApplicationTheme
@@ -31,13 +34,14 @@ internal fun DatabaseSourceListActions(
     modifier: Modifier = Modifier,
     onTypeSelected: ((Int) -> Unit)? = null
 ) {
-    val theme: ThemeValues = LocalApplicationTheme.current
+    val shape: Shape = MaterialTheme.shapes.medium
+
     WaveLineArea(
-        theme.accent.copy(alpha = 0.25f),
-        modifier.height(100.dp),
+        modifier.height(100.dp).clip(shape),
         periodMillis = 5000
     ) {
         Column(
+            Modifier.padding(10.dp),
             verticalArrangement = Arrangement.spacedBy(5.dp)
         ) {
             Row(

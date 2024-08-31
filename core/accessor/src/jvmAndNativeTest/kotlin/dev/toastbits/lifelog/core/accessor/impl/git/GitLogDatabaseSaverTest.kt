@@ -6,7 +6,7 @@ import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
-import dev.toastbits.lifelog.core.git.GitWrapper
+import dev.toastbits.lifelog.core.git.system.GitWrapper
 import dev.toastbits.lifelog.core.accessor.DatabaseFileStructureProvider
 import dev.toastbits.lifelog.core.accessor.LogFileSplitStrategy
 import dev.toastbits.lifelog.core.accessor.RemoteLogDatabaseAccessor

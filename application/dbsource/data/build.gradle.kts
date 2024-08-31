@@ -11,9 +11,9 @@ kotlin {
                 api(projects.application.dbsource.domain)
                 implementation(projects.application.settings.domain)
                 implementation(projects.application.settings.data)
-                implementation(projects.application.navigation)
-
                 implementation(projects.core.specification)
+                implementation(projects.core.git.core)
+
                 implementation(libs.composekit)
                 implementation(libs.ktor.core)
                 implementation(libs.kotlinx.serialization.json)
