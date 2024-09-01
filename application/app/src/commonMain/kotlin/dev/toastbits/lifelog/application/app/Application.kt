@@ -1,15 +1,19 @@
 package dev.toastbits.lifelog.application.app
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.unit.dp
@@ -73,16 +77,18 @@ class Application(
     @Composable
     private fun TopContent() {
         Scaffold { padding ->
-            navigator.CurrentScreen(
-                Modifier.fillMaxSize(),
-                padding + PaddingValues(20.dp)
-            ) { modifier, paddingValues, content ->
-                Column(
-                    modifier,
-                    verticalArrangement = Arrangement.spacedBy(20.dp)
-                ) {
-                    PersistentTopBar(Modifier.fillMaxWidth().padding(paddingValues.copy(bottom = 0.dp)))
-                    content(Modifier.fillMaxSize().weight(1f), paddingValues.copy(top = 0.dp))
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                navigator.CurrentScreen(
+                    Modifier.fillMaxHeight().widthIn(max = 1000.dp),
+                    padding + PaddingValues(20.dp)
+                ) { modifier, paddingValues, content ->
+                    Column(
+                        modifier,
+                        verticalArrangement = Arrangement.spacedBy(20.dp)
+                    ) {
+                        PersistentTopBar(Modifier.fillMaxWidth().padding(paddingValues.copy(bottom = 0.dp)))
+                        content(Modifier.fillMaxSize().weight(1f), paddingValues.copy(top = 0.dp))
+                    }
                 }
             }
         }
