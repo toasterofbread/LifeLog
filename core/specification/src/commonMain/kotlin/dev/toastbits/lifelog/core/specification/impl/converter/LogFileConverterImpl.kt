@@ -26,12 +26,13 @@ class LogFileConverterImpl(
     private val userContentParser: UserContentParser = MarkdownUserContentParser(),
     private val userContentGenerator: UserContentGenerator = MarkdownUserContentGenerator()
 ): LogFileConverter {
-    override fun parseLogFile(lines: Iterable<String>): LogFileConverter.ParseResult =
+    override fun parseLogFile(lines: Sequence<String>, initialDate: LogDate?): LogFileConverter.ParseResult =
         LogFileParser(
             formats,
             extensionRegistry.getAllExtensions().flatMap { it.extraEventTypes },
             userContentParser,
-            referenceParser
+            referenceParser,
+            initialDate
         ).parse(lines)
 
     override fun generateLogFile(days: Map<LogDate, List<LogEvent>>): LogFileConverter.GenerateResult =

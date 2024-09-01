@@ -21,6 +21,7 @@ internal class LogFileParser(
     private val eventTypes: List<LogEventType>,
     private val userContentParser: UserContentParser,
     private val referenceParser: LogEntityReferenceParser,
+    private val initialDate: LogDate? = null
 ) {
     private val dateLineParser: DateLineParser =
         object : DateLineParser(strings) {
@@ -63,7 +64,6 @@ internal class LogFileParser(
     }
 
     private fun onAlert(error: LogParseAlert, line: Int = currentLineIndex) {
-        TODO("$error")
         alerts.add(ParseAlertData(error, line.toUInt(), null))
     }
 
@@ -78,7 +78,7 @@ internal class LogFileParser(
     }
 
     private fun getDayEvents(allowOutsideDay: Boolean = false): MutableList<LogEvent> {
-        val day = currentDay
+        val day: LogDate? = currentDay
         if (day == null) {
             if (!allowOutsideDay) {
                 onAlert(SpecificationLogParseAlert.LogEventOutsideDay)
@@ -88,12 +88,12 @@ internal class LogFileParser(
         return days.getOrPut(day) { mutableListOf() }
     }
 
-    fun parse(lines: Iterable<String>): LogFileConverter.ParseResult {
+    fun parse(lines: Sequence<String>): LogFileConverter.ParseResult {
         days = mutableMapOf()
         alerts = mutableListOf()
         iterator = lines.iterator()
         currentLineIndex = -1
-        currentDay = null
+        currentDay = initialDate
 
         while (hasNext()) {
             val line: String = goNext().trim()

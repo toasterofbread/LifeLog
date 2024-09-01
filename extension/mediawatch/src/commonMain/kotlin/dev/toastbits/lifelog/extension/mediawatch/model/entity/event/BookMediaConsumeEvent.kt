@@ -35,9 +35,7 @@ data class BookMediaConsumeEvent(
     sealed interface ReadPoint {
         data class Position(val volume: UInt?, val subpoint: Subpoint?): ReadPoint {
             init {
-                if (volume == null && subpoint == null) {
-                    throw IllegalStateException()
-                }
+                require(volume != null || subpoint != null)
             }
 
             sealed interface Subpoint {

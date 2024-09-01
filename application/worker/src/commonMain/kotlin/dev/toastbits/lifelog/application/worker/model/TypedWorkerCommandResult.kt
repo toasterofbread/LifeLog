@@ -1,5 +1,6 @@
 package dev.toastbits.lifelog.application.worker.model
 
+import dev.toastbits.lifelog.application.worker.command.WorkerCommandResponse
 import kotlinx.serialization.Serializable
 
 sealed interface TypedWorkerCommandResult<R: WorkerCommandResponse> {

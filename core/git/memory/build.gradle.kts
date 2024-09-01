@@ -1,4 +1,3 @@
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import util.configureAllKmpTargets
 
 plugins {
@@ -7,6 +6,7 @@ plugins {
 
     alias(libs.plugins.kotlin)
     alias(libs.plugins.publish)
+    alias(libs.plugins.kotlinx.serialization)
 }
 
 kotlin {
@@ -20,10 +20,11 @@ kotlin {
 
                 api(libs.okio)
                 api(libs.kotlinx.datetime)
+                api(libs.korlibs.compression)
                 implementation(libs.ktor.core)
                 implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.kotlinx.serialization.json)
                 implementation(libs.hash.sha1)
-                api(libs.korlibs.compression)
             }
         }
 

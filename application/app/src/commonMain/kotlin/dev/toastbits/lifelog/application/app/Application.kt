@@ -29,6 +29,9 @@ import dev.toastbits.lifelog.application.dbsource.data.ui.screen.sourcelist.Data
 import dev.toastbits.lifelog.application.settings.data.appsettings.AppSettingsImpl
 import dev.toastbits.lifelog.application.settings.data.compositionlocal.LocalSettings
 import dev.toastbits.lifelog.application.settings.domain.appsettings.AppSettings
+import dev.toastbits.lifelog.extension.media.GDocsExtension
+import dev.toastbits.lifelog.extension.media.MediaExtension
+import dev.toastbits.lifelog.extension.mediawatch.MediaWatchExtension
 
 class Application(
     private val context: PlatformContext,
@@ -37,6 +40,10 @@ class Application(
 ) {
     private val navigator: Navigator = ExtendableNavigator(initialScreen = DatabaseSourceListScreen())
 //    private val navigator: Navigator = ExtendableNavigator(initialScreen = AppSettingsScreen(settings))
+
+    init {
+        registerExtensions()
+    }
 
     @Composable
     fun Main() {
@@ -53,6 +60,14 @@ class Application(
                 TopContent()
             }
         }
+    }
+
+    fun onClose() {
+
+    }
+
+    fun onKeyEvent(event: KeyEvent): Boolean {
+        return navigator.handleKeyEvent(event)
     }
 
     @Composable
@@ -73,11 +88,9 @@ class Application(
         }
     }
 
-    fun onClose() {
-
-    }
-
-    fun onKeyEvent(event: KeyEvent): Boolean {
-        return navigator.handleKeyEvent(event)
+    private fun registerExtensions() {
+        settings.Database.extensionRegistry.registerExtension(MediaExtension())
+        settings.Database.extensionRegistry.registerExtension(MediaWatchExtension())
+        settings.Database.extensionRegistry.registerExtension(GDocsExtension())
     }
 }

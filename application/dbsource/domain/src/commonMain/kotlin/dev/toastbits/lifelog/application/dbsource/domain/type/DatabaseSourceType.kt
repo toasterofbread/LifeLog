@@ -18,7 +18,7 @@ interface DatabaseSourceType<C: DatabaseSourceConfiguration> {
 
     fun createAccessor(
         configuration: C,
-        databaseConfiguration: LogDatabaseConfiguration,
+        databaseConfigurationProvider: suspend () -> LogDatabaseConfiguration,
         gitCredentialsProvider: suspend () -> GitCredentials?,
         httpClient: HttpClient,
         ioDispatcher: CoroutineDispatcher,

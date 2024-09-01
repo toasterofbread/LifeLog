@@ -9,9 +9,10 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(projects.application.dbsource.domain)
+                implementation(projects.application.worker)
                 implementation(projects.core.specification)
                 implementation(projects.core.accessor)
-                implementation(projects.core.git.memory)
+                implementation(projects.core.git.core)
 
                 implementation(libs.composekit)
                 implementation(libs.ktor.core)

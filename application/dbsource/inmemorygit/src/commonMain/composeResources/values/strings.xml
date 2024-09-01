@@ -13,7 +13,8 @@
     <string name="accessor_progress_clone_pulling">Pulling data</string>
     <string name="accessor_progress_pack_file_parse_preparing_pack_file">Preparing pack file for parsing</string>
     <string name="accessor_progress_pack_file_parse_reading_header">Reading pack file header</string>
-    <string name="accessor_progress_pack_file_parse_parsing_objects">Reading pack file objects</string>
+    <string name="accessor_progress_pack_file_parse_parsing_objects">Parsing pack file objects</string>
     <string name="accessor_progress_pack_file_parse_checksum">Verifying pack file integrity</string>
     <string name="accessor_progress_rendering_commit_tree">Building commit tree</string>
+    <string name="accessor_progress_serialising_file_structure">Serialising file structure</string>
 </resources>

@@ -1,17 +1,19 @@
 package dev.toastbits.lifelog.application.worker
 
 import dev.toastbits.lifelog.application.worker.model.TypedWorkerCommandResult
-import dev.toastbits.lifelog.application.worker.model.WorkerCommand
-import dev.toastbits.lifelog.application.worker.model.WorkerCommandProgress
-import dev.toastbits.lifelog.application.worker.model.WorkerCommandResponse
+import dev.toastbits.lifelog.application.worker.command.WorkerCommand
+import dev.toastbits.lifelog.application.worker.command.WorkerCommandCancelCurrent
+import dev.toastbits.lifelog.application.worker.command.WorkerCommandProgress
+import dev.toastbits.lifelog.application.worker.command.WorkerCommandResponse
 import dev.toastbits.lifelog.application.worker.model.WorkerCommandResult
 import dev.toastbits.lifelog.application.worker.model.cast
+import io.ktor.util.toJsArray
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ChannelResult
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import org.w3c.dom.ErrorEvent
 import org.w3c.dom.MessageEvent
 import org.w3c.dom.Worker
@@ -38,48 +40,55 @@ actual object WorkerClient {
         progressClass: KClass<out WorkerCommandProgress>?,
         crossinline onProgress: (WorkerCommandProgress) -> Unit
     ): Result<TypedWorkerCommandResult<R>> {
-        while (!firstMessageSkipped) {
-            delay(10)
-        }
-
-        if (!mutex.tryLock()) {
-            return Result.failure(ConcurrentModificationException("WorkerClient does not support simultaneous commands ($command)"))
-        }
-
         try {
-            val serialisedCommand: String =
-                try {
-                    Json.encodeToString(command)
-                }
-                catch (e: Throwable) {
-                    return Result.failure(RuntimeException(msg("Serialising command '$command' failed"), e))
-                }
+            while (!firstMessageSkipped) {
+                delay(10)
+            }
 
-            worker.postMessage(serialisedCommand.toJsString())
+            if (!mutex.tryLock()) {
+                return Result.failure(ConcurrentModificationException("WorkerClient does not support simultaneous commands ($command)"))
+            }
 
-            while (true) {
-                val result: WorkerCommandResult = resultChannel.receive()
-                when (result) {
-                    is WorkerCommandResult.Success ->
-                        when (val response: WorkerCommandResponse = result.response) {
-                            is R -> return Result.success(result.cast())
-                            else -> return Result.failure(RuntimeException(msg("Received response of unknown type '${response::class}' while waiting for '${R::class}' ($response)")))
-                        }
-                    is WorkerCommandResult.Progress -> {
-                        val progress: WorkerCommandProgress = result.progress
-                        if (progressClass?.isInstance(progress) == true) {
-                            onProgress(progress)
-                        }
-                        else {
-                            log("Received progress of unknown type '${progress::class}' while waiting for '$progressClass', ignoring ($progress)")
-                        }
+            try {
+                val serialisedCommand: String =
+                    try {
+                        workerJson.encodeToString(command)
                     }
-                    is WorkerCommandResult.Exception -> return Result.success(result.cast())
+                    catch (e: Throwable) {
+                        return Result.failure(RuntimeException(msg("Serialising command '$command' failed"), e))
+                    }
+
+                worker.postMessage(serialisedCommand.toJsString())
+
+                while (true) {
+                    val result: WorkerCommandResult = resultChannel.receive()
+                    when (result) {
+                        is WorkerCommandResult.Success ->
+                            when (val response: WorkerCommandResponse = result.response) {
+                                is R -> return Result.success(result.cast())
+                                else -> return Result.failure(RuntimeException(msg("Received response of unknown type '${response::class}' while waiting for '${R::class}' ($response)")))
+                            }
+                        is WorkerCommandResult.Progress -> {
+                            val progress: WorkerCommandProgress = result.progress
+                            if (progressClass?.isInstance(progress) == true) {
+                                onProgress(progress)
+                            }
+                            else {
+                                log("Received progress of unknown type '${progress::class}' while waiting for '$progressClass', ignoring ($progress)")
+                            }
+                        }
+                        is WorkerCommandResult.Exception -> return Result.success(result.cast())
+                    }
                 }
             }
+            finally {
+                mutex.unlock()
+            }
         }
-        finally {
-            mutex.unlock()
+        catch (e: CancellationException) {
+            log("Command cancelled, sending WorkerCommandCancelCurrent")
+            worker.postMessage(workerJson.encodeToString<WorkerCommand>(WorkerCommandCancelCurrent).toJsString())
+            throw e
         }
     }
 
@@ -92,7 +101,7 @@ actual object WorkerClient {
 
         val response: WorkerCommandResult =
             try {
-                Json.decodeFromString(message.data.toString())
+                workerJson.decodeFromString(message.data.toString())
             }
             catch (e: Throwable) {
                 RuntimeException(msg("Message '${message.data}' could not be deserialised"), e).printStackTrace()

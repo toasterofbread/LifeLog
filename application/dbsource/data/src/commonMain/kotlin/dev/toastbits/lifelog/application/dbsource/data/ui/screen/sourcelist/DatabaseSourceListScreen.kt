@@ -51,7 +51,7 @@ class DatabaseSourceListScreen: Screen {
                     DatabaseSourceLoadScreen(
                         source,
                         onLoaded = { database ->
-                            TODO(database.toString())
+                            TODO(database.days.size.toString())
                         }
                     )
                 )

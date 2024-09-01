@@ -250,6 +250,7 @@ class MediaWatchExtensionStringsImpl(
             }
             else {
                 onAlert(MediaWatchLogParseAlert.UnknownBookReadPoint(extensionId, text, _text))
+                return null
             }
         }
 
@@ -291,6 +292,15 @@ class MediaWatchExtensionStringsImpl(
                 unsure = true
                 text = text.drop(prefix.length).trimStart()
                 break
+            }
+        }
+
+        if (!upTo) {
+            for (prefix in mediaDurationRangeToPrefixes) {
+                if (text.startsWith(prefix)) {
+                    upTo = true
+                    text = text.drop(prefix.length).trimStart()
+                }
             }
         }
 

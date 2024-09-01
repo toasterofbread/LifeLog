@@ -29,13 +29,13 @@ object InMemoryGitDatabaseSourceType: DatabaseSourceType<InMemoryGitDatabaseSour
 
     override fun createAccessor(
         configuration: InMemoryGitDatabaseSourceConfiguration,
-        databaseConfiguration: LogDatabaseConfiguration,
+        databaseConfigurationProvider: suspend () -> LogDatabaseConfiguration,
         gitCredentialsProvider: suspend () -> GitCredentials?,
         httpClient: HttpClient,
         ioDispatcher: CoroutineDispatcher,
         workDispatcher: CoroutineDispatcher
     ): DatabaseAccessor =
-        InMemoryGitDatabaseAccessor(configuration, databaseConfiguration, gitCredentialsProvider, httpClient, ioDispatcher, workDispatcher)
+        InMemoryGitDatabaseAccessor(configuration, databaseConfigurationProvider, gitCredentialsProvider, ioDispatcher)
 
     override fun serialiseConfiguration(configuration: InMemoryGitDatabaseSourceConfiguration): String =
         Json.encodeToString(configuration)

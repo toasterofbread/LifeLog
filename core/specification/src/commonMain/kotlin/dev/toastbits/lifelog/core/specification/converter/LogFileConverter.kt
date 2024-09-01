@@ -7,7 +7,7 @@ import dev.toastbits.lifelog.core.specification.model.entity.date.LogDate
 import dev.toastbits.lifelog.core.specification.model.entity.event.LogEvent
 
 interface LogFileConverter {
-    fun parseLogFile(lines: Iterable<String>): ParseResult
+    fun parseLogFile(lines: Sequence<String>, initialDate: LogDate? = null): ParseResult
     fun generateLogFile(days: Map<LogDate, List<LogEvent>>): GenerateResult
 
     data class ParseResult(

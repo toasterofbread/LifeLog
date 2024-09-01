@@ -1,10 +1,13 @@
 package dev.toastbits.lifelog.application.worker
 
 import dev.toastbits.lifelog.application.worker.model.TypedWorkerCommandResult
-import dev.toastbits.lifelog.application.worker.model.WorkerCommand
-import dev.toastbits.lifelog.application.worker.model.WorkerCommandProgress
-import dev.toastbits.lifelog.application.worker.model.WorkerCommandResponse
+import dev.toastbits.lifelog.application.worker.command.WorkerCommand
+import dev.toastbits.lifelog.application.worker.command.WorkerCommandProgress
+import dev.toastbits.lifelog.application.worker.command.WorkerCommandResponse
+import kotlinx.serialization.json.Json
 import kotlin.reflect.KClass
+
+internal val workerJson: Json = Json { useArrayPolymorphism = true }
 
 expect object WorkerClient {
     suspend inline fun <reified R: WorkerCommandResponse> executeCommand(

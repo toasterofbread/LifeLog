@@ -29,21 +29,26 @@ data class GameMediaConsumeEvent(
             PlayedRange.Start -> append(strings.mediaRangeStart.first())
             PlayedRange.End -> append(strings.mediaRangeEnd.first())
             is PlayedRange.Days -> {
-                if (range.unsure) {
-                    append(strings.unsurePrefixes.first())
-                }
-
                 if (range.startDay != null && range.endDay != null) {
                     append(logStrings.preferredDateFormat.format(range.startDay))
+                    if (range.unsure) {
+                        append(strings.unsurePrefixes.first())
+                    }
                     append(strings.mediaRangeSplitterDefaultMany)
                     append(logStrings.preferredDateFormat.format(range.endDay))
                 }
                 else if (range.startDay != null) {
                     append(strings.mediaDurationRangeFromPrefixes.first())
+                    if (range.unsure) {
+                        append(strings.unsurePrefixes.first())
+                    }
                     append(logStrings.preferredDateFormat.format(range.startDay))
                 }
                 else if (range.endDay != null) {
                     append(strings.mediaDurationRangeToPrefixes.first())
+                    if (range.unsure) {
+                        append(strings.unsurePrefixes.first())
+                    }
                     append(logStrings.preferredDateFormat.format(range.endDay))
                 }
                 else {

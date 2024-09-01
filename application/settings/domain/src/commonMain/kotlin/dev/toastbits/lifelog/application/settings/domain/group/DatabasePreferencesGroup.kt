@@ -1,8 +1,5 @@
 package dev.toastbits.lifelog.application.settings.domain.group
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import dev.toastbits.composekit.platform.PreferencesGroup
 import dev.toastbits.composekit.platform.PreferencesProperty
 import dev.toastbits.lifelog.core.accessor.LogDatabaseConfiguration
@@ -18,14 +15,17 @@ interface DatabasePreferencesGroup: PreferencesGroup {
     val SPLIT_STRATEGY: PreferencesProperty<LogFileSplitStrategy>
 }
 
-@Composable
-fun DatabasePreferencesGroup.rememberCurrentLogDatabaseConfiguration(): LogDatabaseConfiguration {
-    val splitStrategy: LogFileSplitStrategy by SPLIT_STRATEGY.observe()
-    return remember(splitStrategy) {
-        object : LogDatabaseConfiguration {
-            override val extensionRegistry: ExtensionRegistry = this@rememberCurrentLogDatabaseConfiguration.extensionRegistry
-            override val strings: LogFileConverterStrings = this@rememberCurrentLogDatabaseConfiguration.logFileConverterStrings
-            override val splitStrategy: LogFileSplitStrategy = splitStrategy
-        }
-    }
+suspend fun DatabasePreferencesGroup.getLogDatabaseConfiguration(): LogDatabaseConfiguration {
+    val splitStrategy: LogFileSplitStrategy = SPLIT_STRATEGY.get()
+    return LogDatabaseConfigurationImpl(
+        extensionRegistry = extensionRegistry,
+        splitStrategy = splitStrategy,
+        strings = logFileConverterStrings
+        )
 }
+
+private data class LogDatabaseConfigurationImpl(
+    override val extensionRegistry: ExtensionRegistry,
+    override val splitStrategy: LogFileSplitStrategy,
+    override val strings: LogFileConverterStrings
+) : LogDatabaseConfiguration

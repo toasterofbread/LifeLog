@@ -52,6 +52,16 @@ inline fun FileStructure.Node.walkFiles(onFile: (FileStructure.Node.File, Path) 
     }
 }
 
+fun FileStructure.countFiles(): Int =
+    nodes.values.sumOf { it.countFiles() }
+
+fun FileStructure.Node.countFiles(): Int =
+    when (this) {
+        is FileStructure.Node.File -> 1
+        is FileStructure.Node.Directory -> nodes.values.sumOf { it.countFiles() }
+        else -> throw IllegalStateException(this::class.toString())
+    }
+
 inline fun FileStructure.walkFiles(onFile: (FileStructure.Node.File, Path) -> Unit) {
     for ((name, node) in nodes) {
         node.walkFiles { file, path ->
@@ -80,3 +90,16 @@ fun FileStructure.getOrNull(path: Path): FileStructure.Node? {
 
 fun List<String>.toPath(): Path =
     joinToString(Path.DIRECTORY_SEPARATOR).toPath()
+
+suspend fun FileStructure.Node.File.readAllBytes(): ByteArray =
+    when (this) {
+        is FileStructure.Node.File.FileBytes -> this.readBytes().let { (bytes, region) -> bytes.sliceArray(region) }
+        is FileStructure.Node.File.FileLines -> this.readLines().joinToString("\n").encodeToByteArray()
+    }
+
+suspend fun FileStructure.Node.File.readLines(): Sequence<String> =
+    when (this) {
+        is FileStructure.Node.File.FileBytes -> this.readBytes().let { (bytes, region) -> bytes.decodeToString(region.first, region.last + 1) }.splitToSequence("\n")
+        is FileStructure.Node.File.FileLines -> this.readLines()
+    }
+

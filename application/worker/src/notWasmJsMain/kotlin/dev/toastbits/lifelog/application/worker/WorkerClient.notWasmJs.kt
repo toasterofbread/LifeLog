@@ -1,9 +1,9 @@
 package dev.toastbits.lifelog.application.worker
 
 import dev.toastbits.lifelog.application.worker.model.TypedWorkerCommandResult
-import dev.toastbits.lifelog.application.worker.model.WorkerCommand
-import dev.toastbits.lifelog.application.worker.model.WorkerCommandProgress
-import dev.toastbits.lifelog.application.worker.model.WorkerCommandResponse
+import dev.toastbits.lifelog.application.worker.command.WorkerCommand
+import dev.toastbits.lifelog.application.worker.command.WorkerCommandProgress
+import dev.toastbits.lifelog.application.worker.command.WorkerCommandResponse
 import dev.toastbits.lifelog.application.worker.model.cast
 import kotlinx.coroutines.sync.Mutex
 import kotlin.reflect.KClass

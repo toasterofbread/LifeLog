@@ -13,8 +13,7 @@ import dev.toastbits.lifelog.application.dbsource.domain.configuration.castType
 import dev.toastbits.lifelog.application.settings.data.compositionlocal.LocalSettings
 import dev.toastbits.lifelog.application.settings.domain.appsettings.AppSettings
 import dev.toastbits.lifelog.application.settings.domain.group.getGitCredentials
-import dev.toastbits.lifelog.application.settings.domain.group.rememberCurrentLogDatabaseConfiguration
-import dev.toastbits.lifelog.core.accessor.LogDatabaseConfiguration
+import dev.toastbits.lifelog.application.settings.domain.group.getLogDatabaseConfiguration
 import dev.toastbits.lifelog.core.specification.database.LogDatabase
 import io.ktor.client.HttpClient
 import kotlinx.coroutines.Dispatchers
@@ -38,12 +37,11 @@ class DatabaseSourceLoadScreen(
 
         val settings: AppSettings = LocalSettings.current
 
-        val logDatabaseConfiguration: LogDatabaseConfiguration = settings.Database.rememberCurrentLogDatabaseConfiguration()
         val databaseAccessor: DatabaseAccessor =
-            remember(logDatabaseConfiguration) {
+            remember {
                 sourceConfiguration.castType().createAccessor(
                     sourceConfiguration,
-                    logDatabaseConfiguration,
+                    settings.Database::getLogDatabaseConfiguration,
                     settings.DatabaseSource::getGitCredentials,
                     client,
                     ioDispatcher,

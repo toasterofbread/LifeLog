@@ -1,4 +1,3 @@
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import util.configureAllKmpTargets
 
 plugins {
@@ -6,7 +5,7 @@ plugins {
     id("android-library-conventions")
 
     alias(libs.plugins.kotlin)
-    alias(libs.plugins.publish)
+    alias(libs.plugins.kotlinx.serialization)
 }
 
 kotlin {
@@ -15,6 +14,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                implementation(libs.kotlinx.serialization.json)
             }
         }
     }

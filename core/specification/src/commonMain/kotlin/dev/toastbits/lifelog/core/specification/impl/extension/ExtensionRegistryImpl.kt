@@ -5,8 +5,8 @@ import dev.toastbits.lifelog.core.specification.extension.ExtensionRegistry
 import dev.toastbits.lifelog.core.specification.extension.SpecificationExtension
 import dev.toastbits.lifelog.core.specification.extension.validate
 
-class ExtensionRegistryImpl: ExtensionRegistry {
-    private val extensions: MutableList<SpecificationExtension> = mutableListOf()
+class ExtensionRegistryImpl(extensions: List<SpecificationExtension> = emptyList()): ExtensionRegistry {
+    private val extensions: MutableList<SpecificationExtension> = extensions.toMutableList()
 
     override fun findRegisteredExtension(id: ExtensionId): SpecificationExtension? =
         extensions.firstOrNull { it.id == id }
@@ -21,4 +21,7 @@ class ExtensionRegistryImpl: ExtensionRegistry {
     override fun unregisterExtension(extension: SpecificationExtension) {
         extensions.remove(extension)
     }
+
+    override fun toString(): String =
+        "ExtensionRegistryImpl(extensions=${extensions.toList()})"
 }

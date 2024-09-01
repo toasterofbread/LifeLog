@@ -32,7 +32,9 @@ class GitCloner(
     ): Pair<ByteArray, String> = withContext(ioDispatcher) {
         val headers: Headers = GitConstants.getDefaultGitRequestHeaders(credentials)
 
-        val headRef: String = getRef(repositoryUrl, branch, headers, progressListener)
+        val headRef: String =
+            if (branch.length == 40) branch
+            else getRef(repositoryUrl, branch, headers, progressListener)
 
         progressListener?.onProgress(GitHandlerStage.Clone.PULL, 0, null)
 

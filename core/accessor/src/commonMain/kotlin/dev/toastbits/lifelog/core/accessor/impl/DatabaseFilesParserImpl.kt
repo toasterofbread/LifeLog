@@ -5,15 +5,15 @@ import dev.toastbits.lifelog.core.accessor.DatabaseFilesParser
 import dev.toastbits.lifelog.core.accessor.LogDatabaseConfiguration
 import dev.toastbits.lifelog.core.accessor.extension.DatabaseFileStructureExtension
 import dev.toastbits.lifelog.core.filestructure.FileStructure
+import dev.toastbits.lifelog.core.filestructure.readLines
 import dev.toastbits.lifelog.core.filestructure.walkFiles
 import dev.toastbits.lifelog.core.specification.converter.LogFileConverter
-import dev.toastbits.lifelog.core.specification.converter.LogFileConverterStrings
 import dev.toastbits.lifelog.core.specification.converter.ParseAlertData
 import dev.toastbits.lifelog.core.specification.converter.alert.SpecificationLogParseAlert
 import dev.toastbits.lifelog.core.specification.database.LogDataFile
 import dev.toastbits.lifelog.core.specification.database.LogDatabase
-import dev.toastbits.lifelog.core.specification.extension.ExtensionRegistry
 import dev.toastbits.lifelog.core.specification.extension.SpecificationExtension
+import dev.toastbits.lifelog.core.specification.impl.model.entity.date.LogDateImpl
 import dev.toastbits.lifelog.core.specification.model.entity.date.LogDate
 import dev.toastbits.lifelog.core.specification.model.entity.event.LogEvent
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReference
@@ -51,7 +51,6 @@ class DatabaseFilesParserImpl(
                     scope.onInLogEntityReference(reference, file)
                 }
                 is LogEntityReference.InMetadata -> {
-                    check(file is FileStructure.Node.File.FileLines)
                     scope.onInMetadataEntityReference(reference, file, path)
                 }
                 is LogEntityReference.URL -> throw IllegalStateException(reference.toString())
@@ -89,14 +88,9 @@ class DatabaseFilesParserImpl(
 
         when (reference.path.segments.lastOrNull()) {
             configuration.strings.logFileName -> {
-                val lines: Iterable<String> =
-                    when (file) {
-                        // TODO Don't use split()
-                        is FileStructure.Node.File.FileBytes -> file.readBytes().let { (bytes, size) -> bytes.decodeToString(size.first, size.last + 1) }.split('\n')
-                        is FileStructure.Node.File.FileLines -> file.readLines().asIterable()
-                    }
+                val lines: Sequence<String> = file.readLines()
 
-                val log: LogFileConverter.ParseResult = converter.parseLogFile(lines)
+                val log: LogFileConverter.ParseResult = converter.parseLogFile(lines, initialDate = LogDateImpl(reference.logDate, ambiguous = true))
                 log.alerts.forEach(onAlert)
 
                 for ((day, events) in log.days) {
@@ -108,7 +102,7 @@ class DatabaseFilesParserImpl(
         }
     }
 
-    private suspend fun Scope.onInMetadataEntityReference(reference: LogEntityReference.InMetadata, file: FileStructure.Node.File.FileLines, path: Path) {
+    private suspend fun Scope.onInMetadataEntityReference(reference: LogEntityReference.InMetadata, file: FileStructure.Node.File, path: Path) {
         if (data.containsKey(reference)) {
             onAlert(ParseAlertData(SpecificationLogParseAlert.RedefinedMetadataValue(reference), null, path.toString()))
         }
