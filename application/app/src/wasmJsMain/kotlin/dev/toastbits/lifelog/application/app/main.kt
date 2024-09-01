@@ -1,4 +1,4 @@
-package dev.toastbits.lifelog.application.core
+package dev.toastbits.lifelog.application.app
 
 import androidx.compose.ui.window.CanvasBasedWindow
 import dev.toastbits.composekit.platform.InMemoryPlatformPreferences
@@ -9,6 +9,7 @@ import kotlinx.coroutines.Job
 
 fun main() {
     val coroutineScope: CoroutineScope = CoroutineScope(Job())
+
     val context: PlatformContext = PlatformContextImpl(coroutineScope)
     val prefs: InMemoryPlatformPreferences = InMemoryPlatformPreferences()
 

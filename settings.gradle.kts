@@ -29,6 +29,7 @@ dependencyResolutionManagement {
 rootProject.name = "lifelog"
 
 include(":application:app")
+include(":application:worker")
 include(":application:settings:domain")
 include(":application:settings:data")
 include(":application:dbsource:domain")

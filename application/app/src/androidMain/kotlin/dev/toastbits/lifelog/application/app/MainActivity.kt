@@ -1,4 +1,4 @@
-package dev.toastbits.lifelog.application.core
+package dev.toastbits.lifelog.application.app
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -17,7 +17,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val coroutineScope: CoroutineScope = CoroutineScope(Job())
-        val context: PlatformContext = PlatformContextImpl(this, coroutineScope)
+        val context: AppContext = AppContext(this, coroutineScope)
         val prefs: PlatformPreferences = PlatformPreferencesImpl.getInstance(this)
 
         val currentApplication: Application = Application(context, prefs)

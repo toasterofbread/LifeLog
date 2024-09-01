@@ -24,7 +24,7 @@ kotlin {
                     moduleName = projectName
                     browser {
                         commonWebpackConfig {
-                            outputFileName = "composeApp.js"
+                            outputFileName = "client.js"
                             devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
                                 static = (static ?: mutableListOf()).apply {
                                     // Serve sources to debug inside browser
@@ -86,7 +86,7 @@ kotlin {
 compose {
     desktop {
         application {
-            mainClass = "dev.toastbits.$projectName.application.core.MainKt"
+            mainClass = "dev.toastbits.$projectName.application.app.MainKt"
         }
     }
 

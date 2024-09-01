@@ -1,4 +1,4 @@
-package dev.toastbits.lifelog.application.core
+package dev.toastbits.lifelog.application.app
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,7 +24,7 @@ import dev.toastbits.composekit.settings.ui.ThemeValuesData
 import dev.toastbits.composekit.settings.ui.getDefaultCatppuccinThemes
 import dev.toastbits.composekit.utils.common.copy
 import dev.toastbits.composekit.utils.common.plus
-import dev.toastbits.lifelog.application.core.ui.PersistentTopBar
+import dev.toastbits.lifelog.application.app.ui.PersistentTopBar
 import dev.toastbits.lifelog.application.dbsource.data.ui.screen.sourcelist.DatabaseSourceListScreen
 import dev.toastbits.lifelog.application.settings.data.appsettings.AppSettingsImpl
 import dev.toastbits.lifelog.application.settings.data.compositionlocal.LocalSettings

@@ -1,4 +1,4 @@
-package dev.toastbits.lifelog.application.core.ui
+package dev.toastbits.lifelog.application.app.ui
 
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut

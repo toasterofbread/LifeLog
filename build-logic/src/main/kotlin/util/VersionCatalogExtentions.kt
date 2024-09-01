@@ -6,14 +6,14 @@ import org.gradle.api.artifacts.VersionCatalog
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.kotlin.dsl.getByType
 
-internal val Project.libs: VersionCatalog
+val Project.libs: VersionCatalog
     get() = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
-internal fun VersionCatalog.version(path: String): String =
+fun VersionCatalog.version(path: String): String =
     findVersion(path).get().requiredVersion
 
-internal fun VersionCatalog.library(path: String): MinimalExternalModuleDependency =
+fun VersionCatalog.library(path: String): MinimalExternalModuleDependency =
     findLibrary(path).get().get()
 
-internal fun VersionCatalog.plugin(path: String): String =
+fun VersionCatalog.plugin(path: String): String =
     findPlugin(path).get().get().pluginId

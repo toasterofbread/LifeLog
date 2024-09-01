@@ -1,6 +1,7 @@
-package dev.toastbits.lifelog.application.core
+package dev.toastbits.lifelog.application.app
 
 import androidx.compose.ui.window.singleWindowApplication
+import dev.toastbits.composekit.platform.PlatformContext
 import dev.toastbits.composekit.platform.PlatformContextImpl
 import dev.toastbits.composekit.platform.PlatformPreferences
 import dev.toastbits.composekit.platform.PlatformPreferencesJson
@@ -13,7 +14,7 @@ import org.jetbrains.compose.resources.getString
 
 fun main() = runBlocking {
     val coroutineScope: CoroutineScope = CoroutineScope(Job())
-    val context: PlatformContextImpl = PlatformContextImpl(getString(Res.string.app_name), coroutineScope)
+    val context: PlatformContext = PlatformContextImpl(getString(Res.string.app_name), coroutineScope)
     val prefs: PlatformPreferences = PlatformPreferencesJson(context.getFilesDir()!!.resolve("settings.json"))
 
     val application: Application = Application(context, prefs)

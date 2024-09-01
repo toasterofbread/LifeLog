@@ -1,6 +1,5 @@
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import util.KmpTarget
-import util.configureAllKmpTargets
 import util.configureKmpTargets
 
 plugins {

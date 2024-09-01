@@ -1,4 +1,4 @@
-package dev.toastbits.lifelog.application.core
+package dev.toastbits.lifelog.application.app
 
 import dev.toastbits.lifelog.core.filestructure.MutableFileStructure
 import dev.toastbits.lifelog.core.git.memory.handler.GitCloner
