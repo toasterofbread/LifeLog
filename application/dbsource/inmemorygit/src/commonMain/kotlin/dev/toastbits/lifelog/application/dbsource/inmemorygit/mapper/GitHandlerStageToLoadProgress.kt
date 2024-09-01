@@ -37,5 +37,5 @@ internal fun GitHandlerStage.toLoadProgress(part: Long?, total: Long?): LoadProg
             GitHandlerStage.RenderCommitTree -> Res.string.accessor_progress_rendering_commit_tree
         }
 
-    return type.create(part, total) { stringResource(messageResource) }
+    return type.create(part, total, messageResource)
 }

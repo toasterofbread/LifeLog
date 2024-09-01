@@ -2,6 +2,7 @@ package dev.toastbits.lifelog.application.dbsource.domain.accessor
 
 import androidx.compose.runtime.Composable
 import dev.toastbits.lifelog.application.dbsource.domain.model.LogDatabaseParseResult
+import org.jetbrains.compose.resources.StringResource
 
 interface DatabaseAccessor {
     val onlineLocationName: String
@@ -10,8 +11,7 @@ interface DatabaseAccessor {
     suspend fun loadOnlineDatabase(onProgress: (LoadProgress) -> Unit): Result<LogDatabaseParseResult>
 
     interface LoadProgress {
-        @Composable
-        fun getMessage(): String
+        fun getMessageResource(): StringResource
 
         @Composable
         fun getProgressMessage(): String? = null

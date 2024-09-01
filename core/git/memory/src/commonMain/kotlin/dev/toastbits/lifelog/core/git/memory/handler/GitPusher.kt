@@ -2,7 +2,7 @@ package dev.toastbits.lifelog.core.git.memory.handler
 
 import dev.toastbits.lifelog.core.git.memory.model.GitObject
 import dev.toastbits.lifelog.core.git.memory.util.GitConstants
-import dev.toastbits.lifelog.core.git.model.GitCredentials
+import dev.toastbits.lifelog.core.git.core.model.GitCredentials
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.onUpload
 import io.ktor.client.request.headers

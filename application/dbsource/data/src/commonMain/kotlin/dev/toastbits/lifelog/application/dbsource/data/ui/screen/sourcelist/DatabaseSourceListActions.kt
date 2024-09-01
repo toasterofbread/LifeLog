@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
@@ -45,6 +46,7 @@ internal fun DatabaseSourceListActions(
             verticalArrangement = Arrangement.spacedBy(5.dp)
         ) {
             Row(
+                Modifier.alpha(0.6f),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(5.dp)
             ) {
@@ -58,7 +60,7 @@ internal fun DatabaseSourceListActions(
             ScrollBarLazyRow(
                 Modifier.fillMaxWidth().weight(1f, true),
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
-                scrollbarSpacing = 10.dp
+                scrollBarSpacing = 10.dp
             ) {
                 itemsIndexed(types) { index, type ->
                     DatabaseSourceTypePreview(

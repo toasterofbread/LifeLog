@@ -2,7 +2,7 @@ package dev.toastbits.lifelog.core.git.memory.handler
 
 import dev.toastbits.lifelog.core.git.memory.handler.stage.GitHandlerStage
 import dev.toastbits.lifelog.core.git.memory.util.GitConstants
-import dev.toastbits.lifelog.core.git.model.GitCredentials
+import dev.toastbits.lifelog.core.git.core.model.GitCredentials
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.onDownload
@@ -33,6 +33,8 @@ class GitCloner(
         val headers: Headers = GitConstants.getDefaultGitRequestHeaders(credentials)
 
         val headRef: String = getRef(repositoryUrl, branch, headers, progressListener)
+
+        progressListener?.onProgress(GitHandlerStage.Clone.PULL, 0, null)
 
         val requestBody: ByteArray = (
             "0011command=fetch0016object-format=sha10001000fno-progress"
@@ -69,6 +71,8 @@ class GitCloner(
         headers: Headers,
         progressListener: ProgressListener?
     ): String {
+        progressListener?.onProgress(GitHandlerStage.Clone.RETRIEVE_REF, 0, null)
+
         val requestBody: ByteArray = (
             "0014command=ls-refs\n" +
             "0014agent=git/2.45.20016object-format=sha100010009peel\n" +

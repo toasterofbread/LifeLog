@@ -12,7 +12,7 @@ import dev.toastbits.lifelog.core.git.memory.model.SimpleGitObjectRegistry
 import dev.toastbits.lifelog.core.git.memory.provider.PlatformSha1Provider
 import dev.toastbits.lifelog.core.git.memory.provider.PlatformZlibInflater
 import dev.toastbits.lifelog.core.git.memory.provider.ZlibInflater
-import dev.toastbits.lifelog.core.git.model.GitCredentials
+import dev.toastbits.lifelog.core.git.core.model.GitCredentials
 import io.ktor.client.HttpClient
 import kotlinx.coroutines.CoroutineDispatcher
 

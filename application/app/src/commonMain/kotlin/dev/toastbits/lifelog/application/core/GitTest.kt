@@ -16,7 +16,7 @@ import dev.toastbits.lifelog.core.git.memory.provider.PlatformZlibDeflater
 import dev.toastbits.lifelog.core.git.memory.provider.PlatformZlibInflater
 import dev.toastbits.lifelog.core.git.memory.provider.ZlibDeflater
 import dev.toastbits.lifelog.core.git.memory.provider.ZlibInflater
-import dev.toastbits.lifelog.core.git.model.GitCredentials
+import dev.toastbits.lifelog.core.git.core.model.GitCredentials
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpTimeout
 import kotlinx.coroutines.CoroutineDispatcher

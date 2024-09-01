@@ -9,7 +9,7 @@ import dev.toastbits.lifelog.core.git.memory.model.GitObject.Type.REF_DELTA
 import dev.toastbits.lifelog.core.git.memory.model.GitObject.Type.TAG
 import dev.toastbits.lifelog.core.git.memory.model.GitObject.Type.TREE
 import dev.toastbits.lifelog.core.git.memory.model.GitObject.Type.UNUSED
-import dev.toastbits.lifelog.core.git.model.GitCredentials
+import dev.toastbits.lifelog.core.git.core.model.GitCredentials
 import io.ktor.http.Headers
 import io.ktor.http.HeadersBuilder
 import kotlin.io.encoding.Base64

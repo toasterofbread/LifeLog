@@ -9,8 +9,8 @@ import dev.toastbits.lifelog.application.dbsource.inmemorygit.mapper.toLoadProgr
 import dev.toastbits.lifelog.core.accessor.LogDatabaseConfiguration
 import dev.toastbits.lifelog.core.accessor.helper.LogDatabaseParseHelper
 import dev.toastbits.lifelog.core.filestructure.FileStructure
+import dev.toastbits.lifelog.core.git.core.model.GitCredentials
 import dev.toastbits.lifelog.core.git.memory.helper.GitHelper
-import dev.toastbits.lifelog.core.git.model.GitCredentials
 import dev.toastbits.lifelog.core.specification.converter.ParseAlertData
 import dev.toastbits.lifelog.core.specification.database.LogDatabase
 import io.ktor.client.HttpClient
@@ -20,7 +20,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 class InMemoryGitDatabaseAccessor(
     private val configuration: InMemoryGitDatabaseSourceConfiguration,
     private val databaseConfiguration: LogDatabaseConfiguration,
-    private val gitCredentials: GitCredentials?,
+    private val gitCredentialsProvider: suspend () -> GitCredentials?,
     private val httpClient: HttpClient,
     private val ioDispatcher: CoroutineDispatcher,
     private val workDispatcher: CoroutineDispatcher
@@ -30,9 +30,8 @@ class InMemoryGitDatabaseAccessor(
         get() = configuration.repositoryUrl
 
     override suspend fun loadOnlineDatabase(onProgress: (LoadProgress) -> Unit): Result<LogDatabaseParseResult> = runCatching {
+        val gitCredentials: GitCredentials? = gitCredentialsProvider()
         val gitHelper: GitHelper = GitHelper(httpClient, ioDispatcher, workDispatcher, gitCredentials)
-
-        val configuration = InMemoryGitDatabaseSourceConfiguration("", "https://github.com/toasterofbread/consume.git", "gdocs-import")
 
         val fileStructure: FileStructure =
             gitHelper.cloneToFileStructure(configuration.repositoryUrl, configuration.branchName) { stage, part, total ->

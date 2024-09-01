@@ -1,14 +1,13 @@
 package dev.toastbits.lifelog.application.dbsource.domain.type
 
-import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import dev.toastbits.composekit.settings.ui.component.item.SettingsItem
 import dev.toastbits.lifelog.application.dbsource.domain.accessor.DatabaseAccessor
 import dev.toastbits.lifelog.application.dbsource.domain.configuration.DatabaseSourceConfiguration
 import dev.toastbits.lifelog.application.dbsource.domain.configuration.castType
 import dev.toastbits.lifelog.core.accessor.LogDatabaseConfiguration
-import dev.toastbits.lifelog.core.git.model.GitCredentials
+import dev.toastbits.lifelog.core.git.core.model.GitCredentials
 import io.ktor.client.HttpClient
 import kotlinx.coroutines.CoroutineDispatcher
 
@@ -20,7 +19,7 @@ interface DatabaseSourceType<C: DatabaseSourceConfiguration> {
     fun createAccessor(
         configuration: C,
         databaseConfiguration: LogDatabaseConfiguration,
-        gitCredentials: GitCredentials?,
+        gitCredentialsProvider: suspend () -> GitCredentials?,
         httpClient: HttpClient,
         ioDispatcher: CoroutineDispatcher,
         workDispatcher: CoroutineDispatcher
@@ -38,12 +37,8 @@ interface DatabaseSourceType<C: DatabaseSourceConfiguration> {
     @Composable
     fun getIcon(): ImageVector
 
-    fun LazyListScope.lazyListConfigurationItems(configuration: C, modifier: Modifier = Modifier, onChange: (C) -> Unit)
+    fun getLazyListConfigurationItems(configuration: C, onChange: (C) -> Unit): List<SettingsItem>
 }
 
-fun <C: DatabaseSourceConfiguration> C.lazyListConfigurationItems(scope: LazyListScope, modifier: Modifier = Modifier, onChange: (C) -> Unit) {
-    val type: DatabaseSourceType<C> = castType()
-    with (type) {
-        scope.lazyListConfigurationItems(this@lazyListConfigurationItems, modifier, onChange)
-    }
-}
+fun <C: DatabaseSourceConfiguration> C.getLazyListConfigurationItems(onChange: (C) -> Unit): List<SettingsItem> =
+    castType().getLazyListConfigurationItems(this@getLazyListConfigurationItems, onChange)

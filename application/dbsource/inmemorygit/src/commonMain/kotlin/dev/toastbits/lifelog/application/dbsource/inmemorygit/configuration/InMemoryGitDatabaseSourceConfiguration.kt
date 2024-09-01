@@ -9,6 +9,8 @@ import lifelog.application.dbsource.inmemorygit.generated.resources.Res
 import lifelog.application.dbsource.inmemorygit.generated.resources.source_configuration_repository_url_not_http
 import lifelog.application.dbsource.inmemorygit.generated.resources.source_configuration_repository_url_not_set
 import lifelog.application.dbsource.inmemorygit.generated.resources.source_configuration_branch_not_set
+import lifelog.application.dbsource.inmemorygit.generated.resources.`source_configuration_preview_content_$name_$repositoryUrl_$branch`
+import lifelog.application.dbsource.inmemorygit.generated.resources.`source_configuration_preview_title_$name_$repositoryUrl_$branch`
 import org.jetbrains.compose.resources.stringResource
 
 @Serializable
@@ -20,24 +22,35 @@ data class InMemoryGitDatabaseSourceConfiguration(
     override fun getType(): DatabaseSourceType<InMemoryGitDatabaseSourceConfiguration> = InMemoryGitDatabaseSourceType
 
     @Composable
-    override fun getPreviewTitle(): String =
-        "$name (${getType().getName()})"
+    override fun getPreviewTitle(): String = (
+        stringResource(Res.string.`source_configuration_preview_title_$name_$repositoryUrl_$branch`)
+            .replaceStringKey("\$name", name)
+            .replaceStringKey("\$repositoryUrl", repositoryUrl)
+            .replaceStringKey("\$branch", branchName)
+        + " (${getType().getName()})"
+    )
 
     @Composable
     override fun getPreviewContent(): String =
-        "$repositoryUrl" // TODO
+        stringResource(Res.string.`source_configuration_preview_content_$name_$repositoryUrl_$branch`)
+            .replaceStringKey("\$name", name)
+            .replaceStringKey("\$repositoryUrl", repositoryUrl)
+            .replaceStringKey("\$branch", branchName)
+
+    private fun String.replaceStringKey(oldValue: String, newValue: String): String =
+        replace(oldValue, newValue.ifBlank { "?" })
 
     @Composable
-    override fun getInvalidReasonMessage(): String? {
+    override fun getInvalidReasonMessages(): Map<Int, String> = buildMap {
         if (repositoryUrl.isBlank()) {
-            return stringResource(Res.string.source_configuration_repository_url_not_set)
+            put(1, stringResource(Res.string.source_configuration_repository_url_not_set))
         }
-        if (!repositoryUrl.startsWith("http://") && !repositoryUrl.startsWith("https://")) {
-            return stringResource(Res.string.source_configuration_repository_url_not_http)
+        else if (!repositoryUrl.startsWith("http://") && !repositoryUrl.startsWith("https://")) {
+            put(1, stringResource(Res.string.source_configuration_repository_url_not_http))
         }
+
         if (branchName.isBlank()) {
-            return stringResource(Res.string.source_configuration_branch_not_set)
+            put(2, stringResource(Res.string.source_configuration_branch_not_set))
         }
-        return null
     }
 }

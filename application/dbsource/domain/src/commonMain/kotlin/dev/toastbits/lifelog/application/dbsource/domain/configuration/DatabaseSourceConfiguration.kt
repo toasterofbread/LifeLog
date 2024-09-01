@@ -13,7 +13,7 @@ interface DatabaseSourceConfiguration {
     fun getPreviewContent(): String
 
     @Composable
-    fun getInvalidReasonMessage(): String?
+    fun getInvalidReasonMessages(): Map<Int, String>
 }
 
 @Suppress("UNCHECKED_CAST")

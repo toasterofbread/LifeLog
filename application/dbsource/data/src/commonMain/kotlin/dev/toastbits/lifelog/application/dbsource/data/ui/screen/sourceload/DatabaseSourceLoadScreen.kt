@@ -1,40 +1,21 @@
 package dev.toastbits.lifelog.application.dbsource.data.ui.screen.sourceload
 
-import androidx.compose.animation.expandHorizontally
-import androidx.compose.animation.shrinkHorizontally
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import dev.toastbits.composekit.platform.composable.theme.LocalApplicationTheme
-import dev.toastbits.composekit.platform.composable.theme.ThemedLinearProgressIndicator
-import dev.toastbits.composekit.settings.ui.ThemeValues
-import dev.toastbits.composekit.utils.composable.NullableValueAnimatedVisibility
-import dev.toastbits.lifelog.application.dbsource.data.ui.component.DatabaseSourceConfigurationPreview
-import dev.toastbits.lifelog.application.dbsource.data.ui.screen.sourceload.step.LoadStepCheckIfUpToDate
-import dev.toastbits.lifelog.application.dbsource.data.ui.screen.sourceload.step.LoadStepLoadOnline
-import dev.toastbits.lifelog.application.dbsource.data.ui.screen.sourceload.step.LoadStep
+import dev.toastbits.composekit.navigation.Screen
+import dev.toastbits.composekit.navigation.navigator.Navigator
 import dev.toastbits.lifelog.application.dbsource.domain.accessor.DatabaseAccessor
-import dev.toastbits.lifelog.application.dbsource.domain.accessor.OfflineDatabaseAccessor
 import dev.toastbits.lifelog.application.dbsource.domain.configuration.DatabaseSourceConfiguration
 import dev.toastbits.lifelog.application.dbsource.domain.configuration.castType
-import dev.toastbits.lifelog.application.dbsource.domain.model.LogDatabaseParseResult
-import dev.toastbits.composekit.navigation.navigator.Navigator
-import dev.toastbits.composekit.navigation.Screen
 import dev.toastbits.lifelog.application.settings.data.compositionlocal.LocalSettings
 import dev.toastbits.lifelog.application.settings.domain.appsettings.AppSettings
-import dev.toastbits.lifelog.application.settings.domain.group.toCurrentLogDatabaseConfiguration
+import dev.toastbits.lifelog.application.settings.domain.group.getGitCredentials
+import dev.toastbits.lifelog.application.settings.domain.group.rememberCurrentLogDatabaseConfiguration
 import dev.toastbits.lifelog.core.accessor.LogDatabaseConfiguration
-import dev.toastbits.lifelog.core.git.model.GitCredentials
+import dev.toastbits.lifelog.core.specification.database.LogDatabase
 import io.ktor.client.HttpClient
 import kotlinx.coroutines.Dispatchers
 import lifelog.application.dbsource.data.generated.resources.Res
@@ -42,123 +23,39 @@ import lifelog.application.dbsource.data.generated.resources.database_loader_tit
 import org.jetbrains.compose.resources.stringResource
 
 class DatabaseSourceLoadScreen(
-    private val sourceConfiguration: DatabaseSourceConfiguration
+    private val sourceConfiguration: DatabaseSourceConfiguration,
+    private val onLoaded: (LogDatabase) -> Unit
 ): Screen {
+    override val title: String?
+        @Composable get() = stringResource(Res.string.database_loader_title)
+
     @Composable
     override fun Content(navigator: Navigator, modifier: Modifier, contentPadding: PaddingValues) {
-        val settings: AppSettings = LocalSettings.current
-        var logDatabaseConfiguration: LogDatabaseConfiguration? by remember { mutableStateOf(null) }
-
-        val gitUsername: String by settings.DatabaseSource.GIT_USERNAME.observe()
-        val gitPassword: String by settings.DatabaseSource.GIT_PASSWORD.observe()
-        val gitCredentials: GitCredentials? =
-            remember(gitUsername, gitPassword) {
-                if (gitUsername.isNotBlank() || gitPassword.isNotBlank()) GitCredentials(gitUsername, gitPassword)
-                else null
-            }
-
         // TEMP
         val client = remember { HttpClient() }
         val ioDispatcher = Dispatchers.Default
         val workDispatcher = Dispatchers.Default
 
-        LaunchedEffect(Unit) {
-            logDatabaseConfiguration = settings.Database.toCurrentLogDatabaseConfiguration()
-        }
+        val settings: AppSettings = LocalSettings.current
 
-        logDatabaseConfiguration?.also { databaseConfiguration ->
-            val databaseAccessor: DatabaseAccessor =
-                remember(databaseConfiguration, gitCredentials) {
-                    sourceConfiguration.castType().createAccessor(
-                        sourceConfiguration,
-                        databaseConfiguration,
-                        gitCredentials,
-                        client,
-                        ioDispatcher,
-                        workDispatcher
-                    )
-                }
-
-            DatabaseSourceLoader(
-                sourceConfiguration,
-                databaseAccessor,
-                modifier.padding(contentPadding),
-                onLoaded = {
-                    println("DATABASE LOADED $it")
-                }
-            )
-        }
-    }
-}
-
-@Composable
-internal fun DatabaseSourceLoader(
-    sourceConfiguration: DatabaseSourceConfiguration,
-    databaseAccessor: DatabaseAccessor,
-    modifier: Modifier = Modifier,
-    onLoaded: (LogDatabaseParseResult) -> Unit
-) {
-    var loadException: Throwable? by remember { mutableStateOf(null) }
-    var currentStep: LoadStep =
-        remember(databaseAccessor) {
-            if (databaseAccessor is OfflineDatabaseAccessor) LoadStepCheckIfUpToDate(databaseAccessor)
-            else LoadStepLoadOnline
-        }
-    var progress: DatabaseAccessor.LoadProgress? by remember { mutableStateOf(null) }
-
-    LaunchedEffect(currentStep) {
-        val result: LoadStep.ExecuteResult = currentStep.execute(databaseAccessor) { progress = it }
-        when (result) {
-            is LoadStep.ExecuteResult.DatabaseLoaded -> onLoaded(result.parseResult)
-            is LoadStep.ExecuteResult.ExceptionThrown -> {
-                result.exception.printStackTrace()
-                loadException = result.exception
-            }
-            is LoadStep.ExecuteResult.NextStep -> currentStep = result.nextStep
-        }
-    }
-
-    Column(modifier) {
-        Text(stringResource(Res.string.database_loader_title))
-        Text(currentStep.getStatusText(databaseAccessor))
-
-        val loadProgress: DatabaseAccessor.LoadProgress? = progress
-        if (loadProgress != null) {
-            LoadProgressDisplay(loadProgress)
-        }
-
-        loadException?.also {
-            Text("EXCEPTION: $loadException")
-        }
-
-        DatabaseSourceConfigurationPreview(sourceConfiguration)
-    }
-}
-
-@Composable
-private fun LoadProgressDisplay(progress: DatabaseAccessor.LoadProgress, modifier: Modifier = Modifier) {
-    val theme: ThemeValues = LocalApplicationTheme.current
-
-    Column(modifier) {
-        Text(progress.getMessage())
-
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            NullableValueAnimatedVisibility(
-                progress.getProgressMessage(),
-                enter = expandHorizontally(),
-                exit = shrinkHorizontally()
-            ) { message ->
-                if (message != null) {
-                    Text(message)
-                }
+        val logDatabaseConfiguration: LogDatabaseConfiguration = settings.Database.rememberCurrentLogDatabaseConfiguration()
+        val databaseAccessor: DatabaseAccessor =
+            remember(logDatabaseConfiguration) {
+                sourceConfiguration.castType().createAccessor(
+                    sourceConfiguration,
+                    logDatabaseConfiguration,
+                    settings.DatabaseSource::getGitCredentials,
+                    client,
+                    ioDispatcher,
+                    workDispatcher
+                )
             }
 
-            if (progress is DatabaseAccessor.LoadProgress.Absolute) {
-                theme.ThemedLinearProgressIndicator({ progress.progressFraction })
-            }
-            else {
-                theme.ThemedLinearProgressIndicator()
-            }
-        }
+        DatabaseSourceLoader(
+            sourceConfiguration,
+            databaseAccessor,
+            modifier.padding(contentPadding),
+            onProceeded = onLoaded
+        )
     }
 }

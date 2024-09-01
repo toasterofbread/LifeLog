@@ -1,4 +1,10 @@
 <resources>
+    <string name="source_type_in_memory_git_name">Remote Git repository</string>
+    <string name="source_type_in_memory_git_description">Stored in-memory</string>
+
+    <string name="source_configuration_preview_title_$name_$repositoryUrl_$branch">$name</string>
+    <string name="source_configuration_preview_content_$name_$repositoryUrl_$branch">Branch $branch at $repositoryUrl</string>
+
     <string name="source_configuration_repository_url_not_set">Repository URL not set</string>
     <string name="source_configuration_repository_url_not_http">Repository URL must use a HTTP protocol</string>
     <string name="source_configuration_branch_not_set">Branch not set</string>

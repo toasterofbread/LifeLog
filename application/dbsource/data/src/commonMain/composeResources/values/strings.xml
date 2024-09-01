@@ -1,10 +1,29 @@
 <resources>
+    <string name="edit_delete_database_source">Edit source</string>
+    <string name="button_delete_database_source">Delete source</string>
+    <string name="button_delete_database_source_confirm">Delete</string>
+    <string name="button_delete_database_source_cancel">Cancel</string>
+    <string name="dialog_delete_database_source_title">Delete this source?</string>
+
+    <string name="button_database_source_auto_open_toggle">Toggle open on startup</string>
+    <string name="button_database_source_auto_open">Open on startup</string>
+    <string name="button_database_source_disable_auto_open">Disable open on startup</string>
+
+    <string name="button_new_database_source_add">Add</string>
+    <string name="button_new_database_source_cancel">Cancel</string>
+    <string name="button_configure_database_source_save">Save</string>
+    <string name="button_configure_database_source_cancel">Cancel</string>
+
     <string name="database_source_list_add_source">Add source</string>
     <string name="database_source_list_no_sources_added">No sources created</string>
-    <string name="database_source_is_set_to_auto_open">Set to auto-open</string>
+    <string name="database_source_is_set_to_auto_open">Opens on startup</string>
 
     <string name="database_loader_title">Loading database</string>
-    <string name="database_loader_checking_if_up_to_date">Checking if offline database is up to date...</string>
-    <string name="database_loader_loading_offline_database_at_$location">Loading offline database at $location...</string>
-    <string name="database_loader_loading_online_database_at_$location">Loading database from $location...</string>
+    <string name="database_loader_finished_$duration_$warnings_$errors">Database loaded in $duration with $warnings warnings(s) and $errors error(s)</string>
+
+    <string name="database_loader_proceed_tooltip_load_in_progress">Load is in progress</string>
+    <string name="database_loader_proceed_tooltip_errors_must_be_resolved">Errors must be resolved</string>
+
+    <string name="button_database_loader_proceed">Proceed</string>
+    <string name="button_database_loader_cancel">Cancel</string>
 </resources>

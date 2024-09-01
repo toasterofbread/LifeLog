@@ -11,23 +11,22 @@ import lifelog.application.dbsource.domain.generated.resources.`database_accesso
 import lifelog.application.dbsource.domain.generated.resources.`database_accessor_load_progress_generic_$part_of_$total`
 import lifelog.application.dbsource.domain.generated.resources.`database_accessor_load_progress_network_$bytes`
 import lifelog.application.dbsource.domain.generated.resources.`database_accessor_load_progress_network_$bytes_of_$total_$percent`
+import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
-fun LoadProgress.Type.create(part: Long?, total: Long?, getMessage: @Composable () -> String): LoadProgress =
+fun LoadProgress.Type.create(part: Long?, total: Long?, messageResource: StringResource): LoadProgress =
     if (part != null && total != null)
         object : Absolute {
             override val progressFraction: Float = part.toFloat() / total
 
-            @Composable
-            override fun getMessage(): String = getMessage()
+            override fun getMessageResource(): StringResource = messageResource
 
             @Composable
             override fun getProgressMessage(): String = getProgressMessage(part, total)
         }
     else
         object : LoadProgress {
-            @Composable
-            override fun getMessage(): String = getMessage()
+            override fun getMessageResource(): StringResource = messageResource
 
             @Composable
             override fun getProgressMessage(): String? = part?.let { getProgressMessage(it) }

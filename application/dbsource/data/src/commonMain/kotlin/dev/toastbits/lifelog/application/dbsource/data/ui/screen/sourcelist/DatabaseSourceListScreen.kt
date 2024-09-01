@@ -6,17 +6,23 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import dev.toastbits.lifelog.application.dbsource.data.ui.screen.sourceconfiguration.DatabaseSourceConfigurationScreen
 import dev.toastbits.lifelog.application.dbsource.data.ui.screen.sourceload.DatabaseSourceLoadScreen
 import dev.toastbits.lifelog.application.dbsource.domain.configuration.DatabaseSourceConfiguration
 import dev.toastbits.lifelog.application.dbsource.domain.type.DatabaseSourceType
 import dev.toastbits.composekit.navigation.navigator.Navigator
 import dev.toastbits.composekit.navigation.Screen
+import dev.toastbits.lifelog.application.dbsource.data.ui.screen.sourceconfiguration.DatabaseSourceConfigurationScreen
 import dev.toastbits.lifelog.application.settings.data.compositionlocal.LocalSettings
 import dev.toastbits.lifelog.application.settings.domain.appsettings.AppSettings
 import dev.toastbits.lifelog.application.settings.domain.model.SerialisedDatabaseSourceConfiguration
 import dev.toastbits.lifelog.application.settings.domain.model.deserialiseConfiguration
 import dev.toastbits.lifelog.application.settings.domain.model.serialiseConfiguration
+import lifelog.application.dbsource.data.generated.resources.Res
+import lifelog.application.dbsource.data.generated.resources.button_configure_database_source_cancel
+import lifelog.application.dbsource.data.generated.resources.button_configure_database_source_save
+import lifelog.application.dbsource.data.generated.resources.button_new_database_source_add
+import lifelog.application.dbsource.data.generated.resources.button_new_database_source_cancel
+import org.jetbrains.compose.resources.stringResource
 
 class DatabaseSourceListScreen: Screen {
     @Composable
@@ -41,15 +47,67 @@ class DatabaseSourceListScreen: Screen {
             autoOpenConfigurationIndex = autoOpenIndex,
             onSelected = { index ->
                 val source: DatabaseSourceConfiguration = sourceConfigurations[index]
-                navigator.pushScreen(DatabaseSourceLoadScreen(source))
+                navigator.pushScreen(
+                    DatabaseSourceLoadScreen(
+                        source,
+                        onLoaded = { database ->
+                            TODO(database.toString())
+                        }
+                    )
+                )
+            },
+            onDisableAutoOpenRequested = {
+                settings.DatabaseSource.AUTO_OPEN_SOURCE_INDEX.set(-1)
+            },
+            onRemoveRequested = { index ->
+                serialisedSourceConfigurations = serialisedSourceConfigurations.toMutableList().apply { removeAt(index) }
+            },
+            onEditRequested = { index ->
+                val source: DatabaseSourceConfiguration = sourceConfigurations[index]
+                navigator.pushScreen(
+                    DatabaseSourceConfigurationScreen(
+                        source,
+                        onSaved = { configuration, autoOpen ->
+                            val serialised: SerialisedDatabaseSourceConfiguration = settings.DatabaseSource.sourceTypeRegistry.serialiseConfiguration(configuration)
+                            settings.DatabaseSource.DATABASE_SOURCES.set(serialisedSourceConfigurations.toMutableList().apply { set(index, serialised) })
+
+                            if (autoOpen) {
+                                settings.DatabaseSource.AUTO_OPEN_SOURCE_INDEX.set(index)
+                            }
+
+                            navigator.navigateBackward()
+                        },
+                        onCancelled = {
+                            navigator.navigateBackward()
+                        },
+                        getSaveText = { stringResource(Res.string.button_configure_database_source_save) },
+                        getCancelText = { stringResource(Res.string.button_configure_database_source_cancel) }
+                    )
+                )
             },
             onTypeAddRequested = { index ->
-                val newConfigurationIndex: Int = sourceConfigurations.size
-
                 val type: DatabaseSourceType<*> = sourceTypes[index]
-                serialisedSourceConfigurations += settings.DatabaseSource.sourceTypeRegistry.serialiseConfiguration(type.createNewConfiguration())
+                navigator.pushScreen(
+                    DatabaseSourceConfigurationScreen(
+                        type.createNewConfiguration(),
+                        onSaved = { configuration, autoOpen ->
+                            val newItemIndex: Int = serialisedSourceConfigurations.size
+                            val serialised: SerialisedDatabaseSourceConfiguration = settings.DatabaseSource.sourceTypeRegistry.serialiseConfiguration(configuration)
+                            settings.DatabaseSource.DATABASE_SOURCES.set(serialisedSourceConfigurations + serialised)
 
-                navigator.pushScreen(DatabaseSourceConfigurationScreen(newConfigurationIndex))
+                            if (autoOpen) {
+                                settings.DatabaseSource.AUTO_OPEN_SOURCE_INDEX.set(newItemIndex)
+                            }
+
+                            navigator.navigateBackward()
+                        },
+                        onCancelled = {
+                            navigator.navigateBackward()
+                        },
+                        getSaveText = { stringResource(Res.string.button_new_database_source_add) },
+                        getCancelText = { stringResource(Res.string.button_new_database_source_cancel) }
+                    )
+                )
             }
         )
     }
