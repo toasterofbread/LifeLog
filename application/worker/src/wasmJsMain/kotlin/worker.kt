@@ -1,10 +1,26 @@
+import dev.toastbits.composekit.platform.PlatformContext
+import dev.toastbits.composekit.platform.PlatformContextImpl
 import dev.toastbits.lifelog.application.worker.WorkerServer
+import dev.toastbits.lifelog.application.worker.mapper.WorkerExecutionContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import org.w3c.dom.DedicatedWorkerGlobalScope
 
 private external val self: DedicatedWorkerGlobalScope
 
 fun main() {
-    val server: WorkerServer = WorkerServer()
+    val coroutineScope: CoroutineScope = CoroutineScope(Job())
+    val context: PlatformContext = PlatformContextImpl(coroutineScope)
+
+    val workerExecutionContext: WorkerExecutionContext =
+        WorkerExecutionContext(
+            platformContext = context,
+            ioDispatcher = Dispatchers.Default,
+            defaultDispatcher = Dispatchers.Default
+        )
+
+    val server: WorkerServer = WorkerServer(workerExecutionContext)
     println("Worker started")
 
     // First message required for activation of worker?

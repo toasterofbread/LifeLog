@@ -7,6 +7,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import dev.toastbits.composekit.navigation.Screen
 import dev.toastbits.composekit.navigation.navigator.Navigator
+import dev.toastbits.composekit.platform.LocalContext
+import dev.toastbits.composekit.platform.PlatformContext
 import dev.toastbits.lifelog.application.dbsource.domain.accessor.DatabaseAccessor
 import dev.toastbits.lifelog.application.dbsource.domain.configuration.DatabaseSourceConfiguration
 import dev.toastbits.lifelog.application.dbsource.domain.configuration.castType
@@ -14,6 +16,8 @@ import dev.toastbits.lifelog.application.settings.data.compositionlocal.LocalSet
 import dev.toastbits.lifelog.application.settings.domain.appsettings.AppSettings
 import dev.toastbits.lifelog.application.settings.domain.group.getGitCredentials
 import dev.toastbits.lifelog.application.settings.domain.group.getLogDatabaseConfiguration
+import dev.toastbits.lifelog.application.worker.WorkerClient
+import dev.toastbits.lifelog.application.worker.compositionlocal.LocalWorkerClient
 import dev.toastbits.lifelog.core.specification.database.LogDatabase
 import io.ktor.client.HttpClient
 import kotlinx.coroutines.Dispatchers
@@ -35,11 +39,13 @@ class DatabaseSourceLoadScreen(
         val ioDispatcher = Dispatchers.Default
         val workDispatcher = Dispatchers.Default
 
+        val workerClient: WorkerClient = LocalWorkerClient.current
         val settings: AppSettings = LocalSettings.current
 
         val databaseAccessor: DatabaseAccessor =
             remember {
                 sourceConfiguration.castType().createAccessor(
+                    workerClient,
                     sourceConfiguration,
                     settings.Database::getLogDatabaseConfiguration,
                     settings.DatabaseSource::getGitCredentials,

@@ -22,14 +22,5 @@ fun BaseExtension.configureAndroid(project: Project) {
         compileSdk = project.libs.version("android.sdk.compile").toInt()
     }
 
-//    val projectVersion: String = project.libs.version("project.version")
-
-    val namespaceParts: MutableList<String> = mutableListOf()
-    var currentProject: Project? = project
-    while (currentProject != null) {
-        namespaceParts.add(currentProject.name)
-        currentProject = currentProject.parent
-    }
-
-    namespace = "dev.toastbits." + namespaceParts.asReversed().joinToString(".")
+    namespace = project.getCurrentPackage()
 }

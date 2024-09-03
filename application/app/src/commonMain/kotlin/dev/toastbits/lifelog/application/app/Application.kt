@@ -33,12 +33,15 @@ import dev.toastbits.lifelog.application.dbsource.data.ui.screen.sourcelist.Data
 import dev.toastbits.lifelog.application.settings.data.appsettings.AppSettingsImpl
 import dev.toastbits.lifelog.application.settings.data.compositionlocal.LocalSettings
 import dev.toastbits.lifelog.application.settings.domain.appsettings.AppSettings
+import dev.toastbits.lifelog.application.worker.WorkerClient
+import dev.toastbits.lifelog.application.worker.compositionlocal.LocalWorkerClient
 import dev.toastbits.lifelog.extension.media.GDocsExtension
 import dev.toastbits.lifelog.extension.media.MediaExtension
 import dev.toastbits.lifelog.extension.mediawatch.MediaWatchExtension
 
 class Application(
     private val context: PlatformContext,
+    private val workerClient: WorkerClient,
     preferences: PlatformPreferences,
     private val settings: AppSettings = AppSettingsImpl(preferences)
 ) {
@@ -56,8 +59,9 @@ class Application(
         }
 
         CompositionLocalProvider(
-            LocalSettings provides settings,
             LocalContext provides context,
+            LocalWorkerClient provides workerClient,
+            LocalSettings provides settings,
             LocalNavigator provides navigator,
         ) {
             theme.ApplicationTheme(context) {

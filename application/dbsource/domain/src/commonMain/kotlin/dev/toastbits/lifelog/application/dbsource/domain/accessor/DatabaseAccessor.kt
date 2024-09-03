@@ -5,12 +5,11 @@ import dev.toastbits.lifelog.application.dbsource.domain.model.LogDatabaseParseR
 import org.jetbrains.compose.resources.StringResource
 
 interface DatabaseAccessor {
-    val onlineLocationName: String
-        @Composable get
-
     suspend fun loadOnlineDatabase(onProgress: (LoadProgress) -> Unit): Result<LogDatabaseParseResult>
 
     interface LoadProgress {
+        val isError: Boolean get() = false
+
         fun getMessageResource(): StringResource
 
         @Composable
@@ -36,3 +35,8 @@ interface OfflineDatabaseAccessor: DatabaseAccessor {
     suspend fun checkIfUpToDate(): Result<Boolean>
     suspend fun loadOfflineDatabase(): Result<LogDatabaseParseResult>
 }
+
+fun DatabaseAccessor.LoadProgress.Companion.message(resource: StringResource): DatabaseAccessor.LoadProgress =
+    object : DatabaseAccessor.LoadProgress {
+        override fun getMessageResource(): StringResource = resource
+    }

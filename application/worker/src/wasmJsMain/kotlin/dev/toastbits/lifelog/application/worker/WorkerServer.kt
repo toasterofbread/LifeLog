@@ -3,7 +3,9 @@ package dev.toastbits.lifelog.application.worker
 import dev.toastbits.lifelog.application.worker.command.WorkerCommand
 import dev.toastbits.lifelog.application.worker.command.WorkerCommandCancelCurrent
 import dev.toastbits.lifelog.application.worker.model.WorkerCommandResult
+import dev.toastbits.lifelog.application.worker.mapper.WorkerExecutionContext
 import dev.toastbits.lifelog.application.worker.model.toResult
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancelChildren
@@ -15,8 +17,10 @@ import org.w3c.dom.MessageEvent
 
 private external val self: DedicatedWorkerGlobalScope
 
-internal class WorkerServer {
-    private val coroutineScope: CoroutineScope = CoroutineScope(SupervisorJob())
+internal class WorkerServer(private val context: WorkerExecutionContext) {
+    private val coroutineScope: CoroutineScope =
+        CoroutineScope(SupervisorJob())
+
     private val mutex: Mutex = Mutex()
 
     private fun msg(message: String): String = "Worker (server): $message"
@@ -47,13 +51,29 @@ internal class WorkerServer {
 
             try {
                 val result: WorkerCommandResult =
-                    command.execute { progress ->
-                        WorkerCommandResult.Progress(progress).post()
+                    try {
+                        command.execute(context) { progress ->
+                            WorkerCommandResult.Progress(progress).post()
+                        }
                     }
+                    catch (e: Throwable) {
+                        RuntimeException("Exception occurred while executing command $command", e).toResult()
+                    }
+
                 result.post()
             }
             finally {
                 mutex.unlock()
+            }
+        }.invokeOnCompletion { exception ->
+            if (exception !is CancellationException) {
+                RuntimeException("Uncaught exception occurred while executing command $command", exception)
+                    .toResult()
+                    .post()
+
+                if (exception is JsException) {
+                    mutex.unlock()
+                }
             }
         }
     }

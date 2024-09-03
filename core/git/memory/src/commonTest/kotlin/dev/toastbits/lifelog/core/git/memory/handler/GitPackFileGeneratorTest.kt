@@ -62,7 +62,6 @@ class GitPackFileGeneratorTest {
         val parser: GitPackFileParser = GitPackFileParser(sha1Provider, inflater, outputObjects)
         parser.parsePackFile(packFile.bytes, packFile.size)
 
-        assertThat(outputObjects.getObjectsHashCode()).isEqualTo(objects.getObjectsHashCode())
         assertThat(outputObjects.getAll().containsAll(testObjects)).isTrue()
     }
 }

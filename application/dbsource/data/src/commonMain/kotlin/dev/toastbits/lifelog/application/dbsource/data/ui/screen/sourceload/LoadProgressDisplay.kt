@@ -33,7 +33,8 @@ internal fun LoadProgressDisplay(
     ) {
         Text(
             stringResource(progress.getMessageResource()),
-            style = MaterialTheme.typography.labelLarge
+            style = MaterialTheme.typography.labelLarge,
+            color = if (progress.isError) theme.error else theme.on_background
         )
 
         NullableValueAnimatedVisibility(
@@ -52,7 +53,8 @@ internal fun LoadProgressDisplay(
 
         if (progress is DatabaseAccessor.LoadProgress.Absolute) {
             theme.ThemedLinearProgressIndicator({ progress.progressFraction })
-        } else if (!done) {
+        }
+        else if (!done) {
             theme.ThemedLinearProgressIndicator()
         }
     }

@@ -13,6 +13,8 @@ import dev.toastbits.lifelog.core.git.memory.provider.PlatformSha1Provider
 import dev.toastbits.lifelog.core.git.memory.provider.PlatformZlibInflater
 import dev.toastbits.lifelog.core.git.memory.provider.ZlibInflater
 import dev.toastbits.lifelog.core.git.core.model.GitCredentials
+import dev.toastbits.lifelog.core.git.memory.model.GitObjectRegistry
+import dev.toastbits.lifelog.core.git.memory.model.readObject
 import io.ktor.client.HttpClient
 import kotlinx.coroutines.CoroutineDispatcher
 
@@ -29,15 +31,16 @@ class GitHelper(
     suspend fun cloneToFileStructure(
         repositoryUrl: String,
         branch: String,
+        objectRegistry: MutableGitObjectRegistry?,
         progressListener: ProgressListener? = null
     ): Result<FileStructure> = runCatching {
         val cloner: GitCloner = GitCloner(ioDispatcher, client)
         val (content: ByteArray, ref: String) =
-            cloner.shallowClone(repositoryUrl, branch, credentials) { stage, received, length ->
+            cloner.shallowClone(repositoryUrl, branch, credentials, objectRegistry) { stage, received, length ->
                 progressListener?.onProgress(stage, received, length)
             }
 
-        val objects: MutableGitObjectRegistry = SimpleGitObjectRegistry()
+        val objects: MutableGitObjectRegistry = objectRegistry ?: SimpleGitObjectRegistry()
         val inflater: ZlibInflater = PlatformZlibInflater(ByteArray(16777216))
 
         val sha1Provider = PlatformSha1Provider()

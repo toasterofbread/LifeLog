@@ -6,6 +6,7 @@ import dev.toastbits.composekit.settings.ui.component.item.SettingsItem
 import dev.toastbits.lifelog.application.dbsource.domain.accessor.DatabaseAccessor
 import dev.toastbits.lifelog.application.dbsource.domain.configuration.DatabaseSourceConfiguration
 import dev.toastbits.lifelog.application.dbsource.domain.configuration.castType
+import dev.toastbits.lifelog.application.worker.WorkerClient
 import dev.toastbits.lifelog.core.accessor.LogDatabaseConfiguration
 import dev.toastbits.lifelog.core.git.core.model.GitCredentials
 import io.ktor.client.HttpClient
@@ -15,8 +16,10 @@ interface DatabaseSourceType<C: DatabaseSourceConfiguration> {
     fun isAvailableOnPlatform(): Boolean
 
     fun createNewConfiguration(): C
+    suspend fun onConfigurationDeleted(configuration: C) = Unit
 
     fun createAccessor(
+        workerClient: WorkerClient,
         configuration: C,
         databaseConfigurationProvider: suspend () -> LogDatabaseConfiguration,
         gitCredentialsProvider: suspend () -> GitCredentials?,

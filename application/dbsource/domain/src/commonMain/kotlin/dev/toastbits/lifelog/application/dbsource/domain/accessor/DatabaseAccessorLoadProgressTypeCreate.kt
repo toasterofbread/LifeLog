@@ -8,6 +8,7 @@ import dev.toastbits.lifelog.application.dbsource.domain.accessor.DatabaseAccess
 import dev.toastbits.lifelog.application.dbsource.domain.accessor.DatabaseAccessor.LoadProgress.Type.NETWORK
 import lifelog.application.dbsource.domain.generated.resources.Res
 import lifelog.application.dbsource.domain.generated.resources.`database_accessor_load_progress_generic_$part`
+import lifelog.application.dbsource.domain.generated.resources.`database_accessor_load_progress_generic_$total`
 import lifelog.application.dbsource.domain.generated.resources.`database_accessor_load_progress_generic_$part_of_$total`
 import lifelog.application.dbsource.domain.generated.resources.`database_accessor_load_progress_network_$bytes`
 import lifelog.application.dbsource.domain.generated.resources.`database_accessor_load_progress_network_$bytes_of_$total_$percent`
@@ -29,11 +30,13 @@ fun LoadProgress.Type.create(part: Long?, total: Long?, messageResource: StringR
             override fun getMessageResource(): StringResource = messageResource
 
             @Composable
-            override fun getProgressMessage(): String? = part?.let { getProgressMessage(it) }
+            override fun getProgressMessage(): String? =
+                part?.let { getProgressMessageWithPart(it) }
+                ?: total?.let { getProgressMessageWithTotal(it) }
         }
 
 @Composable
-private fun LoadProgress.Type.getProgressMessage(part: Long): String =
+private fun LoadProgress.Type.getProgressMessageWithPart(part: Long): String =
     when (this) {
         GENERIC ->
             stringResource(Res.string.`database_accessor_load_progress_generic_$part`)
@@ -42,6 +45,11 @@ private fun LoadProgress.Type.getProgressMessage(part: Long): String =
             stringResource(Res.string.`database_accessor_load_progress_network_$bytes`)
                 .replace("\$bytes", part.toString())
     }
+
+@Composable
+private fun LoadProgress.Type.getProgressMessageWithTotal(total: Long): String =
+    stringResource(Res.string.`database_accessor_load_progress_generic_$total`)
+        .replace("\$total", total.toString())
 
 @Composable
 private fun LoadProgress.Type.getProgressMessage(part: Long, total: Long): String =

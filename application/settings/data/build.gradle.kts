@@ -1,9 +1,13 @@
+import util.configureAllComposeTargets
+
 plugins {
     id("android-library-conventions")
     id("compose-conventions")
 }
 
 kotlin {
+    configureAllComposeTargets()
+
     sourceSets {
         val commonMain by getting {
             dependencies {

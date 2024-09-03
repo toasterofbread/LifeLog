@@ -17,4 +17,9 @@
     <string name="accessor_progress_pack_file_parse_checksum">Verifying pack file integrity</string>
     <string name="accessor_progress_rendering_commit_tree">Building commit tree</string>
     <string name="accessor_progress_serialising_file_structure">Serialising file structure</string>
+    <string name="accessor_progress_writing_objects_to_cache">Writing objects to cache</string>
+
+    <string name="accessor_progress_potential_error">An unknown error occurred (could be unrelated)</string>
+    <string name="accessor_progress_waiting_for_worker">Waiting for worker</string>
+    <string name="accessor_progress_worker_started">Worker started</string>
 </resources>

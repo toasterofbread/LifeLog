@@ -1,3 +1,7 @@
+import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinWasmJsTargetDsl
+import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
+import util.configureAllComposeTargets
+
 plugins {
     id("android-application-conventions")
     id("compose-conventions")
@@ -6,6 +10,27 @@ plugins {
 }
 
 kotlin {
+    configureAllComposeTargets {
+        when (this) {
+            is KotlinWasmJsTargetDsl -> {
+                browser {
+                    commonWebpackConfig {
+                        outputFileName = "client.js"
+                        devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
+                            static = (static ?: mutableListOf()).apply {
+                                // Serve sources to debug inside browser
+                                add(project.projectDir.path)
+                                add(project.projectDir.path + "/commonMain/")
+                                add(project.projectDir.path + "/wasmJsMain/")
+                            }
+                        }
+                    }
+                }
+                binaries.executable()
+            }
+        }
+    }
+
     sourceSets {
         val commonMain by getting {
             dependencies {
@@ -18,13 +43,39 @@ kotlin {
                 implementation(projects.extension.gdocs)
 
                 implementation(libs.composekit)
-                implementation(libs.okio)
 
-                // TEST
-                implementation(libs.ktor.core)
-                implementation(projects.core.git.memory)
+                implementation(libs.okio)
             }
         }
+
+//        val allJvmMain by getting {
+//            dependencies {
+//                runtimeOnly("com.catppuccin:catppuccin-kotlin-jvm:1.0.3-dev")
+//            }
+//        }
+//
+//        val wasmJsMain by getting {
+//            dependencies {
+//                runtimeOnly("com.catppuccin:catppuccin-kotlin-wasm-js:1.0.3-dev")
+//            }
+//        }
+
+        val jvmMain by getting {
+            dependencies {
+                implementation(compose.desktop.currentOs)
+            }
+        }
+
+//        val androidMain by getting {
+//            dependencies {
+//                implementation(libs.library("androidx.activity.compose"))
+//            }
+//        }
+//
+//        val wasmJsMain by getting {
+//            dependencies {
+//            }
+//        }
     }
 }
 
@@ -38,6 +89,8 @@ tasks.named("wasmJsBrowserDevelopmentExecutableDistribution") {
 
 fun Task.dependOnTaskAndCopyOutputDirectory(taskPath: String, dirName: String) {
     dependsOn(taskPath)
+
+    outputs.upToDateWhen { false }
 
     doLast {
         val appProductionExecutable: File = outputs.files.single { it.name == dirName }

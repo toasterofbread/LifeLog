@@ -73,6 +73,11 @@ internal fun DatabaseSourceLoader(
     LaunchedEffect(currentStep) {
         val result: LoadStep.ExecuteResult =
             currentStep.execute(databaseAccessor) { progress ->
+                if (progress.isError) {
+                    finishedStepsProgress.add(progress)
+                    return@execute
+                }
+
                 val current: DatabaseAccessor.LoadProgress? = currentProgress
                 if (current != null && current.getMessageResource() != progress.getMessageResource()) {
                     finishedStepsProgress.add(current)

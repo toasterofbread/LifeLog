@@ -1,8 +1,10 @@
 package dev.toastbits.lifelog.core.git.memory.handler
 
-import dev.toastbits.lifelog.core.git.memory.handler.stage.GitHandlerStage
-import dev.toastbits.lifelog.core.git.memory.util.GitConstants
 import dev.toastbits.lifelog.core.git.core.model.GitCredentials
+import dev.toastbits.lifelog.core.git.memory.handler.stage.GitHandlerStage
+import dev.toastbits.lifelog.core.git.memory.model.GitObject
+import dev.toastbits.lifelog.core.git.memory.model.GitObjectRegistry
+import dev.toastbits.lifelog.core.git.memory.util.GitConstants
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.onDownload
@@ -13,6 +15,7 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.Headers
 import io.ktor.http.isSuccess
+import io.ktor.utils.io.core.toByteArray
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 
@@ -28,6 +31,7 @@ class GitCloner(
         repositoryUrl: String,
         branch: String,
         credentials: GitCredentials? = null,
+        objectRegistry: GitObjectRegistry? = null,
         progressListener: ProgressListener? = null
     ): Pair<ByteArray, String> = withContext(ioDispatcher) {
         val headers: Headers = GitConstants.getDefaultGitRequestHeaders(credentials)
@@ -38,11 +42,17 @@ class GitCloner(
 
         progressListener?.onProgress(GitHandlerStage.Clone.PULL, 0, null)
 
-        val requestBody: ByteArray = (
-            "0011command=fetch0016object-format=sha10001000fno-progress"
-            + "0032want $headRef\n"
-            + "0009done\n0000"
-        ).encodeToByteArray()
+        val requestBody: ByteArray =
+            buildString {
+                append("0011command=fetch0016object-format=sha10001000fno-progress000cdeepen 1000dthin-pack")
+                append("0032want $headRef\n")
+
+                for (commit in objectRegistry?.getAvailableObjects(GitObject.Type.COMMIT) ?: emptyList()) {
+                    append("0032have ${commit.hash}\n")
+                }
+
+                append("0009done\n0000")
+            }.toByteArray()
 
         val response: HttpResponse =
             httpClient.post("$repositoryUrl/git-upload-pack") {

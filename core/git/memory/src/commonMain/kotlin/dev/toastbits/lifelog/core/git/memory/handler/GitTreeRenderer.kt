@@ -3,6 +3,7 @@ package dev.toastbits.lifelog.core.git.memory.handler
 import dev.toastbits.lifelog.core.filestructure.MutableFileStructure
 import dev.toastbits.lifelog.core.git.memory.model.GitObject
 import dev.toastbits.lifelog.core.git.memory.model.GitObjectRegistry
+import dev.toastbits.lifelog.core.git.memory.model.readObject
 import dev.toastbits.lifelog.core.git.memory.provider.Sha1Provider
 import dev.toastbits.lifelog.core.git.memory.util.GitConstants
 import dev.toastbits.lifelog.core.git.memory.util.indexOfOrNull
@@ -16,7 +17,7 @@ class GitTreeRenderer(
         fun onProgress(bytesRead: Int, totalBytes: Int)
     }
 
-    fun renderCommitTree(
+    suspend fun renderCommitTree(
         commit: GitObject,
         progressListener: ProgressListener? = null,
         writeFile: (Path, ByteArray, IntRange) -> Unit
@@ -29,7 +30,7 @@ class GitTreeRenderer(
         renderTree(readObject(treeRef), progressListener, writeFile)
     }
 
-    fun renderCommitTree(
+    suspend fun renderCommitTree(
         commit: GitObject,
         fileStructure: MutableFileStructure,
         progressListener: ProgressListener? = null
@@ -39,7 +40,7 @@ class GitTreeRenderer(
         }
     }
 
-    fun renderTree(
+    suspend fun renderTree(
         tree: GitObject,
         progressListener: ProgressListener? = null,
         writeFile: (Path, ByteArray, IntRange) -> Unit

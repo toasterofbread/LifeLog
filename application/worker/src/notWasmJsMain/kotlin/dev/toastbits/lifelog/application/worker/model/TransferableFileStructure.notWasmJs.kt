@@ -10,7 +10,10 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
 @Serializable
-actual class SerialisableFileStructure(@Serializable(with = DummySerializer::class) val fileStructure: FileStructure)
+actual class TransferableFileStructure(
+    @Serializable(with = DummySerializer::class)
+    val structure: FileStructure
+): FileStructure by structure
 
 private object DummySerializer: KSerializer<FileStructure> {
     override val descriptor: SerialDescriptor
@@ -25,4 +28,3 @@ private object DummySerializer: KSerializer<FileStructure> {
     override fun deserialize(decoder: Decoder): FileStructure =
         throw IllegalStateException()
 }
-

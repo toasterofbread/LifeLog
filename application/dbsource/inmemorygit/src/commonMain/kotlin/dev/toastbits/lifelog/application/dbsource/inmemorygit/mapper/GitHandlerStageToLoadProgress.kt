@@ -12,8 +12,8 @@ import lifelog.application.dbsource.inmemorygit.generated.resources.accessor_pro
 import lifelog.application.dbsource.inmemorygit.generated.resources.accessor_progress_pack_file_parse_reading_header
 import lifelog.application.dbsource.inmemorygit.generated.resources.accessor_progress_rendering_commit_tree
 import lifelog.application.dbsource.inmemorygit.generated.resources.accessor_progress_serialising_file_structure
+import lifelog.application.dbsource.inmemorygit.generated.resources.accessor_progress_writing_objects_to_cache
 import org.jetbrains.compose.resources.StringResource
-import org.jetbrains.compose.resources.stringResource
 
 internal fun GitHandlerStage.toLoadProgress(part: Long?, total: Long?): LoadProgress {
     val type: LoadProgress.Type =
@@ -26,6 +26,7 @@ internal fun GitHandlerStage.toLoadProgress(part: Long?, total: Long?): LoadProg
             GitHandlerStage.PackFileParse.CHECKSUM -> LoadProgress.Type.GENERIC
             GitHandlerStage.RenderCommitTree -> LoadProgress.Type.GENERIC
             GitHandlerStage.SerialisingFileStructure -> LoadProgress.Type.GENERIC
+            GitHandlerStage.WritingObjectsToCache -> LoadProgress.Type.GENERIC
         }
 
     val messageResource: StringResource =
@@ -38,6 +39,7 @@ internal fun GitHandlerStage.toLoadProgress(part: Long?, total: Long?): LoadProg
             GitHandlerStage.PackFileParse.CHECKSUM -> Res.string.accessor_progress_pack_file_parse_checksum
             GitHandlerStage.RenderCommitTree -> Res.string.accessor_progress_rendering_commit_tree
             GitHandlerStage.SerialisingFileStructure -> Res.string.accessor_progress_serialising_file_structure
+            GitHandlerStage.WritingObjectsToCache -> Res.string.accessor_progress_writing_objects_to_cache
         }
 
     return type.create(part, total, messageResource)

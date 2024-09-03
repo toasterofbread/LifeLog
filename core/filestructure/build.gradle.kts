@@ -5,7 +5,7 @@ plugins {
     id("android-library-conventions")
 
     alias(libs.plugins.kotlin)
-    alias(libs.plugins.publish)
+    alias(libs.plugins.kotlinx.serialization)
 }
 
 kotlin {
@@ -15,6 +15,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api(libs.okio)
+                implementation(libs.kotlinx.serialization.json)
             }
         }
     }

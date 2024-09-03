@@ -5,9 +5,9 @@
     <string name="button_delete_database_source_cancel">Cancel</string>
     <string name="dialog_delete_database_source_title">Delete this source?</string>
 
-    <string name="button_database_source_auto_open_toggle">Toggle open on startup</string>
-    <string name="button_database_source_auto_open">Open on startup</string>
-    <string name="button_database_source_disable_auto_open">Disable open on startup</string>
+    <string name="button_database_source_auto_open_toggle">Toggle open at startup</string>
+    <string name="button_database_source_auto_open">Open at startup</string>
+    <string name="button_database_source_disable_auto_open">Disable open at startup</string>
 
     <string name="button_new_database_source_add">Add</string>
     <string name="button_new_database_source_cancel">Cancel</string>
@@ -16,7 +16,7 @@
 
     <string name="database_source_list_add_source">Add source</string>
     <string name="database_source_list_no_sources_added">No sources created</string>
-    <string name="database_source_is_set_to_auto_open">Opens on startup</string>
+    <string name="database_source_is_set_to_auto_open">Opens at startup</string>
 
     <string name="database_loader_title">Loading database</string>
     <string name="database_loader_finished_$duration_$warnings_$errors">Database loaded in $duration with $warnings warnings(s) and $errors error(s)</string>

@@ -7,42 +7,58 @@ import dev.toastbits.lifelog.application.worker.command.WorkerCommandProgress
 import dev.toastbits.lifelog.application.worker.command.WorkerCommandResponse
 import dev.toastbits.lifelog.application.worker.model.WorkerCommandResult
 import dev.toastbits.lifelog.application.worker.model.cast
-import io.ktor.util.toJsArray
+import dev.toastbits.lifelog.application.worker.model.toPotentialError
+import kotlinx.browser.window
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ChannelResult
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.serialization.encodeToString
 import org.w3c.dom.ErrorEvent
 import org.w3c.dom.MessageEvent
 import org.w3c.dom.Worker
-import kotlin.reflect.KClass
 
-actual object WorkerClient {
-    private val worker: Worker = Worker("worker.js")
+actual class WorkerClient {
+    private val worker: Worker = createWorker()
     private val mutex: Mutex = Mutex()
     private val resultChannel: Channel<WorkerCommandResult> = Channel()
+    private var pendingErrorEvents: MutableList<ErrorEvent> = mutableListOf()
 
     private var firstMessageSkipped: Boolean = false
-
-    init {
-        worker.onerror = { handleError(it as ErrorEvent) }
-        worker.onmessage = ::handleMessage
-    }
 
     private fun msg(message: String): String = "Worker (client): $message"
     private fun log(message: String) = println(msg(message))
 
+    private fun popPendingMessages(): List<WorkerCommandProgress> {
+        if (pendingErrorEvents.isNotEmpty()) {
+            val errors: MutableList<ErrorEvent> = pendingErrorEvents
+            pendingErrorEvents = mutableListOf()
+
+            return errors.map { error ->
+                error.toPotentialError()
+            }
+        }
+        return emptyList()
+    }
+
     @Suppress("NON_PUBLIC_CALL_FROM_PUBLIC_INLINE")
     actual suspend inline fun <reified R: WorkerCommandResponse> executeCommand(
         command: WorkerCommand,
-        progressClass: KClass<out WorkerCommandProgress>?,
-        crossinline onProgress: (WorkerCommandProgress) -> Unit
+        noinline onProgress: (WorkerCommandProgress) -> Unit
     ): Result<TypedWorkerCommandResult<R>> {
         try {
-            while (!firstMessageSkipped) {
-                delay(10)
+            if (!firstMessageSkipped) {
+                onProgress(WorkerCommandProgress.WaitingForWorker)
+                worker
+
+                while (!firstMessageSkipped) {
+                    delay(10)
+                    popPendingMessages().forEach(onProgress)
+                }
+
+                onProgress(WorkerCommandProgress.WorkerStarted)
             }
 
             if (!mutex.tryLock()) {
@@ -61,22 +77,19 @@ actual object WorkerClient {
                 worker.postMessage(serialisedCommand.toJsString())
 
                 while (true) {
-                    val result: WorkerCommandResult = resultChannel.receive()
+                    popPendingMessages().forEach(onProgress)
+
+                    val result: WorkerCommandResult =
+                        withTimeoutOrNull(500) { resultChannel.receive() }
+                        ?: continue
+
                     when (result) {
                         is WorkerCommandResult.Success ->
                             when (val response: WorkerCommandResponse = result.response) {
                                 is R -> return Result.success(result.cast())
                                 else -> return Result.failure(RuntimeException(msg("Received response of unknown type '${response::class}' while waiting for '${R::class}' ($response)")))
                             }
-                        is WorkerCommandResult.Progress -> {
-                            val progress: WorkerCommandProgress = result.progress
-                            if (progressClass?.isInstance(progress) == true) {
-                                onProgress(progress)
-                            }
-                            else {
-                                log("Received progress of unknown type '${progress::class}' while waiting for '$progressClass', ignoring ($progress)")
-                            }
-                        }
+                        is WorkerCommandResult.Progress -> onProgress(result.progress)
                         is WorkerCommandResult.Exception -> return Result.success(result.cast())
                     }
                 }
@@ -120,5 +133,13 @@ actual object WorkerClient {
         }
 
         log("Got error ${error.message} ${error.filename} ${error.lineno} ${error.colno} ${error.error}")
+
+        pendingErrorEvents.add(error)
     }
+
+    private fun createWorker(): Worker =
+        Worker("worker.js").also { worker ->
+            worker.onerror = { handleError(it as ErrorEvent) }
+            worker.onmessage = ::handleMessage
+        }
 }

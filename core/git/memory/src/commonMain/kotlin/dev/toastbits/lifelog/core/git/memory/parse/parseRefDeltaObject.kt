@@ -1,9 +1,9 @@
 package dev.toastbits.lifelog.core.git.memory.parse
 
-import dev.toastbits.lifelog.core.git.memory.generate.generateGitObject
 import dev.toastbits.lifelog.core.git.memory.model.ByteReader
 import dev.toastbits.lifelog.core.git.memory.model.GitObject
 import dev.toastbits.lifelog.core.git.memory.model.MutableGitObjectRegistry
+import dev.toastbits.lifelog.core.git.memory.model.readObject
 import dev.toastbits.lifelog.core.git.memory.provider.PlatformZlibInflater
 import dev.toastbits.lifelog.core.git.memory.provider.Sha1Provider
 import dev.toastbits.lifelog.core.git.memory.provider.ZlibInflater

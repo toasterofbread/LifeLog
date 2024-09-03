@@ -3,11 +3,25 @@
 pluginManagement {
     includeBuild("build-logic")
 
+    resolutionStrategy {
+        eachPlugin {
+            // TEMP
+            if (requested.id.toString() == "app.cash.sqldelight") {
+                useModule("com.github.toasterofbread.sqldelight:app.cash.sqldelight.gradle.plugin:${requested.version}")
+            }
+        }
+    }
+
     repositories {
+        mavenLocal()
+
         gradlePluginPortal()
         google()
         mavenCentral()
         maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
+
+        // TEMP
+        maven("https://jitpack.io")
     }
 }
 
@@ -23,6 +37,8 @@ dependencyResolutionManagement {
 
         // https://github.com/d1snin/catppuccin-kotlin (in ComposeKit)
         maven("https://maven.d1s.dev/snapshots")
+
+//        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     }
 }
 
@@ -35,6 +51,7 @@ include(":application:settings:data")
 include(":application:dbsource:domain")
 include(":application:dbsource:data")
 include(":application:dbsource:inmemorygit")
+include(":application:cache")
 
 include(":core:filestructure")
 include(":core:specification")

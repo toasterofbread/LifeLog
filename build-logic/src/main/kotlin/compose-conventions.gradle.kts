@@ -1,8 +1,3 @@
-import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinWasmJsTargetDsl
-import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
-import util.KmpTarget
-import util.configureKmpTargets
-import util.library
 import util.libs
 import util.version
 
@@ -16,30 +11,6 @@ plugins {
 val projectName: String = libs.version("project.name")
 
 kotlin {
-    configureKmpTargets(
-        *KmpTarget.ALL_COMPOSE,
-        beforeConfigure = {
-            when (this) {
-                is KotlinWasmJsTargetDsl -> {
-                    moduleName = projectName
-                    browser {
-                        commonWebpackConfig {
-                            outputFileName = "client.js"
-                            devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
-                                static = (static ?: mutableListOf()).apply {
-                                    // Serve sources to debug inside browser
-                                    add(project.projectDir.path)
-                                    add(project.projectDir.path + "/commonMain/")
-                                    add(project.projectDir.path + "/wasmJsMain/")
-                                }
-                            }
-                        }
-                    }
-                    binaries.executable()
-                }
-            }
-        }
-    )
     sourceSets {
         all {
             languageSettings.apply {
@@ -61,23 +32,6 @@ kotlin {
                 implementation(compose.components.resources)
                 implementation(compose.components.uiToolingPreview)
                 implementation(compose.materialIconsExtended)
-            }
-        }
-
-        val jvmMain by getting {
-            dependencies {
-                implementation(compose.desktop.currentOs)
-            }
-        }
-
-        val androidMain by getting {
-            dependencies {
-                implementation(libs.library("androidx.activity.compose"))
-            }
-        }
-
-        val wasmJsMain by getting {
-            dependencies {
             }
         }
     }

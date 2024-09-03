@@ -2,6 +2,7 @@ package dev.toastbits.lifelog.core.git.memory.handler
 
 import dev.toastbits.lifelog.core.filestructure.FileStructure
 import dev.toastbits.lifelog.core.filestructure.MutableFileStructure
+import dev.toastbits.lifelog.core.filestructure.SerialisableFileStructure
 import dev.toastbits.lifelog.core.git.memory.generate.generateGitObject
 import dev.toastbits.lifelog.core.git.memory.model.GitObject
 import dev.toastbits.lifelog.core.git.memory.model.MutableGitObjectRegistry
@@ -82,9 +83,11 @@ class GitTreeGenerator(
     private fun FileStructure.Node.isDir(): Boolean =
         when (this) {
             is FileStructure.Node.File,
+            is SerialisableFileStructure.Node.File,
             is MutableFileStructure.MutableNode.FileBytes,
             is MutableFileStructure.MutableNode.FileLines -> false
             is FileStructure.Node.Directory,
+            is SerialisableFileStructure.Node.Directory,
             is MutableFileStructure.MutableNode.Directory -> true
         }
 

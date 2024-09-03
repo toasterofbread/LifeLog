@@ -1,0 +1,20 @@
+CREATE TABLE Object (
+    repository TEXT NOT NULL,
+    hash TEXT NOT NULL,
+    type INTEGER NOT NULL,
+    data_base64 TEXT NOT NULL,
+
+    PRIMARY KEY (repository, hash)
+);
+
+set:
+INSERT OR REPLACE INTO Object(repository, hash, type, data_base64) VALUES (?, ?, ?, ?);
+
+get:
+SELECT data_base64, type FROM Object WHERE repository = ? AND hash = ?;
+
+list:
+SELECT hash, type FROM Object WHERE repository = ? AND (:type IS NULL OR :type = type);
+
+remove:
+DELETE FROM Object WHERE repository = ? AND hash = ?;

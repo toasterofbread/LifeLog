@@ -73,7 +73,7 @@ class MutableFileStructure: FileStructure {
             MutableNode {
             override suspend fun readBytes(): Pair<ByteArray, IntRange> = file.readBytes()
         }
-        data class Directory(override val nodes: MutableMap<String, MutableNode> = mutableMapOf()): FileStructure.Node.Directory(nodes),
+        data class Directory(override val nodes: MutableMap<String, MutableNode> = mutableMapOf()): FileStructure.Node.Directory(),
             MutableNode
     }
 

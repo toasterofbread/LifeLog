@@ -23,4 +23,7 @@ sealed interface GitHandlerStage {
 
     @Serializable
     data object SerialisingFileStructure: GitHandlerStage
+
+    @Serializable
+    data object WritingObjectsToCache: GitHandlerStage
 }

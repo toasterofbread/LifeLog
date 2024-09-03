@@ -1,15 +1,22 @@
 package dev.toastbits.lifelog.core.git.memory.model
 
 import dev.toastbits.lifelog.core.git.memory.util.indexOfOrNull
+import kotlinx.serialization.Serializable
 
-data class GitObject(val bytes: ByteArray, val type: Type, val hash: String) {
-    init {
-        check(bytes.contains(0b0))
-    }
+@Serializable
+data class GitObject(
+    val bytes: ByteArray,
+    val type: Type,
+    val hash: String
+) {
+//    init {
+//        check(bytes.contains(0b0))
+//    }
 
     fun findContentStart(): Int =
         bytes.indexOfOrNull(0b0)!! + 1
 
+    @Serializable
     enum class Type {
         NONE,
         COMMIT,

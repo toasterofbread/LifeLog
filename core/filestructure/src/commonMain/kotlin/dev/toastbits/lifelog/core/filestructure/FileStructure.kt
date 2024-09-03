@@ -26,13 +26,17 @@ interface FileStructure {
             override suspend fun readBytes(): Pair<ByteArray, IntRange> = bytes to range
         }
 
-        open class Directory(open val nodes: Map<String, Node>): Node {
+        abstract class Directory: Node {
+            abstract val nodes: Map<String, Node>
+
             override fun equals(other: Any?): Boolean =
                 other is Directory && nodes == other.nodes
 
             override fun hashCode(): Int =
                 nodes.hashCode()
         }
+
+        data class DirectoryData(override val nodes: Map<String, Node>) : Directory()
     }
 }
 
