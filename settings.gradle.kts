@@ -6,6 +6,7 @@ pluginManagement {
     resolutionStrategy {
         eachPlugin {
             // TEMP
+            // https://github.com/cashapp/sqldelight/pull/4965
             if (requested.id.toString() == "app.cash.sqldelight") {
                 useModule("com.github.toasterofbread.sqldelight:app.cash.sqldelight.gradle.plugin:${requested.version}")
             }

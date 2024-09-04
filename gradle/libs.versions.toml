@@ -54,9 +54,9 @@ hash-sha1 = { module = "org.kotlincrypto.hash:sha1", version.ref = "kotlincrypto
 korlibs-compression = { module = "dev.toastbits.korlibs-compression:korlibs-compression", version.ref = "korlibs-compression" }
 markdown = { module = "org.jetbrains:markdown", version.ref = "markdown" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity-compose" }
-sqldelight-extension-coroutines = { module = "com.github.toasterofbread.sqldelight:coroutines-extensions", version.ref = "sqldelight" }
-sqldelight-driver-wasmjs = { module = "com.github.toasterofbread.sqldelight:web-worker-driver-wasm-js", version.ref = "sqldelight" }
-sqldelight-driver-jvm = { module = "com.github.toasterofbread.sqldelight:sqlite-driver", version.ref = "sqldelight" }
+sqldelight-extension-coroutines = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqldelight" }
+sqldelight-driver-wasmjs = { module = "app.cash.sqldelight:web-worker-driver-wasm-js", version.ref = "sqldelight" }
+sqldelight-driver-jvm = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqldelight" }
 
 mokkery-plugin = { module = "dev.mokkery:dev.mokkery.gradle.plugin", version.ref = "mokkery" }
 assertk = { module = "com.willowtreeapps.assertk:assertk", version.ref = "assertk" }
