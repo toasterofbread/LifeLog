@@ -95,7 +95,18 @@ tasks.named("wasmJsProcessResources") {
     dependsOn(sqliteUnzipTask)
 }
 
-fun Task.patchWorkerJsFile(outputDirectoryName: String) {
+tasks.named("wasmJsBrowserDevelopmentWebpack") {
+    patchWorkerJsFile("developmentExecutable", "__webpack_require__.b = document.baseURI || self.location.href;")
+}
+
+tasks.named("wasmJsBrowserProductionWebpack") {
+    patchWorkerJsFile("productionExecutable", ",__webpack_require__.b=document.baseURI||self.location.href")
+}
+
+fun Task.patchWorkerJsFile(
+    outputDirectoryName: String,
+    vararg textToRemove: String
+) {
     val outputDirectory: File = outputs.files.first { it.name == outputDirectoryName }
 
     doLast {
@@ -104,28 +115,31 @@ fun Task.patchWorkerJsFile(outputDirectoryName: String) {
 
         val lines: MutableList<String> = workerFile.readLines().toMutableList()
 
-        val linesToRemove: MutableList<String> = mutableListOf(
-            "__webpack_require__.b = document.baseURI || self.location.href;"
-        )
+        val toRemove: MutableList<String> = textToRemove.toMutableList()
 
         val i: MutableListIterator<String> = lines.listIterator()
         while (i.hasNext()) {
-            val line: String = i.next().removePrefix("/******/").trim()
-            if (linesToRemove.remove(line)) {
-                i.remove()
+            var line: String = i.next()
+
+            val r: MutableIterator<String> = toRemove.iterator()
+            while (r.hasNext()) {
+                val text: String = r.next()
+                val start: Int = line.indexOf(text)
+                if (start != -1) {
+                    line = line.removeRange(start until start + text.length)
+                    r.remove()
+                }
+            }
+
+            i.set(line)
+
+            if (toRemove.isEmpty()) {
+                break
             }
         }
 
-        check(linesToRemove.isEmpty()) { linesToRemove.toList() }
+        check(toRemove.isEmpty()) { toRemove.toList() }
 
         workerFile.writeText(lines.joinToString("\n"))
     }
-}
-
-tasks.named("wasmJsBrowserDevelopmentWebpack") {
-    patchWorkerJsFile("developmentExecutable")
-}
-
-tasks.named("wasmJsBrowserProductionWebpack") {
-    patchWorkerJsFile("productionExecutable")
 }

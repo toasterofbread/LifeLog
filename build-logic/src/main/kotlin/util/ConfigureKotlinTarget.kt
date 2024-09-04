@@ -72,7 +72,6 @@ fun KotlinMultiplatformExtension.configureKmpTargets(
                             }
                         }
                     }
-                    binaries.executable()
 
                     afterConfigure()
                 }
