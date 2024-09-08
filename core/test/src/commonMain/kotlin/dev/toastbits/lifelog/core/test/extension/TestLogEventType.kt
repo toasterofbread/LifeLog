@@ -16,7 +16,9 @@ object TestLogEventType: LogEventType {
 
     override val name: StringId get() = TODO()
     override val prefixes: List<String> = listOf(PREFIX)
-    override val eventClass: KClass<*> = TestLogEvent::class
+
+    override fun canGenerateEvent(event: LogEvent): Boolean =
+        event is TestLogEvent
 
     override fun parseEvent(
         prefixIndex: Int,

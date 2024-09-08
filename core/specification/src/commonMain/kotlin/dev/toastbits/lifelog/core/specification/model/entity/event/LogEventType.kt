@@ -12,7 +12,8 @@ import kotlin.reflect.KClass
 interface LogEventType {
     val name: StringId
     val prefixes: List<String>
-    val eventClass: KClass<*>
+
+    fun canGenerateEvent(event: LogEvent): Boolean
 
     fun parseEvent(
         prefixIndex: Int,

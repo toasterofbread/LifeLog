@@ -114,10 +114,16 @@ fun KotlinMultiplatformExtension.configureKmpTargets(
                 }
             }
 
-            if (targets.contains(KmpTarget.ANDROID) && targets.contains(KmpTarget.WASMJS)) {
-                group("androidAndWasmJs") {
-                    ifPresent(KmpTarget.ANDROID)
+            if (targets.contains(KmpTarget.WASMJS)) {
+                group("web") {
                     ifPresent(KmpTarget.WASMJS)
+                }
+
+                if (targets.contains(KmpTarget.ANDROID)) {
+                    group("androidAndWasmJs") {
+                        ifPresent(KmpTarget.ANDROID)
+                        ifPresent(KmpTarget.WASMJS)
+                    }
                 }
             }
 

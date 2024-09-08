@@ -4,11 +4,18 @@ pluginManagement {
     includeBuild("build-logic")
 
     resolutionStrategy {
+        // TEMP
         eachPlugin {
-            // TEMP
             // https://github.com/cashapp/sqldelight/pull/4965
             if (requested.id.toString() == "app.cash.sqldelight") {
                 useModule("com.github.toasterofbread.sqldelight:app.cash.sqldelight.gradle.plugin:${requested.version}")
+                return@eachPlugin
+            }
+
+            for (plugin in listOf("declaration", "definition")) {
+                if (requested.id.id == "dev.toastbits.kotules.plugin.$plugin") {
+                    useModule("dev.toastbits.kotules.plugin.$plugin:dev.toastbits.kotules.plugin.$plugin.gradle.plugin:${requested.version}")
+                }
             }
         }
     }
@@ -60,6 +67,7 @@ include(":core:accessor")
 include(":core:git:core")
 include(":core:git:system")
 include(":core:git:memory")
+include(":core:plugin")
 include(":core:test")
 
 include(":extension:media")

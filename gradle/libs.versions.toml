@@ -13,6 +13,7 @@ compose = "1.7.0-alpha03"
 agp = "8.3.2"
 vanniktech-publish = "0.29.0"
 composekit = "942ad04ddf"
+kotules = "0.0.1"
 ktor = "3.0.0-beta-2"
 kgit = "1.0.6"
 okio = "3.9.0"
@@ -72,3 +73,5 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
 undercouch-download = { id = "de.undercouch.download", version.ref = "undercouch-download" }
+kotules-declaration = { id = "dev.toastbits.kotules.plugin.declaration", version.ref = "kotules" }
+kotules-definition = { id = "dev.toastbits.kotules.plugin.definition", version.ref = "kotules" }

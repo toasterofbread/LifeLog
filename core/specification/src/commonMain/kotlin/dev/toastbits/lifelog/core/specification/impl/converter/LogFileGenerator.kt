@@ -128,7 +128,7 @@ internal class LogFileGenerator(
     }
 
     private fun onEvent(event: LogEvent) {
-        val eventType: LogEventType? = eventTypes.firstOrNull { it.eventClass.isInstance(event) }
+        val eventType: LogEventType? = eventTypes.firstOrNull { it.canGenerateEvent(event) }
         checkNotNull(eventType) { "No event type could generate for event $event (${event::class})" }
 
         val referenceGenerator: LogEntityReferenceGenerator = referenceGeneratorProvider(currentDate!!.date)

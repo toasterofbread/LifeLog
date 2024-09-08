@@ -22,12 +22,14 @@ class MediaConsumeEventTypeImpl(
     private val strings: MediaWatchExtensionStrings
 ): MediaConsumeEventType {
     override val name: MediaStringId = MediaStringId.MediaExtension.NAME
-    override val eventClass: KClass<*> = MediaConsumeEvent::class
 
     override val prefixes: List<String> =
         MediaEntityType.entries.flatMap { entityType ->
             strings.getMediaEntityTypeConsumeEventPrefixes(entityType).map { it.lowercase() }
         }
+
+    override fun canGenerateEvent(event: LogEvent): Boolean =
+        event is MediaConsumeEvent
 
     override fun parseEvent(
         prefixIndex: Int,
