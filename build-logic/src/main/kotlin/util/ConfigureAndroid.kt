@@ -8,7 +8,7 @@ import org.gradle.api.Project
 fun BaseExtension.configureAndroid(project: Project) {
     defaultConfig {
         versionCode = project.libs.version("project.version.inc").toInt()
-        versionName = project.libs.version("project.version")
+        versionName = project.libs.version("project.version.name")
 
         targetSdk = project.libs.version("android.sdk.target").toInt()
         minSdk = project.libs.version("android.sdk.min").toInt()
