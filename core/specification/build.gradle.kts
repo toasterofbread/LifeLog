@@ -7,7 +7,7 @@ plugins {
 
     alias(libs.plugins.kotlin)
     alias(libs.plugins.publish)
-//    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.kotlinx.serialization)
 }
 
 kotlin {
@@ -18,7 +18,7 @@ kotlin {
             dependencies {
                 implementation(libs.markdown)
                 api(libs.kotlinx.datetime)
-//                implementation(libs.kotlinx.serialization.json)
+                implementation(libs.kotlinx.serialization.json)
             }
         }
     }

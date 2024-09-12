@@ -2,7 +2,9 @@ package dev.toastbits.lifelog.core.specification.model.reference
 
 import dev.toastbits.lifelog.core.specification.extension.ExtensionId
 import kotlinx.datetime.LocalDate
+import kotlinx.serialization.Serializable
 
+@Serializable
 sealed interface LogEntityReference {
     val extensionId: ExtensionId?
     val referenceTypeId: ExtensionId?
@@ -13,6 +15,7 @@ sealed interface LogEntityReference {
     }
     interface InMetadata: LogEntityReference
 
+    @Serializable
     data class InLogData(
         override val logDate: LocalDate,
         override val path: LogEntityPath,
@@ -20,6 +23,7 @@ sealed interface LogEntityReference {
         override val referenceTypeId: ExtensionId?
     ) : InLog
 
+    @Serializable
     data class InMetadataData(
         override val path: LogEntityPath,
         override val extensionId: ExtensionId,
@@ -27,6 +31,7 @@ sealed interface LogEntityReference {
     ) : InMetadata
 
     // TODO | Should probably be separate
+    @Serializable
     data class URL(val url: String): LogEntityReference {
         override val extensionId: ExtensionId? = null
         override val referenceTypeId: ExtensionId? = null
@@ -34,6 +39,7 @@ sealed interface LogEntityReference {
     }
 }
 
+@Serializable
 data class LogEntityPath(val segments: List<String>) {
     override fun toString(): String = segments.joinToString("/")
 
