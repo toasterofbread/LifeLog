@@ -1,6 +1,6 @@
 package dev.toastbits.lifelog.core.plugin
 
-import dev.toastbits.kotules.extension.Kotule
+import dev.toastbits.kotules.core.Kotule
 import dev.toastbits.kotules.runtime.annotation.KotuleDeclaration
 import dev.toastbits.lifelog.core.specification.extension.ExtensionId
 import dev.toastbits.lifelog.core.specification.extension.SpecificationExtension
