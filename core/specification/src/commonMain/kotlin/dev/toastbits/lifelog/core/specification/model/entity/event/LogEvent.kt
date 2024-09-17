@@ -11,12 +11,12 @@ import dev.toastbits.lifelog.core.specification.util.LogStringId
 interface LogEvent: LogEntity {
     var content: UserContent?
 
-    override fun getCompanion(): LogEntityCompanion<*> = Companion
+    override fun getCompanion(): LogEntityCompanion = Companion
 
-    companion object: LogEntityCompanion<LogEvent>(LogEntity) {
-        override fun getAllProperties(): List<Property<*, *>> =
+    companion object: LogEntityCompanion(LogEntity) {
+        override fun getAllProperties(): List<Property> =
             listOf(
-                LogStringId.Property.LogEvent.CONTENT.property { content }
+                LogStringId.Property.LogEvent.CONTENT.property<LogEvent> { content }
             )
     }
 }

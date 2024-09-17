@@ -21,7 +21,7 @@ sealed interface MediaConsumeEvent: LogEvent {
     ): String?
 
     companion object: LogEntityCompanion<MediaConsumeEvent>(LogEvent) {
-        override fun getAllProperties(): List<LogEntity.Property<*, *>> =
+        override fun getAllProperties(): List<LogEntity.Property> =
             listOf(
                 MediaStringId.Property.MediaConsumeEvent.MEDIA_REFERENCE.property { mediaReference },
                 MediaStringId.Property.MediaEntity.ITERATION.property { iteration }

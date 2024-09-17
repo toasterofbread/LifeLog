@@ -16,6 +16,8 @@ sealed interface LogEntityReferenceType {
     }
 
     abstract class InLog: LogEntityReferenceType {
+        abstract override val extensionId: ExtensionId
+        abstract override val id: ExtensionId
         abstract fun parseReference(path: List<String>, date: LocalDate, onAlert: (LogParseAlert) -> Unit): LogEntityReference.InLog?
     }
 }

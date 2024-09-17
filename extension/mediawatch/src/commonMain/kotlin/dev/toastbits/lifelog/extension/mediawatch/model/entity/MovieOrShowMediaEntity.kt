@@ -10,7 +10,7 @@ interface MovieOrShowMediaEntity: MediaEntity {
     val partCount: Int?
 
     companion object: LogEntityCompanion<MovieOrShowMediaEntity>(MediaEntity) {
-        override fun getAllProperties(): List<LogEntity.Property<*, *>> =
+        override fun getAllProperties(): List<LogEntity.Property> =
             listOf(
                 MediaStringId.Property.MediaEntityMovieOrShow.RUNTIME.property { runtime },
                 MediaStringId.Property.MediaEntityMovieOrShow.PART_COUNT.property { partCount }

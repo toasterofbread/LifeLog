@@ -9,12 +9,12 @@ interface LogDate: LogEntity {
     var date: LocalDate
     var ambiguous: Boolean
 
-    override fun getCompanion(): LogEntityCompanion<*> = Companion
+    override fun getCompanion(): LogEntityCompanion = Companion
 
-    companion object: LogEntityCompanion<LogDate>(LogEntity) {
-        override fun getAllProperties(): List<LogEntity.Property<*, *>> =
+    companion object: LogEntityCompanion(LogEntity) {
+        override fun getAllProperties(): List<LogEntity.Property> =
             listOf(
-                LogStringId.Property.LogDate.DATE.property { date }
+                LogStringId.Property.LogDate.DATE.property<LogDate> { date }
             )
     }
 }

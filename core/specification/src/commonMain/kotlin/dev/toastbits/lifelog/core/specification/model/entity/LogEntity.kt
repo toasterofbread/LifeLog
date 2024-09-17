@@ -9,24 +9,26 @@ interface LogEntity {
     var inlineComment: UserContent?
     var aboveComment: UserContent?
 
-    fun getCompanion(): LogEntityCompanion<*> = Companion
+    fun getCompanion(): LogEntityCompanion = Companion
 
-    data class Property<T: LogEntity, V>(
+    data class Property(
         val name: StringId,
-        val accessor: T.() -> V
+        val accessor: LogEntity.() -> Any?
     )
 
-    companion object: LogEntityCompanion<LogEntity>(null) {
-        override fun getAllProperties(): List<Property<*, *>> =
+    companion object: LogEntityCompanion(null) {
+        override fun getAllProperties(): List<Property> =
             listOf(
-                LogStringId.Property.LogEntity.COMMENT.property { inlineComment }
+                LogStringId.Property.LogEntity.COMMENT.property<LogEntity> { inlineComment }
             )
     }
 }
 
-abstract class LogEntityCompanion<T: LogEntity>(vararg val parents: LogEntityCompanion<*>?) {
-    abstract fun getAllProperties(): List<LogEntity.Property<*, *>>
+abstract class LogEntityCompanion(vararg val parents: LogEntityCompanion?) {
+    abstract fun getAllProperties(): List<LogEntity.Property>
 
-    fun <V> StringId.property(accessor: T.() -> V) =
-        LogEntity.Property(this, accessor)
+    companion object {
+        fun <T: LogEntity> StringId.property(accessor: T.() -> Any?) =
+            LogEntity.Property(this) { accessor(this as T) }
+    }
 }

@@ -5,6 +5,6 @@ import dev.toastbits.lifelog.core.specification.model.entity.LogEntityCompanion
 
 sealed interface MediaEntity: LogEntity {
     companion object: LogEntityCompanion<MediaEntity>(LogEntity) {
-        override fun getAllProperties(): List<LogEntity.Property<*, *>> = emptyList()
+        override fun getAllProperties(): List<LogEntity.Property> = emptyList()
     }
 }
