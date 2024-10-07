@@ -12,7 +12,7 @@ plugins {
 }
 
 kotlin {
-    configureKmpTargets(KmpTarget.JVM, KmpTarget.WASMJS)
+    configureKmpTargets(KmpTarget.JVM, KmpTarget.WASMJS, KmpTarget.JS)
 
     sourceSets {
         val commonMain by getting {

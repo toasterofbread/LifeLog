@@ -1,16 +1,17 @@
-@file:OptIn(ExperimentalWasmDsl::class, ExperimentalKotlinGradlePluginApi::class, ExternalKotlinTargetApi::class)
+@file:OptIn(ExperimentalWasmDsl::class, ExperimentalKotlinGradlePluginApi::class)
 package util
 
 import org.gradle.kotlin.dsl.assign
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
-import org.jetbrains.kotlin.gradle.ExternalKotlinTargetApi
+import org.jetbrains.kotlin.gradle.dsl.JsModuleKind
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinDependencyHandler
 import org.jetbrains.kotlin.gradle.plugin.KotlinHierarchyBuilder
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsTargetDsl
 import java.io.File
 
 fun KotlinMultiplatformExtension.configureAllKmpTargets(beforeConfigure: KotlinTarget.() -> Unit = {}, afterConfigure: KotlinTarget.() -> Unit = {}) {
@@ -63,16 +64,14 @@ fun KotlinMultiplatformExtension.configureKmpTargets(
             KmpTarget.WASMJS -> {
                 wasmJs {
                     beforeConfigure()
-
-                    moduleName = project.getCurrentPackage()
-                    browser {
-                        testTask {
-                            useKarma {
-                                useFirefox()
-                            }
-                        }
-                    }
-
+                    configureWebTarget()
+                    afterConfigure()
+                }
+            }
+            KmpTarget.JS -> {
+                js(IR) {
+                    beforeConfigure()
+                    configureWebTarget()
                     afterConfigure()
                 }
             }
@@ -94,6 +93,7 @@ fun KotlinMultiplatformExtension.configureKmpTargets(
                     withMingwX64()
                 }
                 KmpTarget.WASMJS -> withWasmJs()
+                KmpTarget.JS -> withJs()
             }
         }
 
@@ -114,9 +114,10 @@ fun KotlinMultiplatformExtension.configureKmpTargets(
                 }
             }
 
-            if (targets.contains(KmpTarget.WASMJS)) {
+            if (targets.contains(KmpTarget.WASMJS) || targets.contains(KmpTarget.JS)) {
                 group("web") {
                     ifPresent(KmpTarget.WASMJS)
+                    ifPresent(KmpTarget.JS)
                 }
 
                 if (targets.contains(KmpTarget.ANDROID)) {
@@ -135,6 +136,18 @@ fun KotlinMultiplatformExtension.configureKmpTargets(
         sourceSets.wasmJsMain {
             dependencies {
                 addNodeModules(project.projectDir.resolve("node_modules"))
+            }
+        }
+    }
+}
+
+private fun KotlinJsTargetDsl.configureWebTarget() {
+    moduleName = "hello." + project.getCurrentPackage()
+    useCommonJs()
+    browser {
+        testTask {
+            useKarma {
+                useFirefox()
             }
         }
     }
