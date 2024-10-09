@@ -17,7 +17,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(projects.core.specification)
+                api(projects.core.specification)
             }
         }
     }

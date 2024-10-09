@@ -1,3 +1,5 @@
 package dev.toastbits.lifelog.core.specification.util
 
-interface StringId
+interface StringId {
+    val id: String
+}

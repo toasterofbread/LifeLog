@@ -20,8 +20,9 @@ class TestExtension(): LifelogPlugin {
     override val extraEventTypes: List<LogEventType>
         get() = listOf(
             object : LogEventType {
-                override val name: StringId
-                    get() = TODO("Not yet implemented 1")
+                override val name: StringId = object : StringId {
+                    override val id: String = "wasup"
+                }
                 override val prefixes: List<String>
                     get() = TODO("Not yet implemented 2")
                 override fun canGenerateEvent(event: LogEvent): Boolean {
