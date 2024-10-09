@@ -53,6 +53,10 @@ internal fun DatabaseSourceLoadScreenProgressLog(
         } ?: Pair(emptyList(), emptyList())
     }
 
+    val loadExceptionStackTrace: List<String>? = remember(loadException) {
+        loadException?.stackTraceToString()?.split('\n')
+    }
+
     WaveLineArea(
         modifier,
         periodMillis = 3000,
@@ -75,10 +79,10 @@ internal fun DatabaseSourceLoadScreenProgressLog(
                     }
                 }
 
-                loadException?.also { exception ->
-                    item {
+                loadExceptionStackTrace?.also { exceptionLines ->
+                    items(exceptionLines) { line ->
                         Text(
-                            remember(exception) { exception.stackTraceToString() },
+                            line,
                             color = theme.error
                         )
                     }
