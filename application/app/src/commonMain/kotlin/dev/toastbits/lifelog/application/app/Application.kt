@@ -119,22 +119,23 @@ class Application(
     private fun TopContent() {
         Scaffold { padding ->
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                val fullContentScreen: Boolean = navigator.currentScreen is FullContentScreen
+
                 navigator.CurrentScreen(
-                    Modifier.fillMaxHeight().widthIn(max = 1000.dp),
+                    Modifier.fillMaxHeight().thenIf(!fullContentScreen) { widthIn(max = 1000.dp) },
                     padding + PaddingValues(20.dp)
                 ) { modifier, paddingValues, content ->
                     Column(
                         modifier,
                         verticalArrangement = Arrangement.spacedBy(20.dp)
                     ) {
-                        val showTopBar: Boolean = navigator.currentScreen !is FullContentScreen
-                        AnimatedVisibility(showTopBar) {
+                        AnimatedVisibility(!fullContentScreen) {
                             PersistentTopBar(Modifier.fillMaxWidth().padding(paddingValues.copy(bottom = 0.dp)))
                         }
 
                         content(
                             Modifier.fillMaxSize().weight(1f),
-                            paddingValues.thenIf(showTopBar) {
+                            paddingValues.thenIf(!fullContentScreen) {
                                 copy(top = 0.dp)
                             }
                         )
