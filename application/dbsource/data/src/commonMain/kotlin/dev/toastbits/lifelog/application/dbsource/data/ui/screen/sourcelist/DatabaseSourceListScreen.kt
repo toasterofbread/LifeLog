@@ -6,12 +6,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import dev.toastbits.composekit.navigation.Screen
+import dev.toastbits.composekit.navigation.navigator.Navigator
+import dev.toastbits.lifelog.application.dbsource.data.ui.screen.sourceconfiguration.DatabaseSourceConfigurationScreen
 import dev.toastbits.lifelog.application.dbsource.data.ui.screen.sourceload.DatabaseSourceLoadScreen
 import dev.toastbits.lifelog.application.dbsource.domain.configuration.DatabaseSourceConfiguration
 import dev.toastbits.lifelog.application.dbsource.domain.type.DatabaseSourceType
-import dev.toastbits.composekit.navigation.navigator.Navigator
-import dev.toastbits.composekit.navigation.Screen
-import dev.toastbits.lifelog.application.dbsource.data.ui.screen.sourceconfiguration.DatabaseSourceConfigurationScreen
+import dev.toastbits.lifelog.application.logview.data.ui.screen.TopLogViewScreen
 import dev.toastbits.lifelog.application.settings.data.compositionlocal.LocalSettings
 import dev.toastbits.lifelog.application.settings.domain.appsettings.AppSettings
 import dev.toastbits.lifelog.application.settings.domain.model.SerialisedDatabaseSourceConfiguration
@@ -28,7 +29,7 @@ class DatabaseSourceListScreen: Screen {
     @Composable
     override fun Content(navigator: Navigator, modifier: Modifier, contentPadding: PaddingValues) {
         val settings: AppSettings = LocalSettings.current
-        val autoOpenIndex: Int? by settings.DatabaseSource.AUTO_OPEN_SOURCE_INDEX.observe()
+        val autoOpenIndex: Int by settings.DatabaseSource.AUTO_OPEN_SOURCE_INDEX.observe()
 
         var serialisedSourceConfigurations: List<SerialisedDatabaseSourceConfiguration> by settings.DatabaseSource.DATABASE_SOURCES.observe()
         val sourceConfigurations: List<DatabaseSourceConfiguration> = remember(serialisedSourceConfigurations) {
@@ -51,7 +52,7 @@ class DatabaseSourceListScreen: Screen {
                     DatabaseSourceLoadScreen(
                         source,
                         onLoaded = { database ->
-                            TODO(database.days.size.toString())
+                            navigator.pushScreen(TopLogViewScreen(database))
                         }
                     )
                 )

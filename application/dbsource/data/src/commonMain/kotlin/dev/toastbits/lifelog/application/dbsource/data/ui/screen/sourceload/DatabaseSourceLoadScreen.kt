@@ -27,7 +27,8 @@ import org.jetbrains.compose.resources.stringResource
 
 class DatabaseSourceLoadScreen(
     private val sourceConfiguration: DatabaseSourceConfiguration,
-    private val onLoaded: (LogDatabase) -> Unit
+    private val onLoaded: (LogDatabase) -> Unit,
+    private val autoProceed: Boolean = false
 ): Screen {
     override val title: String?
         @Composable get() = stringResource(Res.string.database_loader_title)
@@ -59,7 +60,8 @@ class DatabaseSourceLoadScreen(
             sourceConfiguration,
             databaseAccessor,
             modifier.padding(contentPadding),
-            onProceeded = onLoaded
+            onProceeded = onLoaded,
+            autoProceed = autoProceed
         )
     }
 }

@@ -5,11 +5,14 @@ import dev.toastbits.lifelog.application.settings.data.group.DatabasePreferences
 import dev.toastbits.lifelog.application.settings.domain.appsettings.AppSettings
 import dev.toastbits.lifelog.application.settings.domain.group.DatabaseSourcePreferencesGroup
 import dev.toastbits.lifelog.application.settings.data.group.DatabaseSourcePreferencesGroupImpl
+import dev.toastbits.lifelog.application.settings.data.group.DisplayPreferencesGroupImpl
 import dev.toastbits.lifelog.application.settings.domain.group.DatabasePreferencesGroup
+import dev.toastbits.lifelog.application.settings.domain.group.DisplayPreferencesGroup
 
 class AppSettingsImpl(
     override val prefs: PlatformPreferences
 ): AppSettings {
     override val Database: DatabasePreferencesGroup = DatabasePreferencesGroupImpl(prefs)
     override val DatabaseSource: DatabaseSourcePreferencesGroup = DatabaseSourcePreferencesGroupImpl(prefs)
+    override val Display: DisplayPreferencesGroup = DisplayPreferencesGroupImpl(prefs)
 }

@@ -4,6 +4,7 @@ import dev.toastbits.lifelog.core.specification.converter.LogFileConverterString
 import dev.toastbits.lifelog.extension.mediawatch.model.reference.MediaReference
 import dev.toastbits.lifelog.extension.mediawatch.util.MediaEntityType
 import dev.toastbits.lifelog.core.specification.model.UserContent
+import dev.toastbits.lifelog.core.specification.model.entity.event.LogEvent
 import dev.toastbits.lifelog.extension.mediawatch.MediaWatchExtensionStrings
 
 data class BookMediaConsumeEvent(
@@ -16,6 +17,8 @@ data class BookMediaConsumeEvent(
     var readRange: ReadRange? = null
 ): MediaConsumeEvent {
     override val mediaEntityType: MediaEntityType = MediaEntityType.BOOK
+
+    override fun getIcon(): LogEvent.Icon = LogEvent.Icon.MenuBook
 
     override fun generateMediaRangeMetadata(
         strings: MediaWatchExtensionStrings,

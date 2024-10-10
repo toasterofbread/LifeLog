@@ -7,7 +7,7 @@ import dev.toastbits.lifelog.application.dbsource.domain.accessor.DatabaseAccess
 import dev.toastbits.lifelog.application.dbsource.domain.configuration.DatabaseSourceConfiguration
 import dev.toastbits.lifelog.application.dbsource.domain.configuration.castType
 import dev.toastbits.lifelog.application.worker.WorkerClient
-import dev.toastbits.lifelog.core.accessor.LogDatabaseConfiguration
+import dev.toastbits.lifelog.core.specification.database.LogDatabaseConfiguration
 import dev.toastbits.lifelog.core.git.core.model.GitCredentials
 import io.ktor.client.HttpClient
 import kotlinx.coroutines.CoroutineDispatcher

@@ -17,7 +17,7 @@ import dev.toastbits.lifelog.extension.mediawatch.model.entity.event.MovieOrShow
 import dev.toastbits.lifelog.extension.mediawatch.model.entity.event.SongMediaConsumeEvent
 import dev.toastbits.lifelog.extension.mediawatch.util.MediaEntityType
 import dev.toastbits.lifelog.core.specification.impl.model.entity.date.LogDateImpl
-import dev.toastbits.lifelog.core.specification.impl.model.entity.event.LogCommentImpl
+import dev.toastbits.lifelog.core.specification.impl.model.entity.event.LogCommentEventImpl
 import dev.toastbits.lifelog.core.specification.model.UserContent
 import dev.toastbits.lifelog.core.specification.model.entity.date.LogDate
 import dev.toastbits.lifelog.core.specification.model.entity.event.LogEvent
@@ -108,7 +108,7 @@ Watched Test Test Test (first watch, eps 1-5) {
         assertThat(day).hasSize(5)
 
         assertThat(day[0]).isEqualTo(
-            LogCommentImpl(UserContent.single("Standalone comment"))
+            LogCommentEventImpl(UserContent.single("Standalone comment"))
         )
         assertThat(day[1]).isEqualTo(
             MovieOrShowMediaConsumeEvent(
@@ -127,10 +127,10 @@ Watched Test Test Test (first watch, eps 1-5) {
             )
         )
         assertThat(day[3]).isEqualTo(
-            LogCommentImpl(UserContent.single(blockCommentContent))
+            LogCommentEventImpl(UserContent.single(blockCommentContent))
         )
         assertThat(day[4]).isEqualTo(
-            LogCommentImpl(UserContent.single("Standalone comment"))
+            LogCommentEventImpl(UserContent.single("Standalone comment"))
         )
     }
 

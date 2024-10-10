@@ -50,7 +50,8 @@ internal fun DatabaseSourceLoader(
     sourceConfiguration: DatabaseSourceConfiguration,
     databaseAccessor: DatabaseAccessor,
     modifier: Modifier = Modifier,
-    onProceeded: (LogDatabase) -> Unit
+    onProceeded: (LogDatabase) -> Unit,
+    autoProceed: Boolean = false
 ) {
     val navigator: Navigator = LocalNavigator.current
     val theme: ThemeValues = LocalApplicationTheme.current
@@ -92,7 +93,7 @@ internal fun DatabaseSourceLoader(
 
         when (result) {
             is LoadStep.ExecuteResult.DatabaseLoaded -> {
-                if (result.parseResult.alerts.isEmpty()) {
+                if (result.parseResult.alerts.isEmpty() || autoProceed) {
                     onProceeded(result.parseResult.database)
                 }
                 else {
@@ -127,6 +128,10 @@ internal fun DatabaseSourceLoader(
         ) {
             Button({ navigator.navigateBackward() }) {
                 Text(stringResource(Res.string.button_database_loader_cancel))
+            }
+
+            if (autoProceed) {
+                return@Row
             }
 
             val allowProceed: Boolean = remember(loadResult) {

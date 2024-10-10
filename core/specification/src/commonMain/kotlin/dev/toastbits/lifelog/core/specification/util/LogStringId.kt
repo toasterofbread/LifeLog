@@ -12,4 +12,7 @@ sealed interface LogStringId: StringId {
             DATE
         }
     }
+    enum class EventType: StringId {
+        COMMENT
+    }
 }

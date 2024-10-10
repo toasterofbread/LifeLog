@@ -1,4 +1,4 @@
-package dev.toastbits.lifelog.core.accessor
+package dev.toastbits.lifelog.core.specification.database
 
 import dev.toastbits.lifelog.core.specification.model.entity.date.LogDate
 import kotlinx.datetime.LocalDate

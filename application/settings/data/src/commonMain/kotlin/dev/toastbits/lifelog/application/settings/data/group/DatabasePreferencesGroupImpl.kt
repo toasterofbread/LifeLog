@@ -10,8 +10,8 @@ import dev.toastbits.composekit.platform.PreferencesProperty
 import dev.toastbits.composekit.settings.ui.component.item.DropdownSettingsItem
 import dev.toastbits.composekit.settings.ui.component.item.SettingsItem
 import dev.toastbits.lifelog.application.settings.domain.group.DatabasePreferencesGroup
-import dev.toastbits.lifelog.core.accessor.LogFileSplitStrategy
 import dev.toastbits.lifelog.core.specification.converter.LogFileConverterStrings
+import dev.toastbits.lifelog.core.specification.database.LogFileSplitStrategy
 import dev.toastbits.lifelog.core.specification.extension.ExtensionRegistry
 import dev.toastbits.lifelog.core.specification.impl.converter.LogFileConverterStringsImpl
 import dev.toastbits.lifelog.core.specification.impl.extension.ExtensionRegistryImpl

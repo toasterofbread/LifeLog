@@ -2,9 +2,9 @@ package dev.toastbits.lifelog.application.settings.domain.group
 
 import dev.toastbits.composekit.platform.PreferencesGroup
 import dev.toastbits.composekit.platform.PreferencesProperty
-import dev.toastbits.lifelog.core.accessor.LogDatabaseConfiguration
-import dev.toastbits.lifelog.core.accessor.LogFileSplitStrategy
+import dev.toastbits.lifelog.core.specification.database.LogDatabaseConfiguration
 import dev.toastbits.lifelog.core.specification.converter.LogFileConverterStrings
+import dev.toastbits.lifelog.core.specification.database.LogFileSplitStrategy
 import dev.toastbits.lifelog.core.specification.extension.ExtensionRegistry
 
 @Suppress("PropertyName")

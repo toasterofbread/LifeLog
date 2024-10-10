@@ -7,10 +7,10 @@ import dev.toastbits.lifelog.core.specification.converter.alert.LogParseAlert
 import dev.toastbits.lifelog.core.specification.converter.alert.SpecificationLogParseAlert
 import dev.toastbits.lifelog.core.specification.impl.converter.usercontent.UserContentParser
 import dev.toastbits.lifelog.core.specification.impl.model.entity.date.LogDateImpl
-import dev.toastbits.lifelog.core.specification.impl.model.entity.event.LogCommentImpl
+import dev.toastbits.lifelog.core.specification.impl.model.entity.event.LogCommentEventImpl
 import dev.toastbits.lifelog.core.specification.model.UserContent
 import dev.toastbits.lifelog.core.specification.model.entity.date.LogDate
-import dev.toastbits.lifelog.core.specification.model.entity.event.LogComment
+import dev.toastbits.lifelog.core.specification.model.entity.event.LogCommentEvent
 import dev.toastbits.lifelog.core.specification.model.entity.event.LogEvent
 import dev.toastbits.lifelog.core.specification.model.entity.event.LogEventType
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferenceParser
@@ -43,7 +43,7 @@ internal class LogFileParser(
     private var currentLineIndex: Int = -1
     private var currentDay: LogDate? = null
 
-    private var lastDayTopLevelComment: IndexedValue<LogComment>? = null
+    private var lastDayTopLevelComment: IndexedValue<LogCommentEvent>? = null
 
     private fun hasNext(): Boolean = iterator.hasNext()
     private var queuedLineContent: MutableList<String> = mutableListOf()
@@ -310,7 +310,7 @@ internal class LogFileParser(
     }
 
     private fun onCommentLine(content: UserContent) {
-        val comment: LogCommentImpl = LogCommentImpl(content)
+        val comment: LogCommentEventImpl = LogCommentEventImpl(content)
         lastDayTopLevelComment = IndexedValue(currentLineIndex, comment)
 
         getDayEvents(allowOutsideDay = true).add(comment)

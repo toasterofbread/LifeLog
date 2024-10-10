@@ -6,6 +6,7 @@ import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
+import dev.mokkery.mock
 import dev.toastbits.lifelog.core.git.system.GitWrapper
 import dev.toastbits.lifelog.core.accessor.DatabaseFileStructureProvider
 import dev.toastbits.lifelog.core.accessor.LogFileSplitStrategy
@@ -18,6 +19,7 @@ import dev.toastbits.lifelog.core.accessor.reference.LogEntityReferenceGenerator
 import dev.toastbits.lifelog.core.specification.converter.LogFileConverterStrings
 import dev.toastbits.lifelog.core.specification.database.LogDatabase
 import dev.toastbits.lifelog.core.specification.database.LogDataFile
+import dev.toastbits.lifelog.core.specification.database.LogDatabaseConfiguration
 import dev.toastbits.lifelog.core.specification.impl.converter.LogFileConverterImpl
 import dev.toastbits.lifelog.core.specification.impl.model.entity.date.LogDateImpl
 import dev.toastbits.lifelog.core.specification.model.UserContent
@@ -97,6 +99,7 @@ class GitLogDatabaseSaverTest: FileSystemTest {
 
         val database: LogDatabase =
             LogDatabase(
+                mock(),
                 days = mapOf(
                     LogDateImpl(date, false) to listOf(
                         event

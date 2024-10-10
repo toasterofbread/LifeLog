@@ -8,7 +8,7 @@ import dev.toastbits.lifelog.core.specification.impl.converter.usercontent.UserC
 import dev.toastbits.lifelog.core.specification.model.UserContent
 import dev.toastbits.lifelog.core.specification.model.entity.LogEntity
 import dev.toastbits.lifelog.core.specification.model.entity.date.LogDate
-import dev.toastbits.lifelog.core.specification.model.entity.event.LogComment
+import dev.toastbits.lifelog.core.specification.model.entity.event.LogCommentEvent
 import dev.toastbits.lifelog.core.specification.model.entity.event.LogEvent
 import dev.toastbits.lifelog.core.specification.model.entity.event.LogEventType
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferenceGenerator
@@ -63,7 +63,7 @@ internal class LogFileGenerator(
 
             val events: List<LogEvent> = days[date]!!
             for (event in events) {
-                if (event is LogComment) {
+                if (event is LogCommentEvent) {
                     onComment(event)
                 }
                 else {
@@ -99,7 +99,7 @@ internal class LogFileGenerator(
         addLine("")
     }
 
-    private fun onComment(comment: LogComment) {
+    private fun onComment(comment: LogCommentEvent) {
         val referenceGenerator: LogEntityReferenceGenerator = referenceGeneratorProvider(currentDate!!.date)
         val commentTextLines: List<String> = comment.content?.let { userContentGenerator.generateUserContent(it, referenceGenerator, ::onAlert) }.orEmpty().split('\n')
 

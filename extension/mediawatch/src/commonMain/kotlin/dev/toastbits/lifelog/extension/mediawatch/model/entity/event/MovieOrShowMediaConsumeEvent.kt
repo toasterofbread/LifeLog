@@ -4,6 +4,7 @@ import dev.toastbits.lifelog.core.specification.converter.LogFileConverterString
 import dev.toastbits.lifelog.extension.mediawatch.model.reference.MediaReference
 import dev.toastbits.lifelog.extension.mediawatch.util.MediaEntityType
 import dev.toastbits.lifelog.core.specification.model.UserContent
+import dev.toastbits.lifelog.core.specification.model.entity.event.LogEvent
 import dev.toastbits.lifelog.extension.mediawatch.MediaWatchExtensionStrings
 import dev.toastbits.lifelog.extension.mediawatch.impl.mediaRangeToText
 import dev.toastbits.lifelog.extension.mediawatch.impl.model.entity.event.MediaRangeValue
@@ -20,6 +21,8 @@ data class MovieOrShowMediaConsumeEvent(
     var watchedRangeUnsure: Boolean = false
 ): MediaConsumeEvent {
     override val mediaEntityType: MediaEntityType = MediaEntityType.MOVIE_OR_SHOW
+
+    override fun getIcon(): LogEvent.Icon = LogEvent.Icon.Movie
 
     override fun generateMediaRangeMetadata(
         strings: MediaWatchExtensionStrings,

@@ -16,6 +16,7 @@ kotlin {
                 api(projects.application.dbsource.domain)
                 implementation(projects.application.settings.domain)
                 implementation(projects.application.settings.data)
+                implementation(projects.application.logview.data)
                 implementation(projects.core.specification)
                 implementation(projects.core.git.core)
 

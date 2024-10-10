@@ -5,6 +5,7 @@ import dev.toastbits.lifelog.core.specification.model.entity.event.LogEvent
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReference
 
 data class LogDatabase(
+    val configuration: LogDatabaseConfiguration,
     val days: Map<LogDate, List<LogEvent>> = emptyMap(),
     val data: Map<LogEntityReference, LogDataFile> = emptyMap()
 )

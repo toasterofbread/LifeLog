@@ -4,6 +4,7 @@ import dev.toastbits.lifelog.core.specification.converter.LogFileConverterString
 import dev.toastbits.lifelog.extension.mediawatch.model.reference.MediaReference
 import dev.toastbits.lifelog.extension.mediawatch.util.MediaEntityType
 import dev.toastbits.lifelog.core.specification.model.UserContent
+import dev.toastbits.lifelog.core.specification.model.entity.event.LogEvent
 import dev.toastbits.lifelog.extension.mediawatch.MediaWatchExtensionStrings
 import kotlinx.datetime.LocalDate
 import kotlin.math.log
@@ -18,6 +19,8 @@ data class GameMediaConsumeEvent(
     var playedRange: PlayedRange? = null
 ): MediaConsumeEvent {
     override val mediaEntityType: MediaEntityType = MediaEntityType.GAME
+
+    override fun getIcon(): LogEvent.Icon = LogEvent.Icon.Gamepad
 
     override fun generateMediaRangeMetadata(
         strings: MediaWatchExtensionStrings,

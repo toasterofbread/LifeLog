@@ -2,7 +2,7 @@ package dev.toastbits.lifelog.core.accessor.impl
 
 import dev.toastbits.lifelog.core.accessor.DatabaseFileStructureProvider
 import dev.toastbits.lifelog.core.accessor.DatabaseFilesParser
-import dev.toastbits.lifelog.core.accessor.LogDatabaseConfiguration
+import dev.toastbits.lifelog.core.specification.database.LogDatabaseConfiguration
 import dev.toastbits.lifelog.core.accessor.extension.DatabaseFileStructureExtension
 import dev.toastbits.lifelog.core.filestructure.FileStructure
 import dev.toastbits.lifelog.core.filestructure.readLines
@@ -57,7 +57,7 @@ class DatabaseFilesParserImpl(
             }
         }
 
-        return@withContext LogDatabase(days = scope.days, data = scope.data)
+        return@withContext LogDatabase(configuration, days = scope.days, data = scope.data)
     }
 
     private suspend fun FileStructure.preprocess(onAlert: (ParseAlertData) -> Unit): FileStructure {

@@ -9,7 +9,7 @@ import dev.toastbits.lifelog.application.worker.WorkerClient
 import dev.toastbits.lifelog.application.worker.command.WorkerCommandInMemoryGitClone
 import dev.toastbits.lifelog.application.worker.mapper.deserialise
 import dev.toastbits.lifelog.application.worker.model.getOrThrow
-import dev.toastbits.lifelog.core.accessor.LogDatabaseConfiguration
+import dev.toastbits.lifelog.core.specification.database.LogDatabaseConfiguration
 import dev.toastbits.lifelog.core.accessor.helper.LogDatabaseParseHelper
 import dev.toastbits.lifelog.core.filestructure.FileStructure
 import dev.toastbits.lifelog.core.git.core.model.GitCredentials

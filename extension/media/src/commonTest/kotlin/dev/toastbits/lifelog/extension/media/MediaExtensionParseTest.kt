@@ -14,7 +14,7 @@ import dev.toastbits.lifelog.core.specification.converter.LogFileConverterString
 import dev.toastbits.lifelog.core.specification.impl.converter.LogFileConverterImpl
 import dev.toastbits.lifelog.core.specification.impl.converter.LogFileConverterStringsImpl
 import dev.toastbits.lifelog.core.specification.impl.model.entity.date.LogDateImpl
-import dev.toastbits.lifelog.core.specification.impl.model.entity.event.LogCommentImpl
+import dev.toastbits.lifelog.core.specification.impl.model.entity.event.LogCommentEventImpl
 import dev.toastbits.lifelog.core.specification.model.UserContent
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityPath
 import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReference
@@ -53,7 +53,7 @@ class MediaExtensionParseTest {
         val groupDate: LocalDate = splitStrategy.parseDateComponents(splitStrategy.getDateComponents(date))
         assertThat(parsed.days[LogDateImpl(date)]).isEqualTo(
             listOf(
-                LogCommentImpl(
+                LogCommentEventImpl(
                     UserContent.single(
                         referenceText,
                         setOf(UserContent.Mod.Reference(reference.copy(logDate = groupDate)))

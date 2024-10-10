@@ -2,7 +2,7 @@ package dev.toastbits.lifelog.core.accessor.helper
 
 import dev.toastbits.lifelog.core.accessor.DatabaseFileStructureProvider
 import dev.toastbits.lifelog.core.accessor.DatabaseFilesParser
-import dev.toastbits.lifelog.core.accessor.LogDatabaseConfiguration
+import dev.toastbits.lifelog.core.specification.database.LogDatabaseConfiguration
 import dev.toastbits.lifelog.core.accessor.impl.DatabaseFileStructureProviderImpl
 import dev.toastbits.lifelog.core.accessor.impl.DatabaseFilesParserImpl
 import dev.toastbits.lifelog.core.accessor.reference.LogEntityReferenceGeneratorImpl
@@ -11,7 +11,6 @@ import dev.toastbits.lifelog.core.specification.converter.LogFileConverter
 import dev.toastbits.lifelog.core.specification.converter.ParseAlertData
 import dev.toastbits.lifelog.core.specification.database.LogDatabase
 import dev.toastbits.lifelog.core.specification.impl.converter.LogFileConverterImpl
-import dev.toastbits.lifelog.core.specification.model.reference.LogEntityReferenceParser
 import kotlinx.coroutines.CoroutineDispatcher
 
 class LogDatabaseParseHelper(

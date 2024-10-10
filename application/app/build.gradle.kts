@@ -34,8 +34,10 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                implementation(projects.application.core)
                 implementation(projects.application.dbsource.data)
                 implementation(projects.application.settings.data)
+                implementation(projects.application.logview.data)
                 implementation(projects.application.worker)
 
                 implementation(projects.extension.media)

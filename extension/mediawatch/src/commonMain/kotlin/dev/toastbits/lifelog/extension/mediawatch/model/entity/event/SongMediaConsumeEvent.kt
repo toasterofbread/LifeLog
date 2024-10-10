@@ -4,6 +4,7 @@ import dev.toastbits.lifelog.core.specification.converter.LogFileConverterString
 import dev.toastbits.lifelog.extension.mediawatch.model.reference.MediaReference
 import dev.toastbits.lifelog.extension.mediawatch.util.MediaEntityType
 import dev.toastbits.lifelog.core.specification.model.UserContent
+import dev.toastbits.lifelog.core.specification.model.entity.event.LogEvent
 import dev.toastbits.lifelog.extension.mediawatch.MediaWatchExtensionStrings
 
 data class SongMediaConsumeEvent(
@@ -15,6 +16,8 @@ data class SongMediaConsumeEvent(
     override var iterationsUnsure: Boolean = false
 ): MediaConsumeEvent {
     override val mediaEntityType: MediaEntityType = MediaEntityType.SONG
+
+    override fun getIcon(): LogEvent.Icon = LogEvent.Icon.MusicNote
 
     override fun generateMediaRangeMetadata(
         strings: MediaWatchExtensionStrings,

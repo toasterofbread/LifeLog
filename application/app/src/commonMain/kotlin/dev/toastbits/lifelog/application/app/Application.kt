@@ -1,5 +1,6 @@
 package dev.toastbits.lifelog.application.app
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,11 +13,13 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.unit.dp
+import dev.toastbits.composekit.navigation.Screen
 import dev.toastbits.composekit.navigation.compositionlocal.LocalNavigator
 import dev.toastbits.composekit.navigation.navigator.ExtendableNavigator
 import dev.toastbits.composekit.navigation.navigator.Navigator
@@ -28,11 +31,18 @@ import dev.toastbits.composekit.settings.ui.ThemeValuesData
 import dev.toastbits.composekit.settings.ui.getDefaultCatppuccinThemes
 import dev.toastbits.composekit.utils.common.copy
 import dev.toastbits.composekit.utils.common.plus
+import dev.toastbits.composekit.utils.common.thenIf
 import dev.toastbits.lifelog.application.app.ui.PersistentTopBar
+import dev.toastbits.lifelog.application.core.FullContentScreen
 import dev.toastbits.lifelog.application.dbsource.data.ui.screen.sourcelist.DatabaseSourceListScreen
+import dev.toastbits.lifelog.application.dbsource.data.ui.screen.sourceload.DatabaseSourceLoadScreen
+import dev.toastbits.lifelog.application.dbsource.domain.configuration.DatabaseSourceConfiguration
+import dev.toastbits.lifelog.application.logview.data.ui.screen.TopLogViewScreen
 import dev.toastbits.lifelog.application.settings.data.appsettings.AppSettingsImpl
 import dev.toastbits.lifelog.application.settings.data.compositionlocal.LocalSettings
 import dev.toastbits.lifelog.application.settings.domain.appsettings.AppSettings
+import dev.toastbits.lifelog.application.settings.domain.model.SerialisedDatabaseSourceConfiguration
+import dev.toastbits.lifelog.application.settings.domain.model.deserialiseConfiguration
 import dev.toastbits.lifelog.application.worker.WorkerClient
 import dev.toastbits.lifelog.application.worker.compositionlocal.LocalWorkerClient
 import dev.toastbits.lifelog.extension.media.GDocsExtension
@@ -46,7 +56,6 @@ class Application(
     private val settings: AppSettings = AppSettingsImpl(preferences)
 ) {
     private val navigator: Navigator = ExtendableNavigator(initialScreen = DatabaseSourceListScreen())
-//    private val navigator: Navigator = ExtendableNavigator(initialScreen = AppSettingsScreen(settings))
 
     init {
         registerExtensions()
@@ -68,6 +77,10 @@ class Application(
                 TopContent()
             }
         }
+
+        LaunchedEffect(Unit) {
+            openAutoOpenSource()
+        }
     }
 
     fun onClose() {
@@ -76,6 +89,30 @@ class Application(
 
     fun onKeyEvent(event: KeyEvent): Boolean {
         return navigator.handleKeyEvent(event)
+    }
+
+    private suspend fun openAutoOpenSource() {
+        val autoOpenIndex: Int = settings.DatabaseSource.AUTO_OPEN_SOURCE_INDEX.get()
+        if (autoOpenIndex < 0) {
+            return
+        }
+
+        val serialisedSourceConfigurations: List<SerialisedDatabaseSourceConfiguration> = settings.DatabaseSource.DATABASE_SOURCES.get()
+        val autoOpenConfiguration: DatabaseSourceConfiguration =
+            serialisedSourceConfigurations.getOrNull(autoOpenIndex)?.let {
+                settings.DatabaseSource.sourceTypeRegistry.deserialiseConfiguration(it)
+            } ?: return
+
+        val loadScreen: Screen =
+            DatabaseSourceLoadScreen(
+                autoOpenConfiguration,
+                onLoaded = {
+                    navigator.pushScreen(TopLogViewScreen(it))
+                },
+                autoProceed = true
+            )
+
+        navigator.pushScreen(loadScreen)
     }
 
     @Composable
@@ -90,8 +127,17 @@ class Application(
                         modifier,
                         verticalArrangement = Arrangement.spacedBy(20.dp)
                     ) {
-                        PersistentTopBar(Modifier.fillMaxWidth().padding(paddingValues.copy(bottom = 0.dp)))
-                        content(Modifier.fillMaxSize().weight(1f), paddingValues.copy(top = 0.dp))
+                        val showTopBar: Boolean = navigator.currentScreen !is FullContentScreen
+                        AnimatedVisibility(showTopBar) {
+                            PersistentTopBar(Modifier.fillMaxWidth().padding(paddingValues.copy(bottom = 0.dp)))
+                        }
+
+                        content(
+                            Modifier.fillMaxSize().weight(1f),
+                            paddingValues.thenIf(showTopBar) {
+                                copy(top = 0.dp)
+                            }
+                        )
                     }
                 }
             }
