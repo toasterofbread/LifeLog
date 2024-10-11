@@ -52,7 +52,7 @@ class DatabaseSourceListScreen: Screen {
                     DatabaseSourceLoadScreen(
                         source,
                         onLoaded = { database ->
-                            navigator.pushScreen(TopLogViewScreen(database))
+                            navigator.replaceScreen(TopLogViewScreen(database))
                         }
                     )
                 )

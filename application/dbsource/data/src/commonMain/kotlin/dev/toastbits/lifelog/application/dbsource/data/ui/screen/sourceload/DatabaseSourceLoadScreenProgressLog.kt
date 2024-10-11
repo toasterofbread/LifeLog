@@ -59,8 +59,7 @@ internal fun DatabaseSourceLoadScreenProgressLog(
 
     WaveLineArea(
         modifier,
-        periodMillis = 3000,
-        playing = result == null
+        periodMillis = 3000
     ) {
         SelectionContainer {
             ScrollBarLazyColumn(

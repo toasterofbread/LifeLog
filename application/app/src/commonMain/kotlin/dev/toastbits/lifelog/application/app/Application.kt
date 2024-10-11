@@ -63,6 +63,10 @@ class Application(
 
     @Composable
     fun Main() {
+        LaunchedEffect(Unit) {
+            openAutoOpenSource()
+        }
+
         val theme: ThemeValuesData = remember {
             getDefaultCatppuccinThemes().first { it.name.lowercase().contains("green") }.theme
         }
@@ -76,10 +80,6 @@ class Application(
             theme.ApplicationTheme(context) {
                 TopContent()
             }
-        }
-
-        LaunchedEffect(Unit) {
-            openAutoOpenSource()
         }
     }
 
@@ -107,7 +107,7 @@ class Application(
             DatabaseSourceLoadScreen(
                 autoOpenConfiguration,
                 onLoaded = {
-                    navigator.pushScreen(TopLogViewScreen(it))
+                    navigator.replaceScreen(TopLogViewScreen(it))
                 },
                 autoProceed = true
             )
