@@ -81,12 +81,22 @@ kotlin {
     }
 }
 
+tasks.named {
+    it == "wasmJsBrowserDevelopmentRun" || it == "wasmJsBrowserProductionRun" || it == "wasmJsBrowserRun"
+}.all {
+    doFirst {
+        throw GradleException("Browser run tasks are not supported. Use a distribution task and run a server manually.")
+    }
+}
+
 tasks.named("wasmJsBrowserDistribution") {
     dependOnTaskAndCopyOutputDirectory(":application:worker:wasmJsBrowserDistribution", "productionExecutable")
+    printOutputsOnCompletion()
 }
 
 tasks.named("wasmJsBrowserDevelopmentExecutableDistribution") {
     dependOnTaskAndCopyOutputDirectory(":application:worker:wasmJsBrowserDevelopmentExecutableDistribution", "developmentExecutable")
+    printOutputsOnCompletion()
 }
 
 fun Task.dependOnTaskAndCopyOutputDirectory(taskPath: String, dirName: String) {
@@ -109,5 +119,12 @@ fun Task.dependOnTaskAndCopyOutputDirectory(taskPath: String, dirName: String) {
         for (file in workerProductionExecutable.listFiles().orEmpty()) {
             file.copyRecursively(appProductionExecutable.resolve(file.name), overwrite = true)
         }
+    }
+}
+
+fun Task.printOutputsOnCompletion() {
+    doLast {
+        val outputs: List<String> = outputs.files.map { it.absolutePath }
+        println("\nTask outputs: $outputs")
     }
 }
