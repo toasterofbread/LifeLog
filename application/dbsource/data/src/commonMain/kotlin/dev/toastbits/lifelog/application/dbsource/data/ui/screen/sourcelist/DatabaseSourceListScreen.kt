@@ -1,13 +1,16 @@
 package dev.toastbits.lifelog.application.dbsource.data.ui.screen.sourcelist
 
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import dev.toastbits.composekit.navigation.Screen
 import dev.toastbits.composekit.navigation.navigator.Navigator
+import dev.toastbits.composekit.navigation.screen.Screen
+import dev.toastbits.composekit.navigation.screen.TwoPaneScreen
 import dev.toastbits.lifelog.application.dbsource.data.ui.screen.sourceconfiguration.DatabaseSourceConfigurationScreen
 import dev.toastbits.lifelog.application.dbsource.data.ui.screen.sourceload.DatabaseSourceLoadScreen
 import dev.toastbits.lifelog.application.dbsource.domain.configuration.DatabaseSourceConfiguration

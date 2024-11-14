@@ -5,8 +5,7 @@ pluginManagement {
 
     resolutionStrategy {
         eachPlugin {
-            // TEMP
-            // https://github.com/cashapp/sqldelight/pull/4965
+            // TEMP SqlDelight
             if (requested.id.toString() == "app.cash.sqldelight") {
                 useModule("com.github.toasterofbread.sqldelight:app.cash.sqldelight.gradle.plugin:${requested.version}")
             }
@@ -40,6 +39,9 @@ dependencyResolutionManagement {
         maven("https://maven.d1s.dev/snapshots")
 
 //        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+
+        // SqlDelight
+        maven("https://oss.sonatype.org/content/repositories/snapshots/")
     }
 }
 

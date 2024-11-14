@@ -19,10 +19,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.unit.dp
-import dev.toastbits.composekit.navigation.Screen
 import dev.toastbits.composekit.navigation.compositionlocal.LocalNavigator
 import dev.toastbits.composekit.navigation.navigator.ExtendableNavigator
 import dev.toastbits.composekit.navigation.navigator.Navigator
+import dev.toastbits.composekit.navigation.screen.Screen
 import dev.toastbits.composekit.platform.LocalContext
 import dev.toastbits.composekit.platform.PlatformContext
 import dev.toastbits.composekit.platform.PlatformPreferences

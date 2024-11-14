@@ -7,4 +7,6 @@ data class WorkerExecutionContext(
     val platformContext: PlatformContext,
     val ioDispatcher: CoroutineDispatcher,
     val defaultDispatcher: CoroutineDispatcher
-)
+) {
+    companion object
+}

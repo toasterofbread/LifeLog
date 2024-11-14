@@ -47,6 +47,12 @@ kotlin {
             }
         }
 
+        val androidMain by getting {
+            dependencies {
+                implementation(libs.library("sqldelight.driver.android"))
+            }
+        }
+
         val wasmJsMain by getting {
             dependencies {
                 implementation(libs.library("sqldelight.driver.wasmjs"))

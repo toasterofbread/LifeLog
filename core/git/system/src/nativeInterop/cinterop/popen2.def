@@ -2,6 +2,14 @@
 
 #include <sys/types.h>
 
+int pipe(int fds[2]);
+pid_t fork(void);
+int close(int fd);
+int dup2(int oldfd, int newfd);
+int execl(const char *path, const char *arg, ...);
+void perror(const char *str);
+void exit(int status);
+
 struct popen2_data {
     pid_t child_pid;
     int   from_child, to_child;

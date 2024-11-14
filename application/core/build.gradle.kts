@@ -1,7 +1,7 @@
 import util.configureAllComposeTargets
 
 plugins {
-    id("android-application-conventions")
+    id("android-library-conventions")
     id("compose-conventions")
     alias(libs.plugins.kotlin)
 }

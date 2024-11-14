@@ -9,4 +9,6 @@ class TestLogEvent(
     override var inlineComment: UserContent? = null,
     override var content: UserContent? = null,
     override var aboveComment: UserContent? = null
-) : LogEvent
+) : LogEvent {
+    override fun getIcon(): LogEvent.Icon = LogEvent.Icon.Chat
+}

@@ -8,8 +8,11 @@ import dev.toastbits.composekit.platform.PlatformContextImpl
 import dev.toastbits.composekit.platform.PlatformPreferences
 import dev.toastbits.composekit.platform.PlatformPreferencesImpl
 import dev.toastbits.lifelog.application.worker.WorkerClient
+import dev.toastbits.lifelog.application.worker.mapper.WorkerExecutionContext
+import dev.toastbits.lifelog.application.worker.mapper.default
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.serialization.json.Json
 
 class MainActivity : ComponentActivity() {
     private var application: Application? = null
@@ -19,8 +22,9 @@ class MainActivity : ComponentActivity() {
 
         val coroutineScope: CoroutineScope = CoroutineScope(Job())
         val context: PlatformContext = PlatformContextImpl(this, coroutineScope)
-        val workerClient: WorkerClient = WorkerClient(context)
-        val prefs: PlatformPreferences = PlatformPreferencesImpl.getInstance(this)
+        val workerExecutionContext: WorkerExecutionContext = WorkerExecutionContext.default(context)
+        val workerClient: WorkerClient = WorkerClient(workerExecutionContext)
+        val prefs: PlatformPreferences = PlatformPreferencesImpl.getInstance(this, Json)
 
         val currentApplication: Application = Application(context, workerClient, prefs)
         application = currentApplication

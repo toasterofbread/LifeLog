@@ -83,7 +83,8 @@ internal fun DatabaseSourceList(
             item {
                 Text(stringResource(Res.string.database_source_list_no_sources_added))
             }
-        } else {
+        }
+        else {
             itemsIndexed(configurations) { index, sourceConfiguration ->
                 DatabaseSourceConfigurationPreview(
                     sourceConfiguration,

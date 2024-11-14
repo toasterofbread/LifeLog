@@ -7,14 +7,13 @@ plugins {
     alias(libs.plugins.undercouch.download).apply(false)
 }
 
-// TEMP
-// https://github.com/cashapp/sqldelight/pull/4965
+// TEMP SqlDelight
 subprojects {
     configurations.all {
         resolutionStrategy {
             eachDependency {
-                if (requested.group.toString() == "app.cash.sqldelight") {
-                    val sqldelightVersion: String = libs.versions.sqldelight.get()
+                if (requested.group == "app.cash.sqldelight" && requested.name != "android-driver") {
+                    val sqldelightVersion: String = libs.versions.sqldelight.wasm.get()
                     useTarget("com.github.toasterofbread.sqldelight:${requested.name}:$sqldelightVersion")
                 }
             }
