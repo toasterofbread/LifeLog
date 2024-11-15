@@ -106,7 +106,7 @@ tasks.named("wasmJsBrowserDevelopmentWebpack") {
 }
 
 tasks.named("wasmJsBrowserProductionWebpack") {
-    patchWorkerJsFile("productionExecutable", ",__webpack_require__.b=document.baseURI||self.location.href")
+    patchWorkerJsFile("productionExecutable", ",i.b=document.baseURI||self.location.href")
 }
 
 fun Task.patchWorkerJsFile(
@@ -117,7 +117,7 @@ fun Task.patchWorkerJsFile(
 
     doLast {
         val workerFile: File = outputDirectory.resolve("worker.js")
-        check(workerFile.isFile) { workerFile.absolutePath }
+        check(workerFile.isFile) { "patchWorkerJsFile failed. No file found at ${workerFile.absolutePath}" }
 
         val lines: MutableList<String> = workerFile.readLines().toMutableList()
 
@@ -144,7 +144,7 @@ fun Task.patchWorkerJsFile(
             }
         }
 
-        check(toRemove.isEmpty()) { toRemove.toList() }
+        check(toRemove.isEmpty()) { "patchWorkerJsFile failed. Could not remove ${toRemove.toList()} from ${workerFile.absolutePath}" }
 
         workerFile.writeText(lines.joinToString("\n"))
     }
