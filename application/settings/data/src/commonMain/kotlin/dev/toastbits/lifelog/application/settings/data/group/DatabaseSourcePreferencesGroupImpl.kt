@@ -14,8 +14,8 @@ import dev.toastbits.lifelog.application.dbsource.inmemorygit.type.InMemoryGitDa
 import dev.toastbits.lifelog.application.settings.domain.group.DatabaseSourcePreferencesGroup
 import dev.toastbits.lifelog.application.settings.domain.model.SerialisedDatabaseSourceConfiguration
 import lifelog.application.settings.data.generated.resources.Res
-import lifelog.application.settings.data.generated.resources.group_database_source_description
-import lifelog.application.settings.data.generated.resources.group_database_source_title
+import lifelog.application.settings.data.generated.resources.prefs_group_database_source_description
+import lifelog.application.settings.data.generated.resources.prefs_group_database_source_title
 import lifelog.application.settings.data.generated.resources.pref_database_source_git_username_title
 import lifelog.application.settings.data.generated.resources.pref_database_source_git_username_description
 import lifelog.application.settings.data.generated.resources.pref_database_source_git_password_title
@@ -26,10 +26,10 @@ open class DatabaseSourcePreferencesGroupImpl(
     preferences: PlatformPreferences
 ): PreferencesGroupImpl("DATABASE_SOURCE", preferences), DatabaseSourcePreferencesGroup {
     @Composable
-    override fun getTitle(): String = stringResource(Res.string.group_database_source_title)
+    override fun getTitle(): String = stringResource(Res.string.prefs_group_database_source_title)
 
     @Composable
-    override fun getDescription(): String = stringResource(Res.string.group_database_source_description)
+    override fun getDescription(): String = stringResource(Res.string.prefs_group_database_source_description)
 
     @Composable
     override fun getIcon(): ImageVector = Icons.Default.Cloud

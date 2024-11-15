@@ -10,7 +10,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import dev.toastbits.composekit.navigation.navigator.Navigator
 import dev.toastbits.composekit.navigation.screen.Screen
-import dev.toastbits.composekit.navigation.screen.TwoPaneScreen
+import dev.toastbits.composekit.navigation.screen.ResponsiveTwoPaneScreen
 import dev.toastbits.lifelog.application.dbsource.data.ui.screen.sourceconfiguration.DatabaseSourceConfigurationScreen
 import dev.toastbits.lifelog.application.dbsource.data.ui.screen.sourceload.DatabaseSourceLoadScreen
 import dev.toastbits.lifelog.application.dbsource.domain.configuration.DatabaseSourceConfiguration
@@ -115,4 +115,17 @@ class DatabaseSourceListScreen: Screen {
             }
         )
     }
+
+//    @Composable
+//    override fun getCurrentData(): Int? = null
+//
+//    @Composable
+//    override fun PrimaryPane(data: Int?, contentPadding: PaddingValues, modifier: Modifier) {
+//        Text("Primary", modifier.padding(contentPadding))
+//    }
+//
+//    @Composable
+//    override fun SecondaryPane(data: Int?, contentPadding: PaddingValues, modifier: Modifier) {
+//        Text("Secondary", modifier.padding(contentPadding))
+//    }
 }

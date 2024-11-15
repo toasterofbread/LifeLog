@@ -14,7 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.toastbits.composekit.navigation.navigator.Navigator
-import dev.toastbits.composekit.navigation.screen.TwoPaneScreen
+import dev.toastbits.composekit.navigation.screen.ResponsiveTwoPaneScreen
 import dev.toastbits.composekit.utils.common.copy
 import dev.toastbits.lifelog.application.core.FullContentScreen
 import dev.toastbits.lifelog.application.logview.data.ui.component.timeline.VerticalLogTimeline
@@ -25,7 +25,7 @@ data class LogReference(val date: LogDate, val logIndex: Int)
 
 class TopLogViewScreen(
     private val logDatabase: LogDatabase
-): TwoPaneScreen<LogReference>(), FullContentScreen {
+): ResponsiveTwoPaneScreen<LogReference>(), FullContentScreen {
 //    @Composable
 //    override fun Content(navigator: Navigator, modifier: Modifier, contentPadding: PaddingValues) {
 //        val innerPadding: Dp = 20.dp
@@ -41,12 +41,15 @@ class TopLogViewScreen(
 //    }
 
     @Composable
-    override fun PrimaryPane(data: LogReference?, contentPadding: PaddingValues) {
+    override fun getCurrentData(): LogReference? = null
+
+    @Composable
+    override fun PrimaryPane(data: LogReference?, contentPadding: PaddingValues, modifier: Modifier) {
         Text("Primary")
     }
 
     @Composable
-    override fun SecondaryPane(data: LogReference?, contentPadding: PaddingValues) {
+    override fun SecondaryPane(data: LogReference?, contentPadding: PaddingValues, modifier: Modifier) {
         Text("Secondary")
     }
 }

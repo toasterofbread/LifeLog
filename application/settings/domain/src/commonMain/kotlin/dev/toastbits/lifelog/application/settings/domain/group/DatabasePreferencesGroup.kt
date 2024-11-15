@@ -21,7 +21,7 @@ suspend fun DatabasePreferencesGroup.getLogDatabaseConfiguration(): LogDatabaseC
         extensionRegistry = extensionRegistry,
         splitStrategy = splitStrategy,
         strings = logFileConverterStrings
-        )
+    )
 }
 
 private data class LogDatabaseConfigurationImpl(

@@ -12,6 +12,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api(projects.application.settings.domain)
+                implementation(projects.core.specification)
                 implementation(projects.application.dbsource.domain)
                 implementation(projects.application.dbsource.inmemorygit)
 

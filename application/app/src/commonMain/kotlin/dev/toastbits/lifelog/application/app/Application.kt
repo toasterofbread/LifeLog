@@ -40,6 +40,7 @@ import dev.toastbits.lifelog.application.dbsource.domain.configuration.DatabaseS
 import dev.toastbits.lifelog.application.logview.data.ui.screen.TopLogViewScreen
 import dev.toastbits.lifelog.application.settings.data.appsettings.AppSettingsImpl
 import dev.toastbits.lifelog.application.settings.data.compositionlocal.LocalSettings
+import dev.toastbits.lifelog.application.settings.data.ui.screen.AppSettingsScreen
 import dev.toastbits.lifelog.application.settings.domain.appsettings.AppSettings
 import dev.toastbits.lifelog.application.settings.domain.model.SerialisedDatabaseSourceConfiguration
 import dev.toastbits.lifelog.application.settings.domain.model.deserialiseConfiguration
@@ -55,7 +56,11 @@ class Application(
     preferences: PlatformPreferences,
     private val settings: AppSettings = AppSettingsImpl(preferences)
 ) {
-    private val navigator: Navigator = ExtendableNavigator(initialScreen = DatabaseSourceListScreen())
+    private val navigator: Navigator =
+        ExtendableNavigator(
+            initialScreen = DatabaseSourceListScreen(),
+            extensions = emptyList()
+        )
 
     init {
         registerExtensions()
