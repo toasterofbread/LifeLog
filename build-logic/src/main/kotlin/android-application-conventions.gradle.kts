@@ -9,7 +9,6 @@ plugins {
 
 fun NamedDomainObjectContainer<out ApkSigningConfig>.loadSigningConfig(name: String, filePath: String) {
     val file: File = project.file(filePath)
-    println(file.absolutePath)
     if (!file.isFile) {
         return
     }
