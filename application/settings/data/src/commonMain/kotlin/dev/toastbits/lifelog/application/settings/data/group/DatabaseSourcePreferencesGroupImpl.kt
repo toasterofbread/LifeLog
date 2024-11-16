@@ -4,9 +4,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
-import dev.toastbits.composekit.platform.PlatformPreferences
-import dev.toastbits.composekit.platform.PreferencesGroupImpl
-import dev.toastbits.composekit.platform.PreferencesProperty
+import dev.toastbits.composekit.platform.preferences.PlatformPreferences
+import dev.toastbits.composekit.platform.preferences.PreferencesGroupImpl
+import dev.toastbits.composekit.platform.preferences.PreferencesProperty
 import dev.toastbits.composekit.settings.ui.component.item.SettingsItem
 import dev.toastbits.composekit.settings.ui.component.item.TextFieldSettingsItem
 import dev.toastbits.lifelog.application.dbsource.domain.type.DatabaseSourceTypeRegistry

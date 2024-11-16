@@ -22,7 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import dev.toastbits.composekit.navigation.compositionlocal.LocalNavigator
 import dev.toastbits.composekit.navigation.navigator.Navigator
-import dev.toastbits.composekit.utils.composable.NullableValueAnimatedVisibility
+import dev.toastbits.composekit.utils.composable.animatedvisibility.NullableValueAnimatedVisibility
 import dev.toastbits.lifelog.application.settings.data.compositionlocal.LocalSettings
 import dev.toastbits.lifelog.application.settings.data.ui.screen.AppSettingsScreen
 import dev.toastbits.lifelog.application.settings.domain.appsettings.AppSettings
@@ -42,7 +42,7 @@ internal fun PersistentTopBar(modifier: Modifier) {
     ) {
         IconButton(
             { navigator.navigateBackward() },
-            enabled = navigator.canNavigateBackward()
+            enabled = navigator.getNavigateBackwardCount() > 0
         ) {
             Icon(Icons.AutoMirrored.Default.KeyboardArrowLeft, stringResource(Res.string.button_navigate_back))
         }

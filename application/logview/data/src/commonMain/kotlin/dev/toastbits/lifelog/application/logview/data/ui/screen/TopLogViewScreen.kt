@@ -1,55 +1,105 @@
 package dev.toastbits.lifelog.application.logview.data.ui.screen
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import dev.toastbits.composekit.navigation.navigator.Navigator
 import dev.toastbits.composekit.navigation.screen.ResponsiveTwoPaneScreen
+import dev.toastbits.composekit.platform.composable.BackHandler
+import dev.toastbits.composekit.platform.composable.ScrollBarLazyColumn
 import dev.toastbits.composekit.utils.common.copy
+import dev.toastbits.composekit.utils.composable.PlatformClickableIconButton
 import dev.toastbits.lifelog.application.core.FullContentScreen
 import dev.toastbits.lifelog.application.logview.data.ui.component.timeline.VerticalLogTimeline
 import dev.toastbits.lifelog.core.specification.database.LogDatabase
-import dev.toastbits.lifelog.core.specification.model.entity.date.LogDate
-
-data class LogReference(val date: LogDate, val logIndex: Int)
 
 class TopLogViewScreen(
     private val logDatabase: LogDatabase
-): ResponsiveTwoPaneScreen<LogReference>(), FullContentScreen {
-//    @Composable
-//    override fun Content(navigator: Navigator, modifier: Modifier, contentPadding: PaddingValues) {
-//        val innerPadding: Dp = 20.dp
-//
-//        Row(modifier) {
-//            VerticalLogTimeline(
-//                logDatabase,
-//                Modifier.fillMaxWidth(0.3f).fillMaxHeight(),
-//                contentPadding = contentPadding.copy(end = innerPadding)
-//            )
-//            Box(Modifier.fillMaxSize().weight(1f).background(Color.DarkGray))
-//        }
-//    }
+): ResponsiveTwoPaneScreen<LogEventReference>(
+    alwaysShowEndPane = true
+), FullContentScreen {
+    private var viewingEvent: LogEventReference? by mutableStateOf(null)
 
     @Composable
-    override fun getCurrentData(): LogReference? = null
+    override fun getCurrentData(): LogEventReference? = viewingEvent
 
     @Composable
-    override fun PrimaryPane(data: LogReference?, contentPadding: PaddingValues, modifier: Modifier) {
-        Text("Primary")
+    override fun PrimaryPane(data: LogEventReference?, contentPadding: PaddingValues, modifier: Modifier) {
+        var currentDateIndex: Int? by remember { mutableStateOf(null) }
+        var scrollTargetDateIndex: Int? by remember { mutableStateOf(null) }
+
+        Column(
+            modifier,
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            VerticalLogTimeline(
+                logDatabase,
+                Modifier.fillMaxHeight().weight(1f),
+                contentPadding = contentPadding.copy(bottom = 0.dp),
+                scrollTargetDateIndex = scrollTargetDateIndex,
+                onCurrentDateIndexChanged = {
+                    currentDateIndex = it
+                }
+            ) { event ->
+                viewingEvent = event
+            }
+
+            Row(Modifier.padding(contentPadding.copy(top = 0.dp))) {
+                PlatformClickableIconButton(
+                    onClick = {
+                        val current: Int = currentDateIndex ?: return@PlatformClickableIconButton
+                        scrollTargetDateIndex = current - 1
+                    },
+                    onAltClick = {
+                        scrollTargetDateIndex = Int.MIN_VALUE
+                    }
+                ) {
+                    Icon(Icons.Default.KeyboardArrowUp, null) // TODO
+                }
+                PlatformClickableIconButton(
+                    onClick = {
+                        val current: Int = currentDateIndex ?: return@PlatformClickableIconButton
+                        scrollTargetDateIndex = current + 1
+                    },
+                    onAltClick = {
+                        scrollTargetDateIndex = Int.MAX_VALUE
+                    }
+                ) {
+                    Icon(Icons.Default.KeyboardArrowDown, null) // TODO
+                }
+            }
+        }
     }
 
     @Composable
-    override fun SecondaryPane(data: LogReference?, contentPadding: PaddingValues, modifier: Modifier) {
-        Text("Secondary")
+    override fun SecondaryPane(data: LogEventReference?, contentPadding: PaddingValues, modifier: Modifier) {
+        if (data == null) {
+            return
+        }
+
+        BackHandler(!isDisplayingBothPanes) {
+            viewingEvent = null
+        }
+
+        ScrollBarLazyColumn(modifier, contentPadding = contentPadding) {
+            item {
+                Text("Secondary $data")
+                Text(logDatabase[data].toString())
+            }
+        }
     }
 }

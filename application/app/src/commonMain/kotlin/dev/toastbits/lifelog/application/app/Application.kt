@@ -1,6 +1,5 @@
 package dev.toastbits.lifelog.application.app
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,16 +16,22 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.unit.dp
 import dev.toastbits.composekit.navigation.compositionlocal.LocalNavigator
-import dev.toastbits.composekit.navigation.navigator.ExtendableNavigator
+import dev.toastbits.composekit.navigation.navigator.BaseNavigator
 import dev.toastbits.composekit.navigation.navigator.Navigator
 import dev.toastbits.composekit.navigation.screen.Screen
 import dev.toastbits.composekit.platform.LocalContext
 import dev.toastbits.composekit.platform.PlatformContext
-import dev.toastbits.composekit.platform.PlatformPreferences
+import dev.toastbits.composekit.platform.composable.onWindowBackPressed
 import dev.toastbits.composekit.platform.composable.theme.ApplicationTheme
+import dev.toastbits.composekit.platform.preferences.PlatformPreferences
+import dev.toastbits.composekit.platform.preferences.impl.LocalComposeKitSettings
 import dev.toastbits.composekit.settings.ui.ThemeValuesData
 import dev.toastbits.composekit.settings.ui.getDefaultCatppuccinThemes
 import dev.toastbits.composekit.utils.common.copy
@@ -40,7 +45,6 @@ import dev.toastbits.lifelog.application.dbsource.domain.configuration.DatabaseS
 import dev.toastbits.lifelog.application.logview.data.ui.screen.TopLogViewScreen
 import dev.toastbits.lifelog.application.settings.data.appsettings.AppSettingsImpl
 import dev.toastbits.lifelog.application.settings.data.compositionlocal.LocalSettings
-import dev.toastbits.lifelog.application.settings.data.ui.screen.AppSettingsScreen
 import dev.toastbits.lifelog.application.settings.domain.appsettings.AppSettings
 import dev.toastbits.lifelog.application.settings.domain.model.SerialisedDatabaseSourceConfiguration
 import dev.toastbits.lifelog.application.settings.domain.model.deserialiseConfiguration
@@ -57,10 +61,7 @@ class Application(
     private val settings: AppSettings = AppSettingsImpl(preferences)
 ) {
     private val navigator: Navigator =
-        ExtendableNavigator(
-            initialScreen = DatabaseSourceListScreen(),
-            extensions = emptyList()
-        )
+        BaseNavigator(initialScreen = DatabaseSourceListScreen())
 
     init {
         registerExtensions()
@@ -80,10 +81,13 @@ class Application(
             LocalContext provides context,
             LocalWorkerClient provides workerClient,
             LocalSettings provides settings,
-            LocalNavigator provides navigator,
+            LocalComposeKitSettings provides settings,
+            LocalNavigator provides navigator
         ) {
             theme.ApplicationTheme(context) {
-                TopContent()
+                Scaffold { padding ->
+                    RootContent(padding)
+                }
             }
         }
     }
@@ -93,7 +97,14 @@ class Application(
     }
 
     fun onKeyEvent(event: KeyEvent): Boolean {
-        return navigator.handleKeyEvent(event)
+        if (event.type != KeyEventType.KeyUp) {
+            return false
+        }
+
+        return when (event.key) {
+            Key.Escape -> onWindowBackPressed(context)
+            else -> false
+        }
     }
 
     private suspend fun openAutoOpenSource() {
@@ -121,30 +132,28 @@ class Application(
     }
 
     @Composable
-    private fun TopContent() {
-        Scaffold { padding ->
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                val fullContentScreen: Boolean = navigator.currentScreen is FullContentScreen
+    private fun RootContent(contentPadding: PaddingValues) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            val fullContentScreen: Boolean = navigator.currentScreen is FullContentScreen
 
-                navigator.CurrentScreen(
-                    Modifier.fillMaxHeight().thenIf(!fullContentScreen) { widthIn(max = 1000.dp) },
-                    padding + PaddingValues(20.dp)
-                ) { modifier, paddingValues, content ->
-                    Column(
-                        modifier,
-                        verticalArrangement = Arrangement.spacedBy(20.dp)
-                    ) {
-                        AnimatedVisibility(!fullContentScreen) {
-                            PersistentTopBar(Modifier.fillMaxWidth().padding(paddingValues.copy(bottom = 0.dp)))
-                        }
-
-                        content(
-                            Modifier.fillMaxSize().weight(1f),
-                            paddingValues.thenIf(!fullContentScreen) {
-                                copy(top = 0.dp)
-                            }
-                        )
+            navigator.CurrentScreen(
+                Modifier.fillMaxHeight().thenIf(!fullContentScreen) { widthIn(max = 1000.dp) },
+                contentPadding + PaddingValues(20.dp)
+            ) { modifier, paddingValues, content ->
+                Column(
+                    modifier,
+                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                ) {
+                    if (!fullContentScreen) {
+                        PersistentTopBar(Modifier.fillMaxWidth().padding(paddingValues.copy(bottom = 0.dp)))
                     }
+
+                    content(
+                        Modifier.fillMaxSize().weight(1f),
+                        paddingValues.thenIf(!fullContentScreen) {
+                            copy(top = 0.dp)
+                        }
+                    )
                 }
             }
         }

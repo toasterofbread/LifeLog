@@ -3,8 +3,8 @@ package dev.toastbits.lifelog.application.app
 import androidx.compose.ui.window.singleWindowApplication
 import dev.toastbits.composekit.platform.PlatformContext
 import dev.toastbits.composekit.platform.PlatformContextImpl
-import dev.toastbits.composekit.platform.PlatformPreferences
-import dev.toastbits.composekit.platform.PlatformPreferencesJson
+import dev.toastbits.composekit.platform.preferences.PlatformPreferences
+import dev.toastbits.composekit.platform.preferences.PlatformPreferencesJson
 import dev.toastbits.lifelog.application.worker.WorkerClient
 import dev.toastbits.lifelog.application.worker.mapper.WorkerExecutionContext
 import dev.toastbits.lifelog.application.worker.mapper.default

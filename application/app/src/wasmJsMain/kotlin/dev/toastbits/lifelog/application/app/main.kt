@@ -5,7 +5,7 @@ import com.toasterofbread.composekit.platform.BrowserCookies
 import com.toasterofbread.composekit.platform.CookiesPlatformPreferences
 import dev.toastbits.composekit.platform.PlatformContext
 import dev.toastbits.composekit.platform.PlatformContextImpl
-import dev.toastbits.composekit.platform.PlatformPreferences
+import dev.toastbits.composekit.platform.preferences.PlatformPreferences
 import dev.toastbits.lifelog.application.worker.WorkerClient
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job

@@ -11,7 +11,10 @@ import dev.toastbits.lifelog.application.settings.domain.appsettings.AppSettings
 import dev.toastbits.lifelog.application.settings.domain.model.DisplayDateFormat
 import dev.toastbits.lifelog.core.specification.model.entity.date.LogDate
 
-data class DateTimelineItem(val date: LogDate): TimelineItem {
+data class DateTimelineItem(
+    val date: LogDate,
+    val index: Int
+): TimelineItem {
     @Composable
     override fun MainContent(modifier: Modifier) {
         val settings: AppSettings = LocalSettings.current

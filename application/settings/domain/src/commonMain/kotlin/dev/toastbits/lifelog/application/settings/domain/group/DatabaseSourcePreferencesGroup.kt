@@ -1,7 +1,7 @@
 package dev.toastbits.lifelog.application.settings.domain.group
 
-import dev.toastbits.composekit.platform.PreferencesGroup
-import dev.toastbits.composekit.platform.PreferencesProperty
+import dev.toastbits.composekit.platform.preferences.PreferencesGroup
+import dev.toastbits.composekit.platform.preferences.PreferencesProperty
 import dev.toastbits.lifelog.application.dbsource.domain.type.DatabaseSourceTypeRegistry
 import dev.toastbits.lifelog.application.settings.domain.model.SerialisedDatabaseSourceConfiguration
 import dev.toastbits.lifelog.core.git.core.model.GitCredentials

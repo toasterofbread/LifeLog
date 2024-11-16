@@ -1,29 +1,57 @@
 package dev.toastbits.lifelog.application.logview.data.ui.component.timeline.item
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.unit.dp
+import dev.toastbits.composekit.platform.composable.theme.LocalApplicationTheme
+import dev.toastbits.composekit.settings.ui.ThemeValues
+import dev.toastbits.lifelog.application.logview.data.ui.screen.LogEventReference
+import dev.toastbits.lifelog.application.logview.data.ui.screen.get
 import dev.toastbits.lifelog.application.logview.data.ui.toImageVector
 import dev.toastbits.lifelog.core.specification.database.LogDatabase
-import dev.toastbits.lifelog.core.specification.database.findTypeOfEvent
-import dev.toastbits.lifelog.core.specification.model.entity.event.LogEvent
-import dev.toastbits.lifelog.core.specification.model.entity.event.LogEventType
 
-data class EventTimelineItem(val event: LogEvent, val logDatabase: LogDatabase): TimelineItem {
+data class EventTimelineItem(
+    val event: LogEventReference,
+    val logDatabase: LogDatabase
+): TimelineItem {
     @Composable
     override fun MainContent(modifier: Modifier) {
-
+        Text(logDatabase[event].toString().take(100), modifier)
     }
 
     @Composable
     override fun MetadataItems(itemModifier: Modifier) {
-
+        Text("What", itemModifier)
+        Text("The", itemModifier)
+        Text("Heck", itemModifier)
+        Text("Is", itemModifier)
+        Text("A", itemModifier)
+        Text("Metadata", itemModifier)
+        Text("Item", itemModifier)
     }
 
     @Composable
     override fun IconContent(modifier: Modifier) {
-//        val eventType: LogEventType = logDatabase.configuration.findTypeOfEvent(event)
-        Icon(event.getIcon().toImageVector(), null, modifier)
+        val theme: ThemeValues = LocalApplicationTheme.current
+        val shape: Shape = CircleShape
+
+        Box(
+            modifier
+                .background(theme.background, shape)
+                .border(2.dp, theme.accent, shape)
+                .padding(8.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(logDatabase[event].getIcon().toImageVector(), null)
+        }
     }
 }

@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import dev.toastbits.lifelog.application.logview.data.ui.screen.LogEventReference
 import dev.toastbits.lifelog.core.specification.database.LogDatabase
 import dev.toastbits.lifelog.core.specification.model.entity.date.LogDate
 import dev.toastbits.lifelog.core.specification.model.entity.event.LogEvent
@@ -37,14 +38,15 @@ internal fun LogDatabase.rememberTimelineItems(): List<TimelineItem> {
                 this@rememberTimelineItems.days.entries.sortedBy { it.key.date }
 
             items = buildList {
+                var dateIndex: Int = 0
                 for ((date, events) in sortedDays) {
                     if (events.isEmpty()) {
                         continue
                     }
 
-                    add(DateTimelineItem(date))
-                    for (event in events) {
-                        add(EventTimelineItem(event, this@rememberTimelineItems))
+                    add(DateTimelineItem(date, dateIndex++))
+                    for (index in events.indices) {
+                        add(EventTimelineItem(LogEventReference(date, index), this@rememberTimelineItems))
                     }
                 }
             }

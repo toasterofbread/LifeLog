@@ -11,9 +11,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import dev.toastbits.composekit.navigation.compositionlocal.LocalNavigator
 import dev.toastbits.composekit.navigation.navigator.Navigator
 import dev.toastbits.composekit.navigation.screen.Screen
-import dev.toastbits.composekit.platform.PlatformPreferences
-import dev.toastbits.composekit.platform.PreferencesGroupImpl
-import dev.toastbits.composekit.platform.PreferencesProperty
+import dev.toastbits.composekit.platform.preferences.PlatformPreferences
+import dev.toastbits.composekit.platform.preferences.PreferencesGroupImpl
+import dev.toastbits.composekit.platform.preferences.PreferencesProperty
 import dev.toastbits.composekit.settings.ui.component.item.ComposableSettingsItem
 import dev.toastbits.composekit.settings.ui.component.item.DropdownSettingsItem
 import dev.toastbits.composekit.settings.ui.component.item.SettingsItem
