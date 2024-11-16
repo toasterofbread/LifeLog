@@ -2,7 +2,6 @@ package dev.toastbits.lifelog.application.logview.data.ui.component.timeline
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -24,15 +23,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -43,7 +43,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastLastOrNull
 import androidx.compose.ui.zIndex
 import dev.toastbits.composekit.platform.composable.ScrollBarLazyColumn
 import dev.toastbits.composekit.platform.composable.theme.LocalApplicationTheme
@@ -57,13 +56,18 @@ import dev.toastbits.lifelog.application.logview.data.ui.component.timeline.item
 import dev.toastbits.lifelog.application.logview.data.ui.component.timeline.item.rememberTimelineItems
 import dev.toastbits.lifelog.application.logview.data.ui.screen.LogEventReference
 import dev.toastbits.lifelog.core.specification.database.LogDatabase
-import dev.toastbits.lifelog.core.specification.model.entity.date.LogDate
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import kotlin.math.PI
 import kotlin.math.ceil
 import kotlin.math.sin
 
-private const val WAVE_AMPLITUDE: Float = 9f
-private const val WAVE_THICKNESS: Float = 1.5f
+private val WAVE_SIZE: Dp = 15.dp
+private val WAVE_THICKNESS: Dp = 1.5.dp
+private val WAVE_WAVELENGTH: Dp = 40.dp
+private const val WAVE_SCROLL_SPEED: Float = 0.75f
+private const val METADATA_COLUMN_FILL_RATIO: Float = 0.7f
+private const val START_COLUMN_FILL_RATIO: Float = 0.4f
 
 @Composable
 internal fun VerticalLogTimeline(
@@ -76,17 +80,35 @@ internal fun VerticalLogTimeline(
 ) {
     val theme: ThemeValues = LocalApplicationTheme.current
     val density: Density = LocalDensity.current
+    val coroutineScope: CoroutineScope = rememberCoroutineScope()
 
     val timelineItems: List<TimelineItem> = logDatabase.rememberTimelineItems()
     val columnState: LazyListState = rememberLazyListState()
 
-    val currentDateIndex: Int? = columnState.layoutInfo.visibleItemsInfo.firstNotNullOfOrNull { it.key as? Int }
-    LaunchedEffect(currentDateIndex) {
-        if (onCurrentDateIndexChanged == null || currentDateIndex == null) {
-            return@LaunchedEffect
-        }
+    var prev: Pair<Int, Int> by remember { mutableStateOf(0 to 0) }
 
-        onCurrentDateIndexChanged(currentDateIndex)
+    val current = columnState.firstVisibleItemIndex to columnState.firstVisibleItemScrollOffset
+    var waveOffset: Float by remember { mutableFloatStateOf(0f) }
+
+    LaunchedEffect(current) {
+        val delta: Int =
+            if (current.first == prev.first) prev.second - current.second
+            else 0//columnState.layoutInfo.visibleItemsInfo.firstOrNull()?.size?.times(prev.first - current.first) ?: 0
+        prev = current
+        waveOffset += delta * WAVE_SCROLL_SPEED
+    }
+
+    if (onCurrentDateIndexChanged != null) {
+        val currentDateIndex: Int? =
+            columnState.layoutInfo.visibleItemsInfo
+                .filter { it.key is Int && it.offset <= 0 }
+                .maxByOrNull { it.offset }?.key as Int?
+
+        LaunchedEffect(currentDateIndex) {
+            if (currentDateIndex != null) {
+                onCurrentDateIndexChanged(currentDateIndex)
+            }
+        }
     }
 
     LaunchedEffect(scrollTargetDateIndex) {
@@ -111,27 +133,58 @@ internal fun VerticalLogTimeline(
 
         onCurrentDateIndexChanged?.invoke(dateIndex)
 
-        columnState.animateScrollToItem(
-            index = scrollIndex,
-            scrollOffset = with (density) { contentPadding.calculateTopPadding().roundToPx() + 5 }
-        )
+        coroutineScope.launch {
+            columnState.animateScrollToItem(
+                index = scrollIndex,
+                scrollOffset =
+                    if (scrollIndex == 0) 0
+                    else with (density) { contentPadding.calculateTopPadding().roundToPx() + 5 }
+            )
+        }
     }
 
-    ScrollBarLazyColumn(
-        modifier,
-        state = columnState,
-        contentPadding = contentPadding
-    ) {
-        for (item in timelineItems) {
-            when (item) {
-                is DateTimelineItem ->
-                    stickyHeaderContentPaddingAware(columnState, key = item.index) {
-                        Item(item, onEventSelected, density, theme)
+    Box(modifier) {
+        ScrollBarLazyColumn(
+            Modifier.fillMaxSize(),
+            state = columnState,
+            contentPadding = contentPadding
+        ) {
+            for (item in timelineItems) {
+                when (item) {
+                    is DateTimelineItem ->
+                        stickyHeaderContentPaddingAware(columnState, key = item.index) {
+                            Item(item, onEventSelected, density)
+                        }
+                    is EventTimelineItem ->
+                        item(key = item.event.hashCode().toString()) {
+                            Item(item, onEventSelected, density)
+                        }
+                }
+            }
+        }
+
+        Canvas(
+            Modifier
+                .matchParentSize()
+                .clipToBounds()
+                .padding(contentPadding)
+                .zIndex(-1f)
+        ) {
+            val position: Float =
+                (size.width * START_COLUMN_FILL_RATIO).let { startColumnWidth ->
+                    startColumnWidth * (METADATA_COLUMN_FILL_RATIO + ((1f - METADATA_COLUMN_FILL_RATIO) / 2f))
+                }
+
+            translate(left = position - (WAVE_SIZE.toPx() / 2f)) {
+                rotate(90f, pivot = Offset.Zero) {
+                    val path: Path = Path()
+                    for (direction in listOf(-1, 1)) {
+                        val maxOffset = 100f
+                        val offset: Float = ((waveOffset % maxOffset) / maxOffset).let { if (it < 0f) 1f + it else it }
+                        wavePath(path, direction, WAVE_SIZE.toPx(), WAVE_WAVELENGTH, 0f, offset)
+                        drawPath(path, theme.accent, style = Stroke(WAVE_THICKNESS.toPx()))
                     }
-                is EventTimelineItem ->
-                    item(key = item.event.hashCode().toString()) {
-                        Item(item, onEventSelected, density, theme)
-                    }
+                }
             }
         }
     }
@@ -141,8 +194,7 @@ internal fun VerticalLogTimeline(
 private fun Item(
     item: TimelineItem,
     onEventSelected: ((LogEventReference) -> Unit)?,
-    density: Density,
-    theme: ThemeValues
+    density: Density
 ) {
     Row(
         Modifier
@@ -163,13 +215,11 @@ private fun Item(
         var iconContentHeight: Dp by remember { mutableStateOf(0.dp) }
 
         Row(
-            Modifier.fillMaxWidth(0.4f),
+            Modifier.fillMaxWidth(START_COLUMN_FILL_RATIO),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            val metadataColumnFill: Float = 0.7f
-
             if (!item.hasWideIcon) {
-                Column(Modifier.fillMaxWidth(metadataColumnFill)) {
+                Column(Modifier.fillMaxWidth(METADATA_COLUMN_FILL_RATIO)) {
                     item.MetadataItems(Modifier)
                 }
             }
@@ -189,11 +239,8 @@ private fun Item(
                         }
                 )
 
-                Row {
-                    if (item.hasWideIcon) {
-                        Box(Modifier.fillMaxWidth(metadataColumnFill))
-                    }
-                    TimelineItemWave(theme.accent, Modifier.fillMaxSize())
+                if (item.hasWideIcon) {
+                    Box(Modifier.fillMaxWidth(METADATA_COLUMN_FILL_RATIO))
                 }
             }
         }
@@ -210,21 +257,6 @@ private fun Item(
                         mainContentHeight = with(density) { it.height.toDp() }
                     }
             )
-        }
-    }
-}
-
-@Composable
-private fun TimelineItemWave(colour: Color, modifier: Modifier = Modifier) {
-    Canvas(modifier.clipToBounds()) {
-        translate(left = size.width / 2f) {
-            rotate(90f, pivot = Offset.Zero) {
-                val path: Path = Path()
-                for (direction in listOf(-1, 1)) {
-                    wavePath(path, direction, WAVE_AMPLITUDE, 20.dp, 0f, 0f)
-                    drawPath(path, colour, style = Stroke(WAVE_THICKNESS))
-                }
-            }
         }
     }
 }

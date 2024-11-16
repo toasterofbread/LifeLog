@@ -48,7 +48,7 @@ internal fun PersistentTopBar(modifier: Modifier) {
         }
 
         NullableValueAnimatedVisibility(
-            navigator.currentScreen.title,
+            navigator.currentTitle,
             Modifier.clipToBounds(),
             enter = slideInHorizontally() + fadeIn(),
             exit = slideOutHorizontally() + fadeOut()

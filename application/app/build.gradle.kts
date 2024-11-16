@@ -91,13 +91,11 @@ tasks.named {
 
 tasks.named("wasmJsBrowserDistribution") {
     dependOnTaskAndCopyOutputDirectory(":application:worker:wasmJsBrowserDistribution", "productionExecutable")
-    copyResources(false, "productionExecutable")
     printOutputsOnCompletion()
 }
 
 tasks.named("wasmJsBrowserDevelopmentExecutableDistribution") {
     dependOnTaskAndCopyOutputDirectory(":application:worker:wasmJsBrowserDevelopmentExecutableDistribution", "developmentExecutable")
-    copyResources(true, "developmentExecutable")
     printOutputsOnCompletion()
 }
 
@@ -120,21 +118,6 @@ fun Task.dependOnTaskAndCopyOutputDirectory(taskPath: String, dirName: String) {
 
         for (file in workerProductionExecutable.listFiles().orEmpty()) {
             file.copyRecursively(appProductionExecutable.resolve(file.name), overwrite = true)
-        }
-    }
-}
-
-fun Task.copyResources(debug: Boolean, dirName: String) {
-    doLast {
-        val output: File = outputs.files.single { it.name == dirName }.resolve("composeResources")
-        val path: String =
-            if (debug) "debug/mergeDebugAssets"
-            else "release/mergeReleaseAssets"
-        val composeResources: File = layout.buildDirectory.file("intermediates/assets/$path/composeResources").get().asFile
-
-        for (file in composeResources.listFiles().orEmpty()) {
-            println("Copy ${file.absolutePath} to ${output.resolve(file.name).absolutePath}")
-            file.copyRecursively(output.resolve(file.name), overwrite = true)
         }
     }
 }

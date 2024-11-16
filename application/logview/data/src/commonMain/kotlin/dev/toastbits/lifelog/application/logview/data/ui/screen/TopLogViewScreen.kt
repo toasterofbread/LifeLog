@@ -23,6 +23,7 @@ import dev.toastbits.composekit.platform.composable.BackHandler
 import dev.toastbits.composekit.platform.composable.ScrollBarLazyColumn
 import dev.toastbits.composekit.utils.common.copy
 import dev.toastbits.composekit.utils.composable.PlatformClickableIconButton
+import dev.toastbits.composekit.utils.composable.pane.model.InitialPaneRatioSource
 import dev.toastbits.lifelog.application.core.FullContentScreen
 import dev.toastbits.lifelog.application.logview.data.ui.component.timeline.VerticalLogTimeline
 import dev.toastbits.lifelog.core.specification.database.LogDatabase
@@ -30,6 +31,11 @@ import dev.toastbits.lifelog.core.specification.database.LogDatabase
 class TopLogViewScreen(
     private val logDatabase: LogDatabase
 ): ResponsiveTwoPaneScreen<LogEventReference>(
+    initialStartPaneRatioSource =
+        InitialPaneRatioSource.Remembered(
+            "logview.data.ui.screen.TopLogViewScreen",
+            InitialPaneRatioSource.Ratio(0.3f)
+        ),
     alwaysShowEndPane = true
 ), FullContentScreen {
     private var viewingEvent: LogEventReference? by mutableStateOf(null)
@@ -53,6 +59,7 @@ class TopLogViewScreen(
                 scrollTargetDateIndex = scrollTargetDateIndex,
                 onCurrentDateIndexChanged = {
                     currentDateIndex = it
+                    scrollTargetDateIndex = null
                 }
             ) { event ->
                 viewingEvent = event
